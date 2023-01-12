@@ -173,7 +173,13 @@ namespace DotNetty.Handlers.Tls
                         _lastContextWritePromise = promise;
                         if (buf.IsReadable())
                         {
+#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+                            var data = buf.GetReadableMemory();
+                            _ = LinkOutcome(_sslStream.WriteAsync(data, CancellationToken.None), promise); // this leads to FinishWrap being called 0+ times
+                            buf.AdvanceReader(readableBytes);
+#else
                             _ = buf.ReadBytes(_sslStream, readableBytes); // this leads to FinishWrap being called 0+ times
+#endif
                         }
                         else if (promise != null)
                         {
