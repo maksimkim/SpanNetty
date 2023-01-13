@@ -32,7 +32,7 @@ namespace DotNetty.Common
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
 
-    public readonly struct PreciseTimeSpan : IComparable<PreciseTimeSpan>, IEquatable<PreciseTimeSpan>
+    public readonly struct PrecisemeSpan : IComparable<PreciseTimeSpan>, IEquatable<PreciseTimeSpan>
     {
         public static readonly PreciseTimeSpan Zero = new PreciseTimeSpan(0);
 
