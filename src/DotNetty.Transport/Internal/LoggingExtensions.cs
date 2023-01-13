@@ -32,7 +32,7 @@ namespace DotNetty.Transport
     internal static class TransportLoggingExtensions
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void FreedThreadLocalBufferFromThreadFull(this IInternalLogger logger, Exception error, Exception cause)
+        public static void FreedThreadLocrFromThreadFull(this IInternalLogger logger, Exception error, Exception cause)
         {
             logger.Debug("An exception {}"
                 + "was thrown by a user handler's exceptionCaught() "
