@@ -286,7 +286,7 @@ namespace DotNetty.Handlers.Tls
         private async ValueTask WriteAsync(IByteBuffer buf, IPromise promise)
         {
             var lastAsyncWrite = _lastAsyncWrite;
-            if (lastAsyncWrite != null && !_lastAsyncWrite.IsCompletedSuccessfully)
+            if (lastAsyncWrite != null && !lastAsyncWrite.IsCompletedSuccessfully)
             {
                 try
                 {
