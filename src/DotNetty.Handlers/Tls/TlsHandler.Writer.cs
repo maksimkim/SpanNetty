@@ -47,7 +47,7 @@ namespace DotNetty.Handlers.Tls
         
 #if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER || NETSTANDARD2_0
         private readonly Queue<IPromise> _asyncWritePromises = new Queue<IPromise>(10);
-        private ValueTask _lastAsyncWrite; 
+        private Task _lastAsyncWrite; 
 #endif        
 
         /// <summary>
@@ -180,10 +180,12 @@ namespace DotNetty.Handlers.Tls
                         if (buf.IsReadable())
                         {
 #if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
-                            var writeTask = WriteAsync(buf, promise);
-                            if (!writeTask.IsCompleted)
+                            var asyncWrite = WriteAsync(buf, promise);
+                            if (!asyncWrite.IsCompleted)
                             {
-                                _lastAsyncWrite = writeTask;
+                                var asyncWriteTask = asyncWrite.AsTask();
+                                asyncWriteTask.Ignore();
+                                _lastAsyncWrite = asyncWriteTask;
                             }
                             buf = null; //prevent buf from releasing synchronously
 #else
@@ -283,34 +285,37 @@ namespace DotNetty.Handlers.Tls
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
         private async ValueTask WriteAsync(IByteBuffer buf, IPromise promise)
         {
-            if (!_lastAsyncWrite.IsCompletedSuccessfully)
+            var lastAsyncWrite = _lastAsyncWrite;
+            if (lastAsyncWrite != null && !_lastAsyncWrite.IsCompletedSuccessfully)
             {
                 try
                 {
-                    await _lastAsyncWrite;
+                    await lastAsyncWrite;
                 }
                 catch (Exception ex)
                 {
-                    buf.AdvanceReader(buf.ReadableBytes);
+                    //handle failure and propagate to the next pending write
                     buf.Release();
                     promise.TrySetException(ex);
-                    return;
+                    throw;
                 }
             }
             
-            var mem = buf.GetReadableMemory();
             try
             {
                 _asyncWritePromises.Enqueue(promise);
+                var mem = buf.GetReadableMemory();
                 await _sslStream.WriteAsync(mem, CancellationToken.None); // this leads to FinishWrapAsync being called 0+ times
+                buf.AdvanceReader(mem.Length);
             }
             catch (Exception ex)
             {
+                //handle failure and propagate to the next pending write
                 OnWriteFailure(ex, promise);
+                throw;
             }
             finally
             {
-                buf.AdvanceReader(mem.Length);
                 buf.Release();
             }
         }
