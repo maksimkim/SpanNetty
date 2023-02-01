@@ -21,6 +21,7 @@ jobs:
         inputs:
           packageType: sdk
           version: 5.0.302
+      - template: restore-nuget-packages.yaml
       - task: Bash@3 
         displayName: Linux / OSX Build
         inputs:
