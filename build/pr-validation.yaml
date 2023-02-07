@@ -68,7 +68,6 @@ stages:
       artifactName: 'net_core_tests_windows-$(Build.BuildId)'
       packageFeed: $(packageFeed)
 
-
   - template: templates/azure-pipeline.template.yaml
     parameters:
       name: 'net_core_tests_windows_2019'
@@ -82,7 +81,6 @@ stages:
 
 - stage: linux
   displayName: Linux (Ubuntu)
-  dependsOn: []
   jobs:
   - template: templates/azure-pipeline.template.yaml
     parameters:
