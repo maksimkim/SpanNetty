@@ -26,7 +26,7 @@ jobs:
         
     - powershell: 'exit 1'
       displayName: 'Stop for non-Git tag triggers'
-      condition: not(contains(variables['Build.SourceBranch'], 'refs/tags/release-'))
+      condition: not(contains(variables['Build.SourceBranch'], 'refs/tags/v'))
     
     - powershell: echo '$(Build.SourceBranch)'
       displayName: 'Show Git tag'
