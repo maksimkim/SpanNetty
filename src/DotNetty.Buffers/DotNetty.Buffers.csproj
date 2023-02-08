@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.Buffers</RootNamespace>
     <AssemblyName>SpanNetty.Buffers</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
