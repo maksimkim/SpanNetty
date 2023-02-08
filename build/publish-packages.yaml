@@ -13,7 +13,8 @@ variables:
   packageFeed: 'https://pkgs.dev.azure.com/msazure/_packaging/ApiManagement/nuget/v3/index.json'
 
 jobs:
-  - job: Publish NuGet Packages
+  - job: publish
+    displayName: Publish NuGet Packages
     pool: 
       vmImage: 'windows-2022'
     variables:
