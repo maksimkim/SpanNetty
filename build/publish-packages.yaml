@@ -32,11 +32,19 @@ jobs:
         
     - powershell: echo '$(Build.SourceBranch)'
       displayName: 'Show Git tag'
-    - powershell: echo $(Build.SourceBranch).Split("v")[1]
-      displayName: 'Show version'
 
-    - script: $BUILD_NUMBER = '0.1.2'
-      displayName: 'Set build number'
+    - powershell: |
+        $version = "$(Build.SourceBranch)".Split("v")[1]
+
+        Write-Host "Git tag: $version"
+        echo "##vso[task.setvariable variable=packageVersion;]$version"
+        echo "##vso[task.setvariable variable=BUILD_NUMBER;]$version"
+        Write-Host "##vso[build.updatebuildnumber]v$version"
+      displayName: 'Determine package version'
+
+    - powershell: |
+        Write-Host "##vso[build.updatebuildnumber]v$packageVersion"
+      displayName: 'Set pipeline run name'
 
     - task: BatchScript@1
       displayName: Windows Build
