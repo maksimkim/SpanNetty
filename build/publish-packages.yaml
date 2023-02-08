@@ -23,13 +23,11 @@ jobs:
     - checkout: self
       persistCredentials: true
       clean: true
-    - template: templates/install-dotnet.yaml
-    - template: templates/install-nuget.yaml
-    - template: templates/restore-nuget-packages.yaml
-    - template: templates/install-build-dependencies.yaml
-      parameters:
-        packageFeed: $(packageFeed)
         
+    - powershell: 'exit 1'
+      displayName: 'Stop for non-Git tag triggers'
+      condition: not(contains(variables['Build.SourceBranch'], 'refs/tags/release-'))
+    
     - powershell: echo '$(Build.SourceBranch)'
       displayName: 'Show Git tag'
 
@@ -45,6 +43,13 @@ jobs:
     - powershell: |
         Write-Host "##vso[build.updatebuildnumber]v$packageVersion"
       displayName: 'Set pipeline run name'
+      
+    - template: templates/install-dotnet.yaml
+    - template: templates/install-nuget.yaml
+    - template: templates/restore-nuget-packages.yaml
+    - template: templates/install-build-dependencies.yaml
+      parameters:
+        packageFeed: $(packageFeed)
 
     - task: BatchScript@1
       displayName: Windows Build
