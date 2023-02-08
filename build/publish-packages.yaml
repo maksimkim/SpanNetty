@@ -72,4 +72,4 @@ jobs:
         command: push
         packagesToPush: '**/*.$(GitVersion.SemVer).symbols.nupkg'
         publishVstsFeed: '6cb87577-1efb-475d-94b1-a5b0618c8812'
-      condition: eq(variables['Agent.JobStatus'], 'SucceededWithIssues')
+      condition: eq(variables['Agent.JobStatus'], 'Succeeded')
