@@ -37,11 +37,10 @@ jobs:
         Write-Host "Git tag: $version"
         echo "##vso[task.setvariable variable=packageVersion;]$version"
         echo "##vso[task.setvariable variable=BUILD_NUMBER;]$version"
-        Write-Host "##vso[build.updatebuildnumber]v$version"
       displayName: 'Determine package version'
 
     - powershell: |
-        Write-Host "##vso[build.updatebuildnumber]v$packageVersion"
+        Write-Host "##vso[build.updatebuildnumber]v$(packageVersion)"
       displayName: 'Set pipeline run name'
       
     - template: templates/install-dotnet.yaml
