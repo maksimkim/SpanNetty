@@ -1,0 +1,62 @@
+# Explicitly disable PR trigger
+pr: none
+
+# Trigger pipeline when tag is created
+trigger:
+  tags:
+    include:
+    - 'v*'
+
+variables:
+  NUGET_XMLDOC_MODE: none
+  NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED: 'true'
+  packageFeed: 'https://pkgs.dev.azure.com/msazure/_packaging/ApiManagement/nuget/v3/index.json'
+
+jobs:
+  - job: Publish NuGet Packages
+    pool: 
+      vmImage: 'windows-2022'
+    variables:
+      configuration: 'Release'
+    steps:
+    - checkout: self
+      persistCredentials: true
+      clean: true
+    - template: templates/install-dotnet.yaml
+    - template: templates/install-nuget.yaml
+    - template: templates/restore-nuget-packages.yaml
+    - template: templates/install-build-dependencies.yaml
+      parameters:
+        packageFeed: $(packageFeed)
+        
+    - powershell: echo '$(Build.SourceBranch)'
+      displayName: 'Show Git tag'
+    - powershell: echo $(Build.SourceBranch).Split("v")[1]
+      displayName: 'Show version'
+
+    - script: $BUILD_NUMBER = '0.1.2'
+      displayName: 'Set build number'
+
+    - task: BatchScript@1
+      displayName: Windows Build
+      inputs:
+        filename: build.cmd
+        arguments: 'Build incremental' # Run an incremental build
+      continueOnError: true
+
+    - task: PublishTestResults@2
+      displayName: 'Publish test results'
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+        testRunTitle: 'Tests'
+        mergeTestResults: true
+        failTaskOnFailedTests: true
+
+    - task: NuGetCommand@2
+      displayName: 'nuget push'
+      inputs:
+        command: push
+        packagesToPush: '**/*.$(GitVersion.SemVer).symbols.nupkg'
+        publishVstsFeed: '6cb87577-1efb-475d-94b1-a5b0618c8812'
+      condition: succeeded()
