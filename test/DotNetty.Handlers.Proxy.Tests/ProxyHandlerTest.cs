@@ -100,6 +100,18 @@ namespace DotNetty.Handlers.Proxy.Tests
 
         public static List<object[]> CreateTestItems()
         {
+            /*return new List<object[]>
+            {
+                new object[] {
+                new FailureTestItem(
+                    "HTTPS proxy: rejected connection",
+                    BAD_DESTINATION, "status: 403",
+                    CreateClientTlsHandler(),
+                    new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD))
+                }
+            };*/
+            
+            
             var items = new List<TestItem>
             {
                 // HTTP -------------------------------------------------------
