@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.Transport.Libuv</RootNamespace>
     <AssemblyName>SpanNetty.Transport.Libuv</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">

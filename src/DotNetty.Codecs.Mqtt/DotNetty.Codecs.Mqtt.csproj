@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.Codecs.Mqtt</RootNamespace>
     <AssemblyName>SpanNetty.Codecs.Mqtt</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">

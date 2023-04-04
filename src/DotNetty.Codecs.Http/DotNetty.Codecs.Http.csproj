@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.Codecs.Http</RootNamespace>
     <AssemblyName>SpanNetty.Codecs.Http</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">

@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.Codecs.Protobuf</RootNamespace>
     <AssemblyName>SpanNetty.Codecs.Protobuf</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">

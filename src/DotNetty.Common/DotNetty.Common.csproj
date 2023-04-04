@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.Common</RootNamespace>
     <AssemblyName>SpanNetty.Common</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">

@@ -6,6 +6,7 @@
     <RootNamespace>DotNetty.NetUV</RootNamespace>
     <AssemblyName>SpanNetty.NetUV</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
