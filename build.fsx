@@ -5,13 +5,12 @@ open System
 open System.IO
 open System.Text
 
-
 open Fake
 open Fake.DotNetCli
 open Fake.NuGet.Install
 
 // Variables
-let configuration = "Debug"
+let configuration = environVarOrDefault "configuration" "Debug"
 let solution = System.IO.Path.GetFullPath(string "./DotNetty.sln")
 
 // Directories
