@@ -57,10 +57,10 @@ jobs:
         packageFeed: $(packageFeed)
 
     - task: BatchScript@1
-      displayName: Windows Build
+      displayName: Build & Test Code
       inputs:
         filename: build.cmd
-        arguments: 'Build incremental -Configuration Release' # Run an incremental build
+        arguments: 'RunTests incremental -Configuration Release' # Run an incremental build
       continueOnError: true
 
     - task: PublishTestResults@2
