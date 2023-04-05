@@ -79,7 +79,7 @@ $Arguments = @{
     configuration=$Configuration;
     verbosity=$Verbosity;
     dryrun=$WhatIf;
-}.GetEnumerator() | %{"-e {0}=`"{1}`"" -f $_.key, $_.value };
+}.GetEnumerator() | %{"--{0}=`"{1}`"" -f $_.key, $_.value };
 
 # Start Fake
 Write-Host "Running build script..."
