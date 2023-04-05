@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>SpanNetty.Codecs.Http</PackageId>
+    <PackageId>Microsoft.Azure.SpanNetty.Codecs.Http</PackageId>
     <Title>SpanNetty.Codecs.Http</Title>
     <Description>Http codec：the port of the Netty.Codecs.Http assembly to support .NET 4.5.1 and newer.</Description>
     <PackageTags>socket;tcp;protocol;netty;dotnetty;network;http</PackageTags>

@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>SpanNetty.Codecs.Mqtt</PackageId>
+    <PackageId>Microsoft.Azure.SpanNetty.Codecs.Mqtt</PackageId>
     <Title>SpanNetty.Codecs.Mqtt</Title>
     <Description>MQTT codec：the port of the Netty.Codecs.Mqtt assembly to support .NET 4.5.1 and newer.</Description>
     <PackageTags>socket;tcp;protocol;netty;dotnetty;network;mqtt</PackageTags>

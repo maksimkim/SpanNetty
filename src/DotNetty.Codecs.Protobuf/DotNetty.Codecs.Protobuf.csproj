@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>SpanNetty.Codecs.Protobuf</PackageId>
+    <PackageId>Microsoft.Azure.SpanNetty.Codecs.Protobuf</PackageId>
     <Title>SpanNetty.Codecs.Protobuf</Title>
     <Description>Protobuf Proto3 codec.</Description>
     <PackageTags>socket;tcp;protocol;netty;dotnetty;network;Protobuf</PackageTags>
