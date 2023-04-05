@@ -6,6 +6,9 @@
     <RootNamespace>DotNetty.Codecs.Redis</RootNamespace>
     <AssemblyName>SpanNetty.Codecs.Redis</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">

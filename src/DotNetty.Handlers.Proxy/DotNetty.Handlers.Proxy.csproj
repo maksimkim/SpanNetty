@@ -6,6 +6,9 @@
         <RootNamespace>DotNetty.Handlers.Proxy</RootNamespace>
         <AssemblyName>SpanNetty.Handlers.Proxy</AssemblyName>
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <PropertyGroup Label="NuGet">
