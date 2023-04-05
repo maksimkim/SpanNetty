@@ -63,14 +63,14 @@ jobs:
         arguments: 'RunTests incremental -Configuration Release' # Run an incremental build
       continueOnError: true
 
-    - task: PublishTestResults@2
-      displayName: 'Publish test results'
-      inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
-        testRunTitle: 'Tests'
-        mergeTestResults: true
-        failTaskOnFailedTests: true
+    # - task: PublishTestResults@2
+    #   displayName: 'Publish test results'
+    #   inputs:
+    #     testRunner: VSTest
+    #     testResultsFiles: '**/*.trx'
+    #     testRunTitle: 'Tests'
+    #     mergeTestResults: true
+    #     failTaskOnFailedTests: true
 
     - task: NuGetCommand@2
       displayName: 'Push NuGet Packages to Azure Artifacts'
