@@ -78,7 +78,3 @@ jobs:
         command: push
         packagesToPush: '**/*.$(packageVersion).symbols.nupkg'
         publishVstsFeed: '6cb87577-1efb-475d-94b1-a5b0618c8812'
-      # Tests are not passing so temporarily enabling this step for all outcomes
-      # This is to verify it works end-to-end
-      # TODO: Remove before merging
-      # condition: eq(variables['Agent.JobStatus'], 'Succeeded')
