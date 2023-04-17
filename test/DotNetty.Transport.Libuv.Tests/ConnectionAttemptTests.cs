@@ -27,15 +27,15 @@ namespace DotNetty.Transport.Libuv.Tests
         }
 
         [Fact]
-        public void ConnectTimeout()
+        public async Task ConnectTimeout()
         {
             Bootstrap cb = new Bootstrap()
                 .Group(this.group)
                 .Channel<TcpChannel>();
-            ConnectTimeout0(cb);
+            await ConnectTimeout0(cb);
         }
 
-        static void ConnectTimeout0(Bootstrap cb)
+        static async Task ConnectTimeout0(Bootstrap cb)
         {
             var handler = new TestHandler();
             cb.Handler(handler)
@@ -44,7 +44,7 @@ namespace DotNetty.Transport.Libuv.Tests
             IPAddress ipAddress = IPAddress.Parse("198.51.100.254");
             var badAddress = new IPEndPoint(ipAddress, 65535);
             Task<IChannel> task = cb.ConnectAsync(badAddress);
-            var error = Assert.Throws<AggregateException>(() => task.Wait(DefaultTimeout));
+            var error = await Assert.ThrowsAsync<AggregateException>(async () => task.Wait(DefaultTimeout));
 
             Assert.Single(error.InnerExceptions);
             Assert.IsType<ConnectTimeoutException>(error.InnerException);
