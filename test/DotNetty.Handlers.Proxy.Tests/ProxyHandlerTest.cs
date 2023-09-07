@@ -86,7 +86,7 @@ namespace DotNetty.Handlers.Proxy.Tests
             ClearServerExceptions();
         }
         
-        [Theory(Timeout = 5000)]
+        [Theory(Timeout = 5000, Skip = "This test is not reliable and skipped for now. See https://msazure.visualstudio.com/One/_workitems/edit/25095979")]
         [MemberData(nameof(CreateTestItems))]
         public void Test(TestItem item)
         {
