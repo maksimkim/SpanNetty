@@ -8,10 +8,11 @@ trigger:
 
 pr:
   autoCancel: true # indicates whether additional pushes to a PR should cancel in-progress runs for the same PR. Defaults to true
-  branches:
-    include:  # branch names which will trigger a build
-    - main
-    - release/*
+  # TODO: Uncomment when we are merged to main branch
+  # branches:
+  #   include:  # branch names which will trigger a build
+  #   - main
+  #   - release/*
 
 name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 
