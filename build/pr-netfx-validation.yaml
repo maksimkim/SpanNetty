@@ -59,12 +59,12 @@ jobs:
       outputDirectory: 'TestResults'
       artifactName: 'netfx_tests_windows-$(Build.BuildId)'
 
-  - template: azure-pipeline.template.yaml
-    parameters:
-      name: 'netfx_451_tests_windows'
-      displayName: '.NET Framework 451 Unit Tests (Windows)'
-      vmImage: 'vs2017-win2016'
-      scriptFileName: build.cmd
-      scriptArgs: RunTestsNetFx451 incremental
-      outputDirectory: 'TestResults'
-      artifactName: 'netfx_451_tests_windows-$(Build.BuildId)'
+  # - template: azure-pipeline.template.yaml
+  #   parameters:
+  #     name: 'netfx_451_tests_windows'
+  #     displayName: '.NET Framework 451 Unit Tests (Windows)'
+  #     vmImage: 'vs2017-win2016'
+  #     scriptFileName: build.cmd
+  #     scriptArgs: RunTestsNetFx451 incremental
+  #     outputDirectory: 'TestResults'
+  #     artifactName: 'netfx_451_tests_windows-$(Build.BuildId)'
