@@ -46,7 +46,8 @@ namespace DotNetty.End2End.Tests
         const string PublishS2CQos1Topic = "test2/scenarioClient1/special/qos/One";
         const string PublishS2CQos1Payload = "S->C, QoS 1 test. Different data length #2.";
 
-        [Fact(Skip = "Unreliable test from forignal fork branch.")]
+        // [Fact(Skip = "Unreliable test from forignal fork branch.")] // Fails in ubuntu
+        [Fact]
         public async Task EchoServerAndClient()
         {
             var testPromise = new DefaultPromise();
@@ -112,7 +113,7 @@ namespace DotNetty.End2End.Tests
             }
         }
 
-        [Fact(Skip = "Unreliable test from forignal fork branch.")]
+        [Fact(Skip = "Unreliable test from forignal fork branch.")] // Intermittently fails everywehre
         public async Task MqttServerAndClient()
         {
             var testPromise = new DefaultPromise();

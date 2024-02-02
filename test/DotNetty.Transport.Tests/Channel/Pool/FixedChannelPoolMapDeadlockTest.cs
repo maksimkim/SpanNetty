@@ -15,7 +15,7 @@
     [Collection("EventLoopTests")]
     public class FixedChannelPoolMapDeadlockTest
     {
-        [Fact(Skip = "Unreliable test from main branch fork.")]
+        [Fact(Skip = "Unreliable test from main branch fork.")] // Intermittently fails in .NET Framework
         public async Task TestDeadlockOnAcquire()
         {
             IEventLoop threadA1 = new DefaultEventLoop();

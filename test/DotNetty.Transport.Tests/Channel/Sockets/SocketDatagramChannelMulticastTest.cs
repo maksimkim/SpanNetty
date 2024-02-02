@@ -93,7 +93,7 @@ namespace DotNetty.Transport.Tests.Channel.Sockets
             }
         }
 
-        [Theory(Skip = "Unreliable test from main fork.")]
+        [Theory(Skip = "Unreliable test from main fork.")] // Intermittently fails in .NET Framework
         [MemberData(nameof(GetData))]
         public void Multicast(AddressFamily addressFamily, IByteBufferAllocator allocator)
         {
