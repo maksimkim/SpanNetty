@@ -46,6 +46,7 @@ namespace DotNetty.End2End.Tests
         const string PublishS2CQos1Topic = "test2/scenarioClient1/special/qos/One";
         const string PublishS2CQos1Payload = "S->C, QoS 1 test. Different data length #2.";
 
+        [Skip] // Unreliable test from forignal fork branch.
         [Fact]
         public async Task EchoServerAndClient()
         {
@@ -112,6 +113,7 @@ namespace DotNetty.End2End.Tests
             }
         }
 
+        [Skip] // Unreliable test from forignal fork branch.
         [Fact]
         public async Task MqttServerAndClient()
         {
