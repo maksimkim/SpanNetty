@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -86,7 +87,7 @@ namespace DotNetty.Handlers.Proxy.Tests
             ClearServerExceptions();
         }
         
-        [Theory(Timeout = 5000)]
+        [SkipOnLinuxTheory(Timeout = 5000)]
         [MemberData(nameof(CreateTestItems))]
         public void Test(TestItem item)
         {
@@ -121,13 +122,10 @@ namespace DotNetty.Handlers.Proxy.Tests
                     BAD_DESTINATION, "status: 403",
                     new HttpProxyHandler(AnonHttpProxy.Address)),
 
-                /*
-                    Note: Test keeps failing and Tom/Max agreed to skip it for now
-                    new FailureTestItem(
-                        "HTTP proxy: rejected anonymous connection",
-                        DESTINATION, "status: 401",
-                        new HttpProxyHandler(HttpProxy.Address)),
-                */
+                new FailureTestItem(
+                    "HTTP proxy: rejected anonymous connection",
+                    DESTINATION, "status: 401",
+                    new HttpProxyHandler(HttpProxy.Address)),
 
                 new SuccessTestItem(
                     "HTTP proxy: successful connection, AUTO_READ on",
@@ -171,14 +169,11 @@ namespace DotNetty.Handlers.Proxy.Tests
                     CreateClientTlsHandler(),
                     new HttpProxyHandler(AnonHttpsProxy.Address)),
 
-                /*
-                    Note: Test keeps failing and Tom/Max agreed to skip it for now
-                    new FailureTestItem(
-                        "Anonymous HTTPS proxy: rejected connection",
-                        BAD_DESTINATION, "status: 403",
-                        CreateClientTlsHandler(),
-                        new HttpProxyHandler(AnonHttpsProxy.Address)),
-                */              
+                new FailureTestItem(
+                    "Anonymous HTTPS proxy: rejected connection",
+                    BAD_DESTINATION, "status: 403",
+                    CreateClientTlsHandler(),
+                    new HttpProxyHandler(AnonHttpsProxy.Address)),
 
                 new FailureTestItem(
                     "HTTPS proxy: rejected anonymous connection",
@@ -707,6 +702,15 @@ namespace DotNetty.Handlers.Proxy.Tests
                 Assert.IsType<ProxyConnectException>(e);
                 Assert.Contains("timeout", e.Message);
                 Assert.True(finished);
+            }
+        }
+    }
+    
+    public sealed class SkipOnLinuxTheory : TheoryAttribute
+    {
+        public SkipOnLinuxTheory() {
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                Skip = "Ignore on Linux";
             }
         }
     }
