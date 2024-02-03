@@ -143,7 +143,7 @@ namespace DotNetty.Transport.Tests.Channel.Sockets
             }
         }
 
-        [Theory(Skip = "Unreliable test from main fork.")] // Fails in .NET Framework
+        [Theory(Skip = "Unreliable test from main fork.")] // Intermittently fails in .NET Framework
         [MemberData(nameof(GetData))]
         public void SimpleSend(IByteBuffer source, bool bindClient, IByteBufferAllocator allocator, AddressFamily addressFamily, byte[] expectedData, int count)
         {

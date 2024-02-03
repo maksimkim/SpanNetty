@@ -83,7 +83,7 @@ namespace DotNetty.Handlers.Tests
         }
 
 
-        [Theory(Skip = "Disabled temporarily since it fails intermittently.")] // Intermittently fails - handful times everywhere. >100 times in ubuntu
+        [Theory(Skip = "Unreliable test from main branch fork.")] // Intermittently fails - handful iterations everywhere. >100 iterations in ubuntu
         [MemberData(nameof(GetTlsReadTestData))]
         public async Task TlsRead(int[] frameLengths, bool isClient, IWriteStrategy writeStrategy, SslProtocols serverProtocol, SslProtocols clientProtocol)
         {
