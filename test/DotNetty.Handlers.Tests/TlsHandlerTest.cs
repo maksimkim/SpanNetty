@@ -174,7 +174,7 @@ namespace DotNetty.Handlers.Tests
                 select new object[] { frameLengths, isClient, protocol.Item1, protocol.Item2 };
         }
 
-        [Theory]
+        [Theory] // Very intermittently fails in all environments
         [MemberData(nameof(GetTlsWriteTestData))]
         public async Task TlsWrite(int[] frameLengths, bool isClient, SslProtocols serverProtocol, SslProtocols clientProtocol)
         {
