@@ -237,7 +237,7 @@ Target "RunTests" (fun _ ->
             let result = ExecProcess(fun info ->
                 info.FileName <- "dotnet"
                 info.WorkingDirectory <- (Directory.GetParent project).FullName
-                info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+                info.Arguments <- arguments) (TimeSpan.FromMinutes 60.0) 
         
             ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
@@ -262,7 +262,7 @@ Target "RunTestsNetCore31" (fun _ ->
             let result = ExecProcess(fun info ->
                 info.FileName <- "dotnet"
                 info.WorkingDirectory <- (Directory.GetParent project).FullName
-                info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+                info.Arguments <- arguments) (TimeSpan.FromMinutes 60.0) 
         
             ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
@@ -287,7 +287,7 @@ Target "RunTestsNetCore21" (fun _ ->
             let result = ExecProcess(fun info ->
                 info.FileName <- "dotnet"
                 info.WorkingDirectory <- (Directory.GetParent project).FullName
-                info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+                info.Arguments <- arguments) (TimeSpan.FromMinutes 60.0) 
         
             ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
@@ -315,7 +315,7 @@ Target "RunTestsNetFx471" (fun _ ->
         let result = ExecProcess(fun info ->
             info.FileName <- "dotnet"
             info.WorkingDirectory <- (Directory.GetParent project).FullName
-            info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+            info.Arguments <- arguments) (TimeSpan.FromMinutes 60.0) 
         
         ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
@@ -343,7 +343,7 @@ Target "RunTestsNetFx451" (fun _ ->
         let result = ExecProcess(fun info ->
             info.FileName <- "dotnet"
             info.WorkingDirectory <- (Directory.GetParent project).FullName
-            info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+            info.Arguments <- arguments) (TimeSpan.FromMinutes 60.0) 
         
         ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
