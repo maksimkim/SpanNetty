@@ -22,7 +22,7 @@
 
 using DotNetty.Codecs.Http;
 
-namespace DotNetty.Handlers.Proxy
+namespace DotNetty.Handlers.Proxy 
 {
     /// <summary>
     /// Specific case of a connection failure, which may include headers from the proxy.
