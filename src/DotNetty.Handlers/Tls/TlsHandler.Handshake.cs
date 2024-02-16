@@ -43,6 +43,7 @@ namespace DotNetty.Handlers.Tls
     partial class TlsHandler
     {
         private static readonly Action<object, object> s_handshakeCompletionCallback = (t, s) => HandleHandshakeCompleted((Task)t, (TlsHandler)s);
+        private static readonly TaskCanceledException s_taskCanceledException = new TaskCanceledException();
         public static readonly AttributeKey<SslStream> SslStreamAttrKey = AttributeKey<SslStream>.ValueOf("SSLSTREAM");
 
         private bool EnsureAuthenticated(IChannelHandlerContext ctx)
@@ -212,10 +213,10 @@ namespace DotNetty.Handlers.Tls
                 Debug.Assert(!oldState.HasAny(TlsHandlerState.Authenticated));
                 self.State = (oldState | TlsHandlerState.FailedAuthentication) & ~TlsHandlerState.Authenticating;
                 var taskExc = task.Exception;
-                var cause = taskExc.Unwrap();
+                var cause = task.IsFaulted ? taskExc.Unwrap() : s_taskCanceledException;
                 try
                 {
-                    if (self._handshakePromise.TrySetException(taskExc))
+                    if (task.IsFaulted ? self._handshakePromise.TrySetException(taskExc) : self._handshakePromise.TrySetCanceled())
                     {
                         TlsUtils.NotifyHandshakeFailure(capturedContext, cause, true);
                     }

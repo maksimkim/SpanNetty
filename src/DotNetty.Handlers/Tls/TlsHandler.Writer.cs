@@ -27,6 +27,7 @@ namespace DotNetty.Handlers.Tls
     using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
     using System.Net.Security;
+    using System.Threading;
     using System.Threading.Tasks;
     using DotNetty.Buffers;
     using DotNetty.Common.Concurrency;
@@ -257,6 +258,21 @@ namespace DotNetty.Handlers.Tls
             this.ReadIfNeeded(capturedContext);
             return future;
         }
+        
+#if NETCOREAPP || NETSTANDARD_2_0_GREATER
+        private static async ValueTask LinkOutcome(ValueTask valueTask, IPromise promise)
+        {
+            try
+            {
+                await valueTask;
+                promise.TryComplete();
+            }
+            catch (Exception ex)
+            {
+                promise.TrySetException(ex);
+            }
+        }
+#endif
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static InvalidOperationException NewPendingWritesNullException()
