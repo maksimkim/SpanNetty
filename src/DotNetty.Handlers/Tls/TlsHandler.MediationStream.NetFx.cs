@@ -145,10 +145,10 @@ namespace DotNetty.Handlers.Tls
                 return length;
             }
 
-            public override void Write(byte[] buffer, int offset, int count) => _owner.FinishWrap(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.VoidPromise());
+            public override void Write(byte[] buffer, int offset, int count) => _owner.FinishWrap(buffer, offset, count, _owner._lastContextWritePromise);
 
             public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-                => _owner.FinishWrapNonAppDataAsync(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise());
+                => _owner.FinishWrapNonAppDataAsync(buffer, offset, count, _owner.CapturedContext.NewPromise());
 
             private static readonly Action<Task, object> s_writeCompleteCallback = (t, s) => HandleChannelWriteComplete(t, s);
 

@@ -202,10 +202,7 @@ namespace DotNetty.Transport.Channels
         /// </summary>
         public void ReleaseAndFailAll(Exception cause)
         {
-            var failedTask = TaskUtil.FromException(cause);
-            //if _bufAndListenerPairs queue is empty, the task will end up unobserved 
-            failedTask.Ignore();
-            ReleaseAndCompleteAll(failedTask);
+            ReleaseAndCompleteAll(TaskUtil.FromException(cause));
         }
 
         /// <summary>

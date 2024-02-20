@@ -177,18 +177,18 @@ namespace DotNetty.Handlers.Tls
             }
 
             public override void Write(ReadOnlySpan<byte> buffer)
-                => _owner.FinishWrap(buffer, _owner._lastContextWritePromise ?? _owner.CapturedContext.VoidPromise());
+                => _owner.FinishWrap(buffer, _owner._lastContextWritePromise);
 
             public override void Write(byte[] buffer, int offset, int count)
-                => _owner.FinishWrap(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.VoidPromise());
+                => _owner.FinishWrap(buffer, offset, count, _owner._lastContextWritePromise);
 
             public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
             {
-                return new ValueTask(_owner.FinishWrapNonAppDataAsync(buffer, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise()));
+                return new ValueTask(_owner.FinishWrapNonAppDataAsync(buffer, _owner.CapturedContext.NewPromise()));
             }
 
             public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-                => _owner.FinishWrapNonAppDataAsync(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise());
+                => _owner.FinishWrapNonAppDataAsync(buffer, offset, count, _owner.CapturedContext.NewPromise());
         }
     }
 }
