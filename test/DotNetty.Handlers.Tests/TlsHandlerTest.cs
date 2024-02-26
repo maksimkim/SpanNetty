@@ -315,8 +315,8 @@ namespace DotNetty.Handlers.Tests
 
                         if (!output.IsReadable())
                         {
-                            output.Release();
-                            return true;
+                            output.Release(); //received empty message but that's not necessary the end of the data stream
+                            continue;
                         }
 
                         remaining -= output.ReadableBytes;
