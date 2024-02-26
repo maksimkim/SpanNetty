@@ -116,6 +116,13 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
+
+                if (ch.Finish())
+                {
+                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
+                    Assert.NotNull(emptyByteBufferOutbound);
+                }
+
                 Assert.False(ch.Finish());
             }
             finally
@@ -196,6 +203,13 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
+                
+                if (ch.Finish())
+                {
+                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
+                    Assert.NotNull(emptyByteBufferOutbound);
+                }
+
                 Assert.False(ch.Finish());
             }
             finally
