@@ -116,6 +116,8 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                var _ = ch.ReadOutbound<EmptyByteBuffer>();
                 Assert.False(ch.Finish());
             }
             finally
@@ -196,6 +198,8 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                var _ = ch.ReadOutbound<EmptyByteBuffer>();
                 Assert.False(ch.Finish());
             }
             finally
@@ -262,8 +266,9 @@ namespace DotNetty.Handlers.Tests
             {
                 await Task.Run(() => driverStream.AuthenticateAsClientAsync(targetHost, null, protocol, false)).WithTimeout(TimeSpan.FromSeconds(5));
             }
+            //await tlsHandler.HandshakeCompletion.WithTimeout(handshakeTimeout);
             writeTasks.Clear();
-
+            
             return Tuple.Create(ch, driverStream);
         }
 
@@ -298,8 +303,8 @@ namespace DotNetty.Handlers.Tests
 
                         if (!output.IsReadable())
                         {
-                            output.Release();
-                            return true;
+                            output.Release(); //received empty message but that's not necessary the end of the data stream
+                            continue;
                         }
 
                         remaining -= output.ReadableBytes;
