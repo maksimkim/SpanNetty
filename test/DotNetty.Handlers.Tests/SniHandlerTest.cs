@@ -116,8 +116,13 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
-                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
-                var _ = ch.ReadOutbound<EmptyByteBuffer>();
+
+                if (ch.Finish())
+                {
+                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
+                    Assert.NotNull(emptyByteBufferOutbound);
+                }
+
                 Assert.False(ch.Finish());
             }
             finally
@@ -198,8 +203,13 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
-                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
-                var _ = ch.ReadOutbound<EmptyByteBuffer>();
+                
+                if (ch.Finish())
+                {
+                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
+                    Assert.NotNull(emptyByteBufferOutbound);
+                }
+
                 Assert.False(ch.Finish());
             }
             finally
@@ -268,7 +278,7 @@ namespace DotNetty.Handlers.Tests
             }
             //await tlsHandler.HandshakeCompletion.WithTimeout(handshakeTimeout);
             writeTasks.Clear();
-            
+
             return Tuple.Create(ch, driverStream);
         }
 

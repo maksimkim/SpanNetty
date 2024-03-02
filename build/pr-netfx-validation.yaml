@@ -42,7 +42,7 @@ stages:
         displayName: Windows Build
         inputs:
           filename: build.cmd
-          arguments: 'Build incremental' # Run an incremental build
+          arguments: 'Build' #Add ' incremental' to build incremental-ly
         continueOnError: true
         condition: eq( variables['Agent.OS'], 'Windows_NT' )
       - task: CopyFiles@2
@@ -63,7 +63,7 @@ stages:
   #     displayName: 'Unit Tests (Windows 2019)'
   #     vmImage: 'windows-2019'
   #     scriptFileName: build.cmd
-  #     scriptArgs: RunTestsNetFx471 incremental
+  #     scriptArgs: RunTestsNetFx471 #Add ' incremental' to Run tests incremental-ly
   #     outputDirectory: 'TestResults'
   #     artifactName: 'netfx_tests_windows-$(Build.BuildId)'
   #     packageFeed: $(packageFeed)

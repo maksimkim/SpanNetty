@@ -111,7 +111,11 @@ namespace DotNetty.Handlers.Tls
             public override void Write(byte[] buffer, int offset, int count) => _owner.FinishWrap(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise());
 
             public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-                => _owner.FinishWrapNonAppDataAsync(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise());
+            {
+                var promiseQueue = _owner._asyncWritePromises;
+                var promise = promiseQueue.Count > 0 ? promiseQueue.Dequeue() : _owner.CapturedContext.NewPromise();
+                return _owner.FinishWrapAsync(buffer, offset, count, promise);
+            }
         }
     }
 }
