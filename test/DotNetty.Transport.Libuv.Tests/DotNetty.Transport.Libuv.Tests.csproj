@@ -7,7 +7,7 @@
     <AssemblyName>DotNetty.Transport.Libuv.Tests</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup  Condition=" '$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net452' ">
+  <PropertyGroup  Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net452' ">
     <DefineConstants>$(DefineConstants);SKIPTESTINAZUREDEVOPS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(ImportLibs)' == 'netfx' ">
