@@ -17,6 +17,9 @@ name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 
 variables:
 - template: variables/nuget.yml
+- name: configuration
+  value: Release
+
 
 stages:
 - stage: linux
@@ -49,8 +52,16 @@ stages:
           projects: 'DotNetty.sln'
           #msbuildArgs: '/p'
           #platform: 'Any CPU'
-          configuration: 'Release'
+          configuration: $(configuration)
           #maximumCpuCount: true
+      - task: DotNetCoreCLI@2
+        displayName: Test
+        inputs:
+          command: 'test'
+          projects: 'test/DotNetty.Codecs.Http2.Tests/DotNetty.Codecs.Http2.Tests.csproj'
+          arguments: '--no-build -c $(configuration)'
+          publishTestResults: true
+              
 
       # - task: Bash@3 
       #   displayName: Build (Linux)
