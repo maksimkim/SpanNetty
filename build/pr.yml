@@ -42,14 +42,15 @@ stages:
       - template: templates/install-dotnet.yaml
       - template: templates/install-nuget.yaml
       - template: templates/restore-nuget-packages.yaml
-      - task: VSBuild@1
+      - task: DotNetCoreCLI@2
         displayName: Build
         inputs:
-          solution: 'DotNetty.sln'
+          command: 'build'
+          projects: 'DotNetty.sln'
           #msbuildArgs: '/p'
-          platform: 'Any CPU'
+          #platform: 'Any CPU'
           configuration: 'Release'
-          maximumCpuCount: true
+          #maximumCpuCount: true
 
       # - task: Bash@3 
       #   displayName: Build (Linux)
