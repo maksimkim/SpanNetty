@@ -39,9 +39,9 @@ stages:
     pool:
       vmImage: 'ubuntu-22.04'
     steps:
-      - template: install-dotnet.yaml
-      - template: install-nuget.yaml
-      - template: restore-nuget-packages.yaml
+      - template: templates/install-dotnet.yaml
+      - template: templates/install-nuget.yaml
+      - template: templates/restore-nuget-packages.yaml
       - task: VSBuild@1
         displayName: Build
         inputs:
