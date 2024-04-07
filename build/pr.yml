@@ -43,12 +43,13 @@ stages:
       - template: install-nuget.yaml
       - template: restore-nuget-packages.yaml
       - task: VSBuild@1
-      inputs:
-        solution: 'DotNetty.sln'
-        #msbuildArgs: '/p'
-        platform: 'Any CPU'
-        configuration: 'Release'
-        maximumCpuCount: true
+        displayName: Build
+        inputs:
+          solution: 'DotNetty.sln'
+          #msbuildArgs: '/p'
+          platform: 'Any CPU'
+          configuration: 'Release'
+          maximumCpuCount: true
 
       # - task: Bash@3 
       #   displayName: Build (Linux)
