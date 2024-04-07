@@ -293,7 +293,6 @@ namespace DotNetty.Common.Concurrency
                 }
                 finally
                 {
-                    Console.WriteLine($"[{nameof(SingleThreadEventExecutor)}]: Calling CleanupAndTerminate");
                     CleanupAndTerminate(success);
                 }
             }
