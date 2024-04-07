@@ -1,9 +1,9 @@
 steps:
-  - task: NuGetCommand@2
+  - task: DotNetCoreCLI@2
     displayName: 'Restore NuGet Packages'
     inputs:
       command: 'restore'
-      restoreSolution: DotNetty.sln
+      projects: DotNetty.sln
       feedsToUse: config
       nugetConfigPath: NuGet.Config
       externalFeedCredentials: 'ApimAzureGenevaMonitoringReadPackages, ApimAzureSecurityMonitoringReadPackages'

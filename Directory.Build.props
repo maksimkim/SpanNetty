@@ -47,8 +47,8 @@
     <ImportLibs>netcore</ImportLibs>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'net5.0-windows' or '$(TargetFramework)' == 'net5.0-windows7.0' ">
-    <DefineConstants>$(DefineConstants);NET50;NETCOREAPP;NETCOREAPP_2_0_GREATER;NETCOREAPP_2_1_GREATER;NETCOREAPP_2_X_GREATER;NETCOREAPP_3_0_GREATER;NETCOREAPP_3_1_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;NET_4_6_GREATER</DefineConstants>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net6.0-windows' or '$(TargetFramework)' == 'net6.0-windows7.0' ">
+    <DefineConstants>$(DefineConstants);net60;NETCOREAPP;NETCOREAPP_2_0_GREATER;NETCOREAPP_2_1_GREATER;NETCOREAPP_2_X_GREATER;NETCOREAPP_3_0_GREATER;NETCOREAPP_3_1_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;NET_4_6_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
     <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP_2_0_GREATER;NETCOREAPP_2_1_GREATER;NETCOREAPP_2_X_GREATER;NETCOREAPP_3_0_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;NET_4_6_GREATER</DefineConstants>
@@ -340,14 +340,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
     <DebugSymbols>True</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>

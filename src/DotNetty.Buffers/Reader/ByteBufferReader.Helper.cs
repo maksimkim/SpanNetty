@@ -58,16 +58,30 @@ namespace DotNetty.Buffers
                 {
                     if (SharedConstants.TooBigOrNegative >= (uint)endIndex)  // endIndex >= 0 SequenceType.MultiSegment
                     {
-                        ReadOnlySequenceSegment<byte> segment = (ReadOnlySequenceSegment<byte>)startObject;
-                        first = segment.Memory.Span;
-                        if (isMultiSegment)
+                        if (startObject is ReadOnlySequenceSegment<byte> segment)
                         {
-                            first = first.Slice(startIndex);
-                            next = new SequencePosition(segment.Next, 0);
+                            first = segment.Memory.Span;
+                            if (isMultiSegment)
+                            {
+                                first = first.Slice(startIndex);
+                                next = new SequencePosition(segment.Next, 0);
+                            }
+                            else
+                            {
+                                first = first.Slice(startIndex, endIndex - startIndex);
+                            }    
+                        }
+                        else if (startObject is byte[] array)
+                        {
+                            if (isMultiSegment)
+                            {
+                                throw new InvalidOperationException("Unsupported multisegment sequence with byte array as start object");    
+                            }
+                            first = new ReadOnlySpan<byte>(array, startIndex, endIndex - startIndex);
                         }
                         else
                         {
-                            first = first.Slice(startIndex, endIndex - startIndex);
+                            throw new InvalidOperationException($"Unsupported start object type {startObject.GetType()}");
                         }
                     }
                     else

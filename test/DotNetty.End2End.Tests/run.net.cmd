@@ -1,0 +1,1 @@
+dotnet test --framework net6.0 -- RunConfiguration.TargetPlatform=x64

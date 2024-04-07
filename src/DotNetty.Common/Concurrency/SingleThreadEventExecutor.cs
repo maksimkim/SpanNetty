@@ -289,6 +289,7 @@ namespace DotNetty.Common.Concurrency
                 catch (Exception exc)
                 {
                     Logger.UnexpectedExceptionFromAnEventExecutor(exc);
+                    Console.WriteLine($"[{nameof(SingleThreadEventExecutor)}] error caught: {exc}");
                 }
                 finally
                 {

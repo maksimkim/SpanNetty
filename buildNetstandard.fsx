@@ -47,7 +47,7 @@ let incrementalistReport = output @@ "incrementalist.txt"
 let testNetFrameworkVersion = "net471"
 let testNetCoreVersion = "netcoreapp3.1"
 let testNetCore21Version = "netcoreapp2.1"
-let testNetVersion = "net5.0"
+let testNetVersion = "net6.0"
 
 Target "Clean" (fun _ ->
     ActivateFinalTarget "KillCreatedProcesses"
