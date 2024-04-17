@@ -184,11 +184,15 @@ namespace DotNetty.Handlers.Tls
 
             public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
             {
-                return new ValueTask(_owner.FinishWrapNonAppDataAsync(buffer, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise()));
+                var promise = _owner._asyncWritePromises.TryDequeue(out var queuedPromise) ? queuedPromise : _owner.CapturedContext.NewPromise();
+                return new ValueTask(_owner.FinishWrapAsync(buffer, promise));
             }
 
             public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-                => _owner.FinishWrapNonAppDataAsync(buffer, offset, count, _owner._lastContextWritePromise ?? _owner.CapturedContext.NewPromise());
+            {
+                var promise = _owner._asyncWritePromises.TryDequeue(out var queuedPromise) ? queuedPromise : _owner.CapturedContext.NewPromise();
+                return _owner.FinishWrapAsync(buffer, offset, count, promise);
+            }
         }
     }
 }

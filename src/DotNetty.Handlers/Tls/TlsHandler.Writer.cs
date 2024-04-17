@@ -23,6 +23,7 @@
 namespace DotNetty.Handlers.Tls
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
@@ -43,6 +44,11 @@ namespace DotNetty.Handlers.Tls
         
         private IPromise _lastContextWritePromise;
         private volatile int v_wrapDataSize = TlsUtils.MAX_PLAINTEXT_LENGTH;
+        
+#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER || NETSTANDARD2_0
+        private readonly Queue<IPromise> _asyncWritePromises = new Queue<IPromise>(10);
+        private Task _lastAsyncWrite; 
+#endif        
 
         /// <summary>
         /// Gets or Sets the number of bytes to pass to each <see cref="SslStream.Write(byte[], int, int)"/> call.
@@ -173,7 +179,18 @@ namespace DotNetty.Handlers.Tls
                         _lastContextWritePromise = promise;
                         if (buf.IsReadable())
                         {
+#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+                            var asyncWrite = WriteAsync(buf, promise);
+                            if (!asyncWrite.IsCompleted)
+                            {
+                                var asyncWriteTask = asyncWrite.AsTask();
+                                asyncWriteTask.Ignore();
+                                _lastAsyncWrite = asyncWriteTask;
+                            }
+                            buf = null; //prevent buf from releasing synchronously
+#else
                             _ = buf.ReadBytes(_sslStream, readableBytes); // this leads to FinishWrap being called 0+ times
+#endif
                         }
                         else if (promise != null)
                         {
@@ -182,15 +199,12 @@ namespace DotNetty.Handlers.Tls
                     }
                     catch (Exception exc)
                     {
-                        promise.TrySetException(exc);
-                        // SslStream has been closed already.
-                        // Any further write attempts should be denied.
-                        _pendingUnencryptedWrites?.ReleaseAndFailAll(exc);
+                        OnWriteFailure(exc, promise);
                         throw;
                     }
                     finally
                     {
-                        buf.Release();
+                        buf?.Release();
                         buf = null;
                         promise = null;
                         _lastContextWritePromise = null;
@@ -243,7 +257,7 @@ namespace DotNetty.Handlers.Tls
         }
 
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
-        private Task FinishWrapNonAppDataAsync(in ReadOnlyMemory<byte> buffer, IPromise promise)
+        private Task FinishWrapAsync(in ReadOnlyMemory<byte> buffer, IPromise promise)
         {
             var capturedContext = CapturedContext;
             Task future;
@@ -260,7 +274,7 @@ namespace DotNetty.Handlers.Tls
         }
 #endif
 
-        private Task FinishWrapNonAppDataAsync(byte[] buffer, int offset, int count, IPromise promise)
+        private Task FinishWrapAsync(byte[] buffer, int offset, int count, IPromise promise)
         {
             var capturedContext = CapturedContext;
             var future = capturedContext.WriteAndFlushAsync(Unpooled.WrappedBuffer(buffer, offset, count), promise);
@@ -269,20 +283,52 @@ namespace DotNetty.Handlers.Tls
         }
         
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
-        private static async ValueTask LinkOutcome(ValueTask valueTask, IPromise promise)
+        private async ValueTask WriteAsync(IByteBuffer buf, IPromise promise)
         {
+            var lastAsyncWrite = _lastAsyncWrite;
+            if (lastAsyncWrite != null && !lastAsyncWrite.IsCompletedSuccessfully)
+            {
+                try
+                {
+                    await lastAsyncWrite;
+                }
+                catch (Exception ex)
+                {
+                    //handle failure and propagate to the next pending write
+                    buf.Release();
+                    promise.TrySetException(ex);
+                    throw;
+                }
+            }
+            
             try
             {
-                await valueTask;
-                promise.TryComplete();
+                _asyncWritePromises.Enqueue(promise);
+                var mem = buf.GetReadableMemory();
+                await _sslStream.WriteAsync(mem, CancellationToken.None); // this leads to FinishWrapAsync being called 0+ times
+                buf.AdvanceReader(mem.Length);
             }
             catch (Exception ex)
             {
-                promise.TrySetException(ex);
+                //handle failure and propagate to the next pending write
+                OnWriteFailure(ex, promise);
+                throw;
+            }
+            finally
+            {
+                buf.Release();
             }
         }
 #endif
 
+        private void OnWriteFailure(Exception ex, IPromise promise)
+        {
+            promise.TrySetException(ex);
+            // SslStream has been closed already.
+            // Any further write attempts should be denied.
+            _pendingUnencryptedWrites?.ReleaseAndFailAll(ex);
+        }
+        
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static InvalidOperationException NewPendingWritesNullException()
         {
