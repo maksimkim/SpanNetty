@@ -235,6 +235,9 @@ namespace DotNetty.Transport.Channels.Sockets
             var channel = operation.Channel;
             var @unsafe = channel.Unsafe;
             IEventLoop eventLoop = channel.EventLoop;
+
+            Trace.WriteLine($"[{DateTime.UtcNow}] [OnIoCompleted()] operation: {operation}; channel: {channel.Id}; eventLoop: #{eventLoop.GetHashCode()}");
+
             switch (args.LastOperation)
             {
                 case SocketAsyncOperation.Accept:
