@@ -321,20 +321,20 @@ namespace DotNetty.Common.Concurrency
         [MethodImpl(InlineMethod.AggressiveOptimization)]
         protected bool CompareAndSetExecutionState(int currentState, int newState)
         {
-            Trace.WriteLine($"[{DateTime.UtcNow}] [CompareAndSetExecutionState()] eventLoop: #{this.GetHashCode()}; newState: {newState}; stackTrace: {new StackTrace()?.GetFrames()?.Take(10).Select(x => $"{x.GetMethod()} at {x.GetFileName()}")}");
+            Trace.WriteLine($"[{DateTime.UtcNow}] [CompareAndSetExecutionState()] eventLoop: #{this.GetHashCode()}; newState: {newState}");
             return currentState == Interlocked.CompareExchange(ref v_executionState, newState, currentState);
         }
 
         [MethodImpl(InlineMethod.AggressiveOptimization)]
         protected void SetExecutionState(int newState)
         {
-            Trace.WriteLine($"[{DateTime.UtcNow}] [SetExecutionState()] eventLoop: #{this.GetHashCode()}; newState: {newState}; stackTrace: {new StackTrace()?.GetFrames()?.Take(10).Select(x => $"{x.GetMethod()} at {x.GetFileName()}")}");
+            Trace.WriteLine($"[{DateTime.UtcNow}] [SetExecutionState()] eventLoop: #{this.GetHashCode()}; newState: {newState}");
             _ = Interlocked.Exchange(ref v_executionState, newState);
         }
 
         protected void TrySetExecutionState(int newState)
         {
-            Trace.WriteLine($"[{DateTime.UtcNow}] [TrySetExecutionState()] eventLoop: #{this.GetHashCode()}; newState: {newState}; stackTrace: {new StackTrace()?.GetFrames()?.Take(10).Select(x => $"{x.GetMethod()} at {x.GetFileName()}")}");
+            Trace.WriteLine($"[{DateTime.UtcNow}] [TrySetExecutionState()] eventLoop: #{this.GetHashCode()}; newState: {newState}");
             
             var currentState = v_executionState;
             int oldState;
