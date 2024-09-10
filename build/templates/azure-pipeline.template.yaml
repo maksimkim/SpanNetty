@@ -35,7 +35,7 @@ jobs:
         displayName: Test (Linux)
         inputs:
           command: test
-          projects: 'test/**/*.csproj'
+          projects: '**/*DotNetty.sln'
           arguments: '--no-build --configuration Debug --verbosity detailed -f net6.0'
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
