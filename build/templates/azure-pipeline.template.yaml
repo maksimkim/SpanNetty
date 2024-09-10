@@ -36,7 +36,7 @@ jobs:
         inputs:
           command: test
           projects: 'test/**/*.csproj'
-          arguments: '--configuration Debug'
+          arguments: '--no-build --configuration Debug --verbosity normal -f net6.0'
           condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
       - task: BatchScript@1
