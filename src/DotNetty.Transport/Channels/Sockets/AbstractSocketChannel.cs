@@ -26,6 +26,8 @@
  * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
+using System.Linq;
+
 namespace DotNetty.Transport.Channels.Sockets
 {
     using System;
@@ -235,6 +237,9 @@ namespace DotNetty.Transport.Channels.Sockets
             var channel = operation.Channel;
             var @unsafe = channel.Unsafe;
             IEventLoop eventLoop = channel.EventLoop;
+            
+            Trace.WriteLine($"[{DateTime.UtcNow}] [CompareAndSetExecutionState()] operation: {operation}; channel: {channel.Id}; eventLoop: #{eventLoop.GetHashCode()}; stackTrace: {new StackTrace()?.GetFrames()?.Take(10).Select(x => $"{x.GetMethod()} at {x.GetFileName()}")}");
+            
             switch (args.LastOperation)
             {
                 case SocketAsyncOperation.Accept:
