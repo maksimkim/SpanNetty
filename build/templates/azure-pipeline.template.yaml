@@ -35,8 +35,8 @@ jobs:
         displayName: Test (Linux)
         inputs:
           command: test
-          projects: '**/*DotNetty.sln'
-          arguments: '--no-build --configuration Debug --verbosity normal -f net6.0 --filter FullyQualifiedName~DotNetty.Codecs.Http2.Tests'
+          projects: 'test/DotNetty.Codecs.Http2.Tests/*.csproj'
+          arguments: '--no-build --configuration Debug --verbosity normal -f net6.0'
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
       - task: BatchScript@1
