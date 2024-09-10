@@ -28,7 +28,7 @@ jobs:
         inputs:
           command: build
           projects: '**/*DotNetty.sln'
-          arguments: '--configuration Debug -f net6.0' # Update this to match your needs
+          arguments: '--configuration Debug' # Update this to match your needs
         continueOnError: true
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       - task: DotNetCoreCLI@2
