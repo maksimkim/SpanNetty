@@ -35,7 +35,7 @@ jobs:
         displayName: Test (Linux)
         inputs:
           command: test
-          projects: '**/*test/*.csproj'
+          projects: 'test/**/*.csproj'
           arguments: '--configuration Debug'
           condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
