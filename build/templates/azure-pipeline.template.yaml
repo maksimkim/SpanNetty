@@ -23,13 +23,21 @@ jobs:
       - template: install-build-dependencies.yaml
         parameters:
           packageFeed: ${{ parameters.packageFeed }}
-      - task: Bash@3 
+      - task: DotNetCoreCLI@2
         displayName: Build (Linux)
         inputs:
-          filePath: ${{ parameters.scriptFileName }}
-          arguments: ${{ parameters.scriptArgs }}
+          command: build
+          projects: '**/*DotNetty.sln'
+          arguments: '--configuration Debug' # Update this to match your needs
         continueOnError: true
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
+      - task: DotNetCoreCLI@2
+        displayName: Test (Linux)
+        inputs:
+          command: test
+          projects: '**/*test/*.csproj'
+          arguments: '--configuration Debug'
+          condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
       - task: BatchScript@1
         displayName: Build (Windows)
