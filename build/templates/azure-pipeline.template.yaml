@@ -36,7 +36,7 @@ jobs:
         inputs:
           command: test
           projects: 'test/DotNetty.Codecs.Http2.Tests/*.csproj'
-          arguments: '--no-build --configuration Debug --verbosity normal -f net6.0 -parallel none --logger:"console;verbosity=normal" --logger:trx'
+          arguments: '--no-build --configuration Debug --verbosity normal -f net6.0 --logger:"console;verbosity=normal" --logger:trx -p:TestTfmsInParallel=false'
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
       - task: BatchScript@1
