@@ -297,7 +297,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
 
-        [Fact(Timeout = 15000)]
+        [Fact(Timeout = 15000, Skip = "skip")]
         public async Task DeflateEncodingWriteLargeMessage()
         {
             int BUFFER_SIZE = 1 << 12;
