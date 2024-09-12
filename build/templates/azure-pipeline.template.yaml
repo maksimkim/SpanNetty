@@ -28,7 +28,7 @@ jobs:
         inputs:
           command: build
           projects: '**/*DotNetty.sln'
-          arguments: '--configuration Debug' # Update this to match your needs
+          arguments: '--configuration Debug'
         continueOnError: true
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       - task: DotNetCoreCLI@2
@@ -36,7 +36,7 @@ jobs:
         inputs:
           command: test
           projects: 'test/DotNetty.Codecs.Http2.Tests/*.csproj'
-          arguments: '--no-build --configuration Debug --verbosity normal -f net6.0'
+          arguments: '--no-build --configuration Debug --verbosity detailed -f net6.0'
         condition: in( variables['Agent.OS'], 'Linux', 'Darwin' )
       # Windows
       - task: BatchScript@1
