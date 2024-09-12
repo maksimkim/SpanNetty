@@ -236,7 +236,7 @@ namespace DotNetty.Transport.Channels.Sockets
             var @unsafe = channel.Unsafe;
             IEventLoop eventLoop = channel.EventLoop;
             
-            Trace.WriteLine($"[{DateTime.UtcNow}] [CompareAndSetExecutionState()] operation: {operation}; channel: {channel.Id}; eventLoop: #{eventLoop.GetHashCode()};");
+            // Trace.WriteLine($"[{DateTime.UtcNow}] [CompareAndSetExecutionState()] operation: {operation}; channel: {channel.Id}; eventLoop: #{eventLoop.GetHashCode()};");
             
             switch (args.LastOperation)
             {
