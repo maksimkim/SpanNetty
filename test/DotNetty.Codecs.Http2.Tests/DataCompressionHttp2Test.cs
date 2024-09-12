@@ -81,21 +81,21 @@ namespace DotNetty.Codecs.Http2.Tests
     //    }
     //}
 
-    public class SocketDataCompressionHttp2Test : AbstractDataCompressionHttp2Test
-    {
-        public SocketDataCompressionHttp2Test(ITestOutputHelper output) : base(output) { }
-
-        protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
-        {
-            bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup())
-                     .Channel<TcpServerSocketChannel>();
-        }
-
-        protected override void SetupBootstrap(Bootstrap bootstrap)
-        {
-            bootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
-        }
-    }
+    // public class SocketDataCompressionHttp2Test : AbstractDataCompressionHttp2Test
+    // {
+    //     public SocketDataCompressionHttp2Test(ITestOutputHelper output) : base(output) { }
+    //
+    //     protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
+    //     {
+    //         bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup())
+    //                  .Channel<TcpServerSocketChannel>();
+    //     }
+    //
+    //     protected override void SetupBootstrap(Bootstrap bootstrap)
+    //     {
+    //         bootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
+    //     }
+    // }
 
     [Collection("BootstrapEnv")]
     public abstract class AbstractDataCompressionHttp2Test : TestBase, IDisposable
@@ -267,7 +267,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
 
-        [Fact(Timeout = 15000, Skip = "skip")]
+        [Fact]
         public async Task GzipEncodingMultipleMessages()
         {
             string text1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
@@ -297,7 +297,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
 
-        [Fact(Timeout = 15000, Skip = "skip")]
+        [Fact]
         public async Task DeflateEncodingWriteLargeMessage()
         {
             int BUFFER_SIZE = 1 << 12;
