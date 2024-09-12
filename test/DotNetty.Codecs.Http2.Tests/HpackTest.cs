@@ -8,7 +8,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
     public class HpackTest
     {
-        static readonly string TEST_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"testdata");
+        static readonly string TEST_DIR = Path.Combine(@"testdata");
 
         public static IEnumerable<object[]> GetJsonFiles()
         {
