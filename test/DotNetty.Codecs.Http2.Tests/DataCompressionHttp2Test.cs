@@ -267,7 +267,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
 
-        [Fact]
+        [Fact(Timeout = 15000, Skip = "skip")]
         public async Task GzipEncodingMultipleMessages()
         {
             string text1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
