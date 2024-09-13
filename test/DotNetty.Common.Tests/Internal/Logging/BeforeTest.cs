@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -10,7 +11,13 @@ namespace DotNetty.Common.Tests.Internal.Logging
     {
         public override void Before(MethodInfo methodUnderTest)
         {
-            Trace.WriteLine($"Starting test '{methodUnderTest.ReturnType} {methodUnderTest.Name}'");
+            var stackTrace = new StackTrace(fNeedFileInfo: true);
+            var frames = stackTrace.GetFrames()?.Take(20)
+                .Select(x => $"{x.GetMethod()} {x.GetFileName()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}\n");
+            
+            var stackTraceStr = frames is not null ? string.Join("\n", frames) : "";
+            
+            Trace.WriteLine($"Starting test '{methodUnderTest.ReturnType} {methodUnderTest.Name}'; trace: {stackTraceStr}");
         }
     }
 }

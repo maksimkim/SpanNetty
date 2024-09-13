@@ -1,14 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
-using Thread = DotNetty.Common.Concurrency.XThread;
+using DotNetty.Common.Concurrency;
 
 namespace DotNetty.Common.Internal.Logging
 {
     public static class EventLoopLoggerExtensions
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ExecutionStateChange(this IInternalLogger logger, Thread thread, int oldState, int newState) 
+        public static void ExecutionStateChange(this IInternalLogger logger, XThread thread, int oldState, int newState) 
         {
-            logger.Debug($"#{thread.Name}; oldState: {GetState(oldState)}; newState: {GetState(newState)}");
+            logger.Debug($"Loop {thread.Name}; oldState: {GetState(oldState)}; newState: {GetState(newState)}");
         }
 
         private static string GetState(int state) => state switch
