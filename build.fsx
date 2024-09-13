@@ -242,7 +242,7 @@ Target "RunTests" (fun _ ->
                 info.WorkingDirectory <- (Directory.GetParent project).FullName
                 info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
         
-            sprintf "Test Results: %s" result
+            sprintf "Test Results: %i" result
             ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
         CreateDir outputTests
