@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
 
 namespace DotNetty.Codecs.Http2.Tests
@@ -162,34 +163,41 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
-            if (this.clientChannel != null)
-            {
-                this.clientChannel.CloseAsync().GetAwaiter().GetResult();
-                this.clientChannel = null;
-            }
-            if (this.serverChannel != null)
-            {
-                this.serverChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverChannel = null;
-            }
-            var serverConnectedChannel = this.serverConnectedChannel;
-            if (serverConnectedChannel != null)
-            {
-                serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverConnectedChannel = null;
-            }
             try
             {
+                Trace.WriteLine("StartingDispose");
+                Console.WriteLine("StartingDispose");
+                
+                if (this.clientChannel != null)
+                {
+                    this.clientChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.clientChannel = null;
+                }
+                if (this.serverChannel != null)
+                {
+                    this.serverChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.serverChannel = null;
+                }
+                var serverConnectedChannel = this.serverConnectedChannel;
+                if (serverConnectedChannel != null)
+                {
+                    serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.serverConnectedChannel = null;
+                }
+            
                 Task.WaitAll(
                     this.sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
                     this.sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
                     this.cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
+                
+                this.serverOut?.Close();
             }
-            catch
+            catch (Exception ex)
             {
+                Trace.WriteLine("FailedDispose: " + ex);
+                Console.WriteLine("FailedDispose: " + ex);
                 // Ignore RejectedExecutionException(on Azure DevOps)
             }
-            this.serverOut?.Close();
         }
 
         [Fact]
