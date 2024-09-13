@@ -322,7 +322,7 @@ namespace DotNetty.Common.Concurrency
         protected bool CompareAndSetExecutionState(int currentState, int newState)
         {
 #if DEBUG
-            if (Logger.DebugEnabled) Logger.ExecutionStateChange(_thread, oldState: currentState, newState: newState);
+            if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: currentState, newState: newState);
 #endif
             return currentState == Interlocked.CompareExchange(ref v_executionState, newState, currentState);
         }
@@ -331,7 +331,7 @@ namespace DotNetty.Common.Concurrency
         protected void SetExecutionState(int newState)
         {
 #if DEBUG
-            if (Logger.DebugEnabled) Logger.ExecutionStateChange(_thread, oldState: v_executionState, newState: newState);
+            if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: v_executionState, newState: newState);
 #endif
             _ = Interlocked.Exchange(ref v_executionState, newState);
         }
@@ -339,7 +339,7 @@ namespace DotNetty.Common.Concurrency
         protected void TrySetExecutionState(int newState)
         {
 #if DEBUG
-            if (Logger.DebugEnabled) Logger.ExecutionStateChange(_thread, oldState: v_executionState, newState: newState);
+            if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: v_executionState, newState: newState);
 #endif
             
             var currentState = v_executionState;

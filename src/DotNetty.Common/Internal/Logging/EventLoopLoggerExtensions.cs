@@ -8,7 +8,7 @@ namespace DotNetty.Common.Internal.Logging
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ExecutionStateChange(this IInternalLogger logger, Thread thread, int oldState, int newState) 
         {
-            logger.Debug($"thread: {thread.Id}; oldState: {GetState(oldState)}; newState: {GetState(newState)}");
+            logger.Debug($"#{thread.Name}; oldState: {GetState(oldState)}; newState: {GetState(newState)}");
         }
 
         private static string GetState(int state) => state switch
