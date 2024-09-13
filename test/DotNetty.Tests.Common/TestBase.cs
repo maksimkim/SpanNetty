@@ -31,12 +31,20 @@ namespace DotNetty.Tests.Common
 
     public override void Write(string message)
     {
-      _output.WriteLine(message);
+      try
+      {
+        _output.WriteLine(message);  
+      }
+      catch { }
     }
 
     public override void WriteLine(string message)
     {
-      _output.WriteLine(message);
+      try
+      {
+        _output.WriteLine(message);  
+      }
+      catch { }
     }
   }
 }
