@@ -12,11 +12,10 @@ namespace DotNetty.Common.Tests.Internal.Logging
         public override void Before(MethodInfo methodUnderTest)
         {
             var stackTrace = new StackTrace(fNeedFileInfo: true);
-            var frames = stackTrace.GetFrames()?.Take(20)
+            var frames = stackTrace.GetFrames()?.Take(150)
+                .Where(x => x is not null)
                 .Select(x => $"{x.GetMethod()} {x.GetFileName()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}\n");
-            
-            var stackTraceStr = frames is not null ? string.Join("\n", frames) : "";
-            
+            var stackTraceStr = frames is not null ? string.Join("", frames) : "";
             Trace.WriteLine($"Starting test '{methodUnderTest.ReturnType} {methodUnderTest.Name}'; trace: {stackTraceStr}");
         }
     }
