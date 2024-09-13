@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -79,6 +81,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteHeaders()
         {
             int streamId = 1;
@@ -102,6 +105,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteHeadersWithPadding()
         {
             int streamId = 1;
@@ -125,6 +129,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteHeadersNotEndStream()
         {
             int streamId = 1;
@@ -152,6 +157,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * the remaining headers will be sent in a CONTINUATION frame
          */
         [Fact]
+        [BeforeTest]
         public void WriteLargeHeaders()
         {
             int streamId = 1;
@@ -193,6 +199,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteLargeHeaderWithPadding()
         {
             int streamId = 1;
@@ -238,6 +245,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteFrameZeroPayload()
         {
             _frameWriter.WriteFrameAsync(_ctx.Object, (Http2FrameTypes)0xf, 0, new Http2Flags(), Unpooled.Empty, _promise);
@@ -254,6 +262,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteFrameHasPayload()
         {
             byte[] payload = { (byte)0x01, (byte)0x03, (byte)0x05, (byte)0x07, (byte)0x09 };

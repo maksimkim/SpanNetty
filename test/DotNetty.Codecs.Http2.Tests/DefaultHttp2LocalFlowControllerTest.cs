@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -59,6 +61,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataFrameShouldBeAccepted()
         {
             ReceiveFlowControlledFrame(STREAM_ID, 10, 0, false);
@@ -66,6 +69,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateShouldSendOnceBytesReturned()
         {
             int dataSize = (int)(Http2CodecUtil.DefaultWindowSize * DefaultHttp2LocalFlowController.DefaultWindowUpdateRatio) + 1;
@@ -84,6 +88,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionWindowShouldAutoRefillWhenDataReceived()
         {
             // Reconfigure controller to auto-refill the connection window.
@@ -105,6 +110,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionFlowControlExceededShouldThrow()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -115,6 +121,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateShouldNotBeSentAfterEndOfStream()
         {
             int dataSize = (int)(Http2CodecUtil.DefaultWindowSize * DefaultHttp2LocalFlowController.DefaultWindowUpdateRatio) + 1;
@@ -130,6 +137,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateShouldNotBeSentAfterStreamIsClosedForUnconsumedBytes()
         {
             int dataSize = (int)(Http2CodecUtil.DefaultWindowSize * DefaultHttp2LocalFlowController.DefaultWindowUpdateRatio) + 1;
@@ -153,6 +161,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateShouldBeWrittenWhenStreamIsClosedAndFlushed()
         {
             int dataSize = (int)(Http2CodecUtil.DefaultWindowSize * DefaultHttp2LocalFlowController.DefaultWindowUpdateRatio) + 1;
@@ -172,6 +181,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HalfWindowRemainingShouldUpdateAllWindows()
         {
             int dataSize = (int)(Http2CodecUtil.DefaultWindowSize * DefaultHttp2LocalFlowController.DefaultWindowUpdateRatio) + 1;
@@ -186,6 +196,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InitialWindowUpdateShouldAllowMoreFrames()
         {
             // Send a frame that takes up the entire window.
@@ -215,6 +226,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionWindowShouldAdjustWithMultipleStreams()
         {
             int newStreamId = 3;
@@ -267,6 +279,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseShouldConsumeBytes()
         {
             ReceiveFlowControlledFrame(STREAM_ID, 10, 0, false);
@@ -276,6 +289,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseShouldNotConsumeConnectionWindowWhenAutoRefilled()
         {
             // Reconfigure controller to auto-refill the connection window.
@@ -288,6 +302,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReceivedForClosedStreamShouldImmediatelyConsumeBytes()
         {
             IHttp2Stream stream = Stream(STREAM_ID);
@@ -297,6 +312,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReceivedForNullStreamShouldImmediatelyConsumeBytes()
         {
             ReceiveFlowControlledFrame(null, 10, 0, false);
@@ -304,6 +320,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConsumeBytesForNullStreamShouldIgnore()
         {
             controller.ConsumeBytes(null, 10);
@@ -311,6 +328,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GlobalRatioShouldImpactStreams()
         {
             float ratio = 0.6f;
@@ -319,6 +337,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamlRatioShouldImpactStreams()
         {
             float ratio = 0.6f;
@@ -326,12 +345,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConsumeBytesForZeroNumBytesShouldIgnore()
         {
             Assert.False(controller.ConsumeBytes(_connection.Stream(STREAM_ID), 0));
         }
 
         [Fact]
+        [BeforeTest]
         public void ConsumeBytesForNegativeNumBytesShouldFail()
         {
             Assert.Throws<ArgumentException>(() =>

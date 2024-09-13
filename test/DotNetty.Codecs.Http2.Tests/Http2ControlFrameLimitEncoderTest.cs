@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -131,6 +133,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLimitSettingsAck()
         {
             var ctx = _ctx.Object;
@@ -149,6 +152,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLimitPingAck()
         {
             var ctx = _ctx.Object;
@@ -167,6 +171,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestNotLimitPing()
         {
             var ctx = _ctx.Object;
@@ -179,6 +184,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLimitRst()
         {
             var ctx = _ctx.Object;
@@ -197,6 +203,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLimit()
         {
             var ctx = _ctx.Object;

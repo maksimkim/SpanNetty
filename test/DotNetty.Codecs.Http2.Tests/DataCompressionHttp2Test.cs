@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -191,6 +193,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task JustHeadersNoData()
         {
             await this.BootstrapEnv(0);
@@ -216,6 +219,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task GzipEncodingSingleEmptyMessage()
         {
             string text = "";
@@ -242,6 +246,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task GzipEncodingSingleMessage()
         {
             string text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
@@ -268,6 +273,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task GzipEncodingMultipleMessages()
         {
             string text1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
@@ -298,6 +304,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task DeflateEncodingWriteLargeMessage()
         {
             int BUFFER_SIZE = 1 << 12;

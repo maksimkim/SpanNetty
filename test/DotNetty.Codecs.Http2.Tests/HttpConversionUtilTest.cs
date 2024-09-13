@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -9,6 +11,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class HttpConversionUtilTest
     {
         [Fact]
+        [BeforeTest]
         public void SetHttp2AuthorityWithoutUserInfo()
         {
             var headers = new DefaultHttp2Headers();
@@ -18,6 +21,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SetHttp2AuthorityWithUserInfo()
         {
             var headers = new DefaultHttp2Headers();
@@ -30,6 +34,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SetHttp2AuthorityNullOrEmpty()
         {
             var headers = new DefaultHttp2Headers();
@@ -42,12 +47,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SetHttp2AuthorityWithEmptyAuthority()
         {
             Assert.Throws<ArgumentException>(() => HttpConversionUtil.SetHttp2Authority("info@", new DefaultHttp2Headers()));
         }
 
         [Fact]
+        [BeforeTest]
         public void StripTEHeaders()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -58,6 +65,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripTEHeadersExcludingTrailers()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -69,6 +77,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripTEHeadersCsvSeparatedExcludingTrailers()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -79,6 +88,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripTEHeadersCsvSeparatedAccountsForValueSimilarToTrailers()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -89,6 +99,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripTEHeadersAccountsForValueSimilarToTrailers()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -99,6 +110,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripTEHeadersAccountsForOWS()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -109,6 +121,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripConnectionHeadersAndNominees()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -120,6 +133,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StripConnectionNomineesWithCsv()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();
@@ -134,6 +148,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AddHttp2ToHttpHeadersCombinesCookies()
         {
             var inHeaders = new DefaultHttp2Headers();
@@ -149,6 +164,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionSpecificHeadersShouldBeRemoved()
         {
             HttpHeaders inHeaders = new DefaultHttpHeaders();

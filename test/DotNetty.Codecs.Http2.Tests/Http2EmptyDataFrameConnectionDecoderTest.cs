@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using Moq;
@@ -7,6 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class Http2EmptyDataFrameConnectionDecoderTest
     {
         [Fact]
+        [BeforeTest]
         public void Decoration()
         {
             var decoder0 = new Mock<IHttp2ConnectionDecoder>();
@@ -24,6 +27,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DecorationWithNull()
         {
             var decoder0 = new Mock<IHttp2ConnectionDecoder>();

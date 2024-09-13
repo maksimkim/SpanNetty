@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -10,6 +12,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class Http2ClientUpgradeCodecTest
     {
         [Fact]
+        [BeforeTest]
         public void UpgradeToHttp2ConnectionHandler()
         {
             TestUpgrade(new Http2ConnectionHandlerBuilder()
@@ -21,12 +24,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UpgradeToHttp2FrameCodec()
         {
             TestUpgrade(Http2FrameCodecBuilder.ForClient().Build(), null);
         }
 
         [Fact]
+        [BeforeTest]
         public void UpgradeToHttp2MultiplexCodec()
         {
             TestUpgrade(Http2MultiplexCodecBuilder.ForClient(new HttpInboundHandler())
@@ -34,6 +39,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UpgradeToHttp2FrameCodecWithMultiplexer()
         {
             TestUpgrade(

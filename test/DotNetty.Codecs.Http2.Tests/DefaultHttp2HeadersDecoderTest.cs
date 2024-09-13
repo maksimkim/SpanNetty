@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System.Text;
@@ -16,6 +18,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DecodeShouldSucceed()
         {
             var buf = Encode(B(":method"), B("GET"), B("akey"), B("avalue"), Http2TestUtil.RandomBytes(), Http2TestUtil.RandomBytes());
@@ -33,6 +36,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestExceedHeaderSize()
         {
             int maxListSize = 100;
@@ -43,6 +47,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DecodeLargerThanHeaderListSizeButLessThanGoAway()
         {
             decoder.SetMaxHeaderListSize(Http2CodecUtil.MinHeaderListSize, Http2CodecUtil.MaxHeaderListSize);
@@ -54,6 +59,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DecodeLargerThanHeaderListSizeButLessThanGoAwayWithInitialDecoderSettings()
         {
             var buf = Encode(B(":method"), B("GET"), B("test_header"),
@@ -65,6 +71,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DecodeLargerThanHeaderListSizeGoAway()
         {
             decoder.SetMaxHeaderListSize(Http2CodecUtil.MinHeaderListSize, Http2CodecUtil.MaxHeaderListSize);

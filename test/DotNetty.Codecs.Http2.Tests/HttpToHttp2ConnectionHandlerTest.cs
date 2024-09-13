@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -149,6 +151,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersOnlyRequest()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -177,6 +180,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleCookieEntriesAreCombined()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -205,6 +209,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
 
         [Fact]
+        [BeforeTest]
         public void OriginFormRequestTargetHandled()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -224,6 +229,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void OriginFormRequestTargetHandledFromUrlencodedUri()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -244,6 +250,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AbsoluteFormRequestTargetHandledFromHeaders()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -266,6 +273,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AbsoluteFormRequestTargetHandledFromRequestTargetUri()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -286,6 +294,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AuthorityFormRequestTargetHandled()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -306,6 +315,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AsterikFormRequestTargetHandled()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -327,6 +337,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HostIPv6FormRequestTargetHandled()
         {
             // Valid according to
@@ -350,6 +361,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HostFormRequestTargetHandled()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -371,6 +383,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HostIPv4FormRequestTargetHandled()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -392,6 +405,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NoSchemeRequestTargetHandled()
         {
             this.BootstrapEnv(2, 1, 0);
@@ -412,6 +426,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RequestWithBody()
         {
             string text = "foooooogoooo";
@@ -483,6 +498,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RequestWithBodyAndTrailingHeaders()
         {
             string text = "foooooogoooo";
@@ -572,6 +588,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChunkedRequestWithBodyAndTrailingHeaders()
         {
             string text = "foooooo";

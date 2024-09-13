@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Buffers;
@@ -20,6 +22,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetMaxHeaderTableSizeToMaxValue()
         {
             var buf = Unpooled.Buffer();
@@ -31,6 +34,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetMaxHeaderTableSizeOverflow()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -53,6 +57,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * @throws Http2Exception
          */
         [Fact]
+        [BeforeTest]
         public void TestWillEncode16MBHeaderByDefault()
         {
             var buf = Unpooled.Buffer();
@@ -77,6 +82,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetMaxHeaderListSizeEnforcedAfterSet()
         {
             Assert.Throws<Http2Exception>(() =>

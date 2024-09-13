@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -163,6 +165,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadAfterGoAwaySentShouldApplyFlowControl()
         {
             this.MockGoAwaySent();
@@ -202,6 +205,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadAfterGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint()
         {
             this.MockGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint();
@@ -240,6 +244,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadForUnknownStreamShouldApplyFlowControlAndFail()
         {
             this.connection.Setup(x => x.StreamMayHaveExisted(It.Is<int>(v => v == STREAM_ID))).Returns(true);
@@ -287,6 +292,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadForUnknownStreamThatCouldntExistFail()
         {
             this.connection.Setup(x => x.StreamMayHaveExisted(It.Is<int>(v => v == STREAM_ID))).Returns(false);
@@ -335,6 +341,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadForUnknownStreamShouldApplyFlowControl()
         {
             this.connection.Setup(x => x.Stream(It.Is<int>(v => v == STREAM_ID))).Returns(default(IHttp2Stream));
@@ -380,6 +387,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataFrameShouldApplyFlowControl()
         {
             var data = Unpooled.Empty;
@@ -417,6 +425,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadForStreamInInvalidStateShouldThrow()
         {
             // Throw an exception when checking stream state.
@@ -437,6 +446,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadAfterGoAwaySentForStreamInInvalidStateShouldIgnore()
         {
             // Throw an exception when checking stream state.
@@ -467,6 +477,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadAfterGoAwaySentOnUnknownStreamShouldIgnore()
         {
             // Throw an exception when checking stream state.
@@ -497,6 +508,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadAfterRstStreamForStreamInInvalidStateShouldIgnore()
         {
             // Throw an exception when checking stream state.
@@ -527,6 +539,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataReadWithEndOfStreamShouldcloseStreamRemote()
         {
             IByteBuffer data = DummyData();
@@ -558,6 +571,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ErrorDuringDeliveryShouldReturnCorrectNumberOfBytes()
         {
             IByteBuffer data = DummyData();
@@ -623,6 +637,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForUnknownStreamShouldThrow()
         {
             this.connection.Setup(x => x.Stream(It.Is<int>(v => v == STREAM_ID))).Returns(default(IHttp2Stream));
@@ -630,6 +645,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForStreamThatAlreadySentResetShouldBeIgnored()
         {
             this.stream.Setup(x => x.IsResetSent).Returns(true);
@@ -659,6 +675,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForUnknownStreamAfterGoAwayShouldBeIgnored()
         {
             this.MockGoAwaySent();
@@ -689,6 +706,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForUnknownStreamShouldCreateStream()
         {
             int streamId = 5;
@@ -715,6 +733,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForUnknownStreamShouldCreateHalfClosedStream()
         {
             int streamId = 5;
@@ -741,6 +760,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForPromisedStreamShouldHalfOpenStream()
         {
             this.stream.Setup(x => x.State).Returns(Http2StreamState.ReservedRemote);
@@ -759,6 +779,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TrailersDoNotEndStreamThrows()
         {
             this.Decode().OnHeadersRead(this.ctx.Object, STREAM_ID, EmptyHttp2Headers.Instance, 0, false);
@@ -767,12 +788,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TooManyHeadersEOSThrows()
         {
             Assert.Throws<StreamException>(() => this.TooManyHeaderThrows(true));
         }
 
         [Fact]
+        [BeforeTest]
         public void TooManyHeadersNoEOSThrows()
         {
             Assert.Throws<StreamException>(() => this.TooManyHeaderThrows(false));
@@ -795,24 +818,28 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InfoHeadersAndTrailersAllowed()
         {
             this.InfoHeadersAndTrailersAllowed0(true, 1);
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleInfoHeadersAndTrailersAllowed()
         {
             this.InfoHeadersAndTrailersAllowed0(true, 10);
         }
 
         [Fact]
+        [BeforeTest]
         public void InfoHeadersAndTrailersNoEOSThrows()
         {
             Assert.Throws<StreamException>(() => this.InfoHeadersAndTrailersAllowed0(false, 1));
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleInfoHeadersAndTrailersNoEOSThrows()
         {
             Assert.Throws<StreamException>(() => this.InfoHeadersAndTrailersAllowed0(false, 10));
@@ -829,6 +856,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersReadForPromisedStreamShouldCloseStream()
         {
             this.stream.Setup(x => x.State).Returns(Http2StreamState.ReservedRemote);
@@ -851,6 +879,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersDependencyNotCreatedShouldCreateAndSucceed()
         {
             short weight = 1;
@@ -880,6 +909,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseReadAfterGoAwaySentShouldBeIgnored()
         {
             this.MockGoAwaySent();
@@ -898,6 +928,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseReadAfterGoAwayShouldAllowFramesForStreamCreatedByLocalEndpoint()
         {
             this.MockGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint();
@@ -916,6 +947,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseReadForUnknownStreamShouldThrow()
         {
             this.connection.Setup(x => x.Stream(It.Is<int>(v => v == STREAM_ID))).Returns(default(IHttp2Stream));
@@ -923,6 +955,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseReadShouldSucceed()
         {
             this.Decode().OnPushPromiseRead(this.ctx.Object, STREAM_ID, PUSH_STREAM_ID, EmptyHttp2Headers.Instance, 0);
@@ -940,6 +973,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityReadAfterGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint()
         {
             this.MockGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint();
@@ -960,6 +994,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityReadForUnknownStreamShouldNotBeIgnored()
         {
             this.connection.Setup(x => x.Stream(It.Is<int>(v => v == STREAM_ID))).Returns(default(IHttp2Stream));
@@ -980,6 +1015,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityReadShouldNotCreateNewStream()
         {
             this.connection.Setup(x => x.StreamMayHaveExisted(It.Is<int>(v => v == STREAM_ID))).Returns(false);
@@ -1006,6 +1042,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateReadAfterGoAwaySentShouldBeIgnored()
         {
             this.MockGoAwaySent();
@@ -1022,6 +1059,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateReadAfterGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint()
         {
             this.MockGoAwaySentShouldAllowFramesForStreamCreatedByLocalEndpoint();
@@ -1038,6 +1076,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateReadForUnknownStreamShouldThrow()
         {
             this.connection.Setup(x => x.StreamMayHaveExisted(It.Is<int>(v => v == STREAM_ID))).Returns(false);
@@ -1046,6 +1085,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateReadForUnknownStreamShouldBeIgnored()
         {
             this.connection.Setup(x => x.Stream(It.Is<int>(v => v == STREAM_ID))).Returns(default(IHttp2Stream));
@@ -1062,6 +1102,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateReadShouldSucceed()
         {
             this.Decode().OnWindowUpdateRead(this.ctx.Object, STREAM_ID, 10);
@@ -1077,6 +1118,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamReadAfterGoAwayShouldSucceed()
         {
             this.connection.Setup(x => x.GoAwaySent()).Returns(true);
@@ -1093,6 +1135,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamReadForUnknownStreamShouldThrow()
         {
             this.connection.Setup(x => x.StreamMayHaveExisted(It.Is<int>(v => v == STREAM_ID))).Returns(false);
@@ -1101,6 +1144,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamReadForUnknownStreamShouldBeIgnored()
         {
             this.connection.Setup(x => x.Stream(It.Is<int>(v => v == STREAM_ID))).Returns(default(IHttp2Stream));
@@ -1117,6 +1161,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamReadShouldCloseStream()
         {
             this.Decode().OnRstStreamRead(this.ctx.Object, STREAM_ID, Http2Error.ProtocolError);
@@ -1132,6 +1177,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamOnIdleStreamShouldThrow()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -1151,6 +1197,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PingReadWithAckShouldNotifyListener()
         {
             this.Decode().OnPingAckRead(this.ctx.Object, 0L);
@@ -1161,6 +1208,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PingReadShouldReplyWithAck()
         {
             this.Decode().OnPingRead(this.ctx.Object, 0L);
@@ -1177,6 +1225,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsReadWithAckShouldNotifyListener()
         {
             this.Decode().OnSettingsAckRead(this.ctx.Object);
@@ -1187,6 +1236,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsReadShouldSetValues()
         {
             Http2Settings settings = new Http2Settings();
@@ -1205,6 +1255,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwayShouldReadShouldUpdateConnectionState()
         {
             this.Decode().OnGoAwayRead(this.ctx.Object, 1, (Http2Error)2L, Unpooled.Empty);

@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -46,11 +48,13 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact(Skip = "not yet supported")]
+        [BeforeTest]
         public override void FlowControlProperlyChunksLargeMessage()
         {
         }
 
         [Fact(Skip = "not yet supported")]
+        [BeforeTest]
         public override void StressTest()
         {
         }
@@ -71,13 +75,15 @@ namespace DotNetty.Codecs.Http2.Tests
             bootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
         }
 
-        [Fact(Skip = "slow")] // TODO https://github.com/cuteant/SpanNetty/issues/66
+        [Fact(Skip = "slow")]
+        [BeforeTest] // TODO https://github.com/cuteant/SpanNetty/issues/66
         public override void WriteOfEmptyReleasedBufferSingleBufferQueuedInFlowControllerShouldFail()
         {
             base.WriteOfEmptyReleasedBufferSingleBufferQueuedInFlowControllerShouldFail();
         }
 
         [Fact(Skip = "slow")]
+        [BeforeTest]
         public override void StressTest()
         {
         }
@@ -170,6 +176,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InflightFrameAfterStreamResetShouldNotMakeConnectionUnusable()
         {
             BootstrapEnv(1, 1, 2, 1);
@@ -224,6 +231,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWithEndStreamShouldNotSendError()
         {
             BootstrapEnv(1, 1, 2, 1);
@@ -269,6 +277,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EncodeViolatesMaxHeaderListSizeCanStillUseConnection()
         {
             BootstrapEnv(1, 2, 1, 0, 0);
@@ -412,6 +421,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsAckIsSentBeforeUsingFlowControl()
         {
             BootstrapEnv(1, 1, 1, 1);
@@ -512,6 +522,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityUsingHigherValuedStreamIdDoesNotPreventUsingLowerStreamId()
         {
             BootstrapEnv(1, 1, 2, 0);
@@ -571,6 +582,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersUsingHigherValuedStreamIdPreventsUsingLowerStreamId()
         {
             BootstrapEnv(1, 1, 1, 0);
@@ -636,6 +648,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteForPeerStreamWhichWasResetShouldNotGoAway()
         {
             BootstrapEnv(1, 1, 1, 0);
@@ -729,6 +742,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void Http2ExceptionInPipelineShouldCloseConnection()
         {
             BootstrapEnv(1, 1, 2, 1);
@@ -762,6 +776,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ListenerExceptionShouldCloseConnection()
         {
             IHttp2Headers headers = DummyHeaders();
@@ -812,24 +827,28 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public virtual void WriteOfEmptyReleasedBufferSingleBufferQueuedInFlowControllerShouldFail()
         {
             WriteOfEmptyReleasedBufferQueuedInFlowControllerShouldFail(WriteEmptyBufferMode.SINGLE_END_OF_STREAM);
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteOfEmptyReleasedBufferSingleBufferTrailersQueuedInFlowControllerShouldFail()
         {
             WriteOfEmptyReleasedBufferQueuedInFlowControllerShouldFail(WriteEmptyBufferMode.SINGLE_WITH_TRAILERS);
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteOfEmptyReleasedBufferMultipleBuffersQueuedInFlowControllerShouldFail()
         {
             WriteOfEmptyReleasedBufferQueuedInFlowControllerShouldFail(WriteEmptyBufferMode.SECOND_END_OF_STREAM);
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteOfEmptyReleasedBufferMultipleBuffersTrailersQueuedInFlowControllerShouldFail()
         {
             WriteOfEmptyReleasedBufferQueuedInFlowControllerShouldFail(WriteEmptyBufferMode.SECOND_WITH_TRAILERS);
@@ -902,6 +921,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public async Task WriteFailureFlowControllerRemoveFrame()
         {
             BootstrapEnv(1, 1, 2, 1);
@@ -951,6 +971,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void NonHttp2ExceptionInPipelineShouldNotCloseConnection()
         {
             BootstrapEnv(1, 1, 2, 1);
@@ -987,6 +1008,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NoMoreStreamIdsShouldSendGoAway()
         {
             BootstrapEnv(1, 1, 3, 1, 1);
@@ -1023,6 +1045,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CreateStreamAfterReceiveGoAwayShouldNotSendGoAway()
         {
             BootstrapEnv(1, 1, 2, 1, 1);
@@ -1107,6 +1130,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ListenerIsNotifiedOfGoawayBeforeStreamsAreRemovedFromTheConnection()
         {
             BootstrapEnv(1, 1, 2, 1, 1);
@@ -1191,6 +1215,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public virtual void FlowControlProperlyChunksLargeMessage()
         {
             IHttp2Headers headers = DummyHeaders();
@@ -1276,6 +1301,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public virtual void StressTest()
         {
             IHttp2Headers headers = DummyHeaders();

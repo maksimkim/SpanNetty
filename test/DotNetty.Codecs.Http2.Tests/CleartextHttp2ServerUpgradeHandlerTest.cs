@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -66,6 +68,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorKnowledge()
         {
             SetUpServerChannel();
@@ -89,6 +92,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void Upgrade()
         {
             string upgradeString = "GET / HTTP/1.1\r\n" +
@@ -100,6 +104,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UpgradeWithMultipleConnectionHeaders()
         {
             string upgradeString = "GET / HTTP/1.1\r\n" +
@@ -112,6 +117,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RequiredHeadersInSeparateConnectionHeaders()
         {
             string upgradeString = "GET / HTTP/1.1\r\n" +
@@ -125,6 +131,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorKnowledgeInFragments()
         {
             SetUpServerChannel();
@@ -148,6 +155,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void Downgrade()
         {
             SetUpServerChannel();
@@ -184,6 +192,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void UsedHttp2MultiplexCodec()
         {
             Http2MultiplexCodec http2Codec = new Http2MultiplexCodecBuilder(true, new ActionChannelInitializer<IChannel>(ch => { })).Build();

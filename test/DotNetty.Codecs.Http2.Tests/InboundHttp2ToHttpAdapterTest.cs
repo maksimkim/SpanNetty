@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -179,6 +181,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestSingleHeaderNoDataFrames()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -217,6 +220,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestSingleHeaderCookieSplitIntoMultipleEntries()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -259,6 +263,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestSingleHeaderCookieSplitIntoMultipleEntries2()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -300,6 +305,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestSingleHeaderNonAsciiShouldThrow()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -322,6 +328,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestOneDataFrame()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -359,6 +366,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestMultipleDataFrames()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -401,6 +409,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestMultipleEmptyDataFrames()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -440,6 +449,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestTrailingHeaders()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -486,6 +496,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRequestStreamDependencyInHttpMessageFlow()
         {
             this.BootstrapEnv(1, 2, 1);
@@ -542,6 +553,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerRequestPushPromise()
         {
             this.BootstrapEnv(1, 1, 1);
@@ -622,6 +634,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerResponseHeaderInformational()
         {
             this.BootstrapEnv(1, 2, 1, 2, 1);
@@ -714,6 +727,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PropagateSettings()
         {
             this.BootstrapEnv(1, 1, 2);

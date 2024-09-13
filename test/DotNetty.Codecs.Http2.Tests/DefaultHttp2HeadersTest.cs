@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Common.Utilities;
@@ -7,18 +9,21 @@ namespace DotNetty.Codecs.Http2.Tests
     public class DefaultHttp2HeadersTest
     {
         [Fact]
+        [BeforeTest]
         public void NullHeaderNameNotAllowed()
         {
             Assert.Throws<Http2Exception>(() => new DefaultHttp2Headers().Add(null, (AsciiString)"foo"));
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyHeaderNameNotAllowed()
         {
             Assert.Throws<Http2Exception>(() => new DefaultHttp2Headers().Add((AsciiString)StringUtil.EmptyString, (AsciiString)"foo"));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestPseudoHeadersMustComeFirstWhenIterating()
         {
             var headers = NewHeaders();
@@ -28,6 +33,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestPseudoHeadersWithRemovePreservesPseudoIterationOrder()
         {
             var headers = NewHeaders();
@@ -62,6 +68,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestPseudoHeadersWithClearDoesNotLeak()
         {
             var headers = NewHeaders();
@@ -92,6 +99,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetHeadersOrdersPseudoHeadersCorrectly()
         {
             var headers = NewHeaders();
@@ -107,6 +115,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetAllOrdersPseudoHeadersCorrectly()
         {
             var headers = NewHeaders();
@@ -124,6 +133,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestHeaderNameValidation()
         {
             var headers = NewHeaders();
@@ -131,6 +141,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestClearResetsPseudoHeaderDivision()
         {
             DefaultHttp2Headers http2Headers = new DefaultHttp2Headers();
@@ -142,6 +153,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestContainsNameAndValue()
         {
             var headers = NewHeaders();

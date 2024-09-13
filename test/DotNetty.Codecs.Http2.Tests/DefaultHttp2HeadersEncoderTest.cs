@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Buffers;
@@ -19,6 +21,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EncodeShouldSucceed()
         {
             var headers = Headers();
@@ -35,6 +38,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersExceedMaxSetSizeShouldFail()
         {
             Assert.Throws<HeaderListSizeException>(() =>
