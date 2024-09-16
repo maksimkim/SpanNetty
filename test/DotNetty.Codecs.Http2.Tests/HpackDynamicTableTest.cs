@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -8,6 +10,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class HpackDynamicTableTest
     {
         [Fact]
+        [BeforeTest]
         public void TestLength()
         {
             HpackDynamicTable table = new HpackDynamicTable(100);
@@ -20,6 +23,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSize()
         {
             HpackDynamicTable table = new HpackDynamicTable(100);
@@ -32,6 +36,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestGetEntry()
         {
             HpackDynamicTable table = new HpackDynamicTable(100);
@@ -51,6 +56,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestGetEntryExceptionally()
         {
             HpackDynamicTable table = new HpackDynamicTable(1);
@@ -58,6 +64,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestRemove()
         {
             HpackDynamicTable table = new HpackDynamicTable(100);
@@ -73,6 +80,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetCapacity()
         {
             HpackHeaderField entry1 = new HpackHeaderField((AsciiString)"foo", (AsciiString)"bar");

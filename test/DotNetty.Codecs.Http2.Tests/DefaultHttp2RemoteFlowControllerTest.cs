@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -54,6 +56,7 @@ namespace DotNetty.Codecs.Http2.Tests
         protected abstract IStreamByteDistributor NewDistributor(IHttp2Connection connection);
 
         [Fact]
+        [BeforeTest]
         public void InitialWindowSizeShouldOnlyChangeStreams()
         {
             this.controller.SetInitialWindowSize(0);
@@ -66,6 +69,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateShouldChangeConnectionWindow()
         {
             this.IncrementWindowSize(Http2CodecUtil.ConnectionStreamId, 100);
@@ -78,6 +82,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateShouldChangeStreamWindow()
         {
             this.IncrementWindowSize(STREAM_A, 100);
@@ -90,6 +95,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PayloadSmallerThanWindowShouldBeWrittenImmediately()
         {
             FakeFlowControlled data = new FakeFlowControlled(5);
@@ -102,6 +108,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyPayloadShouldBeWrittenImmediately()
         {
             FakeFlowControlled data = new FakeFlowControlled(0);
@@ -113,6 +120,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UnflushedPayloadsShouldBeDroppedOnCancel()
         {
             FakeFlowControlled data = new FakeFlowControlled(5);
@@ -128,6 +136,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PayloadsShouldMerge()
         {
             this.controller.SetInitialWindowSize(15);
@@ -146,6 +155,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FlowControllerCorrectlyAccountsForBytesWithMerge()
         {
             this.controller.SetInitialWindowSize(112); // This must be more than the total merged frame size 110
@@ -164,6 +174,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StalledStreamShouldQueuePayloads()
         {
             this.controller.SetInitialWindowSize(0);
@@ -183,6 +194,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void QueuedPayloadsReceiveErrorOnStreamClose()
         {
             this.controller.SetInitialWindowSize(0);
@@ -206,6 +218,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PayloadLargerThanWindowShouldWritePartial()
         {
             this.controller.SetInitialWindowSize(5);
@@ -224,6 +237,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateAndFlushShouldTriggerWrite()
         {
             this.controller.SetInitialWindowSize(10);
@@ -263,6 +277,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InitialWindowUpdateShouldSendPayload()
         {
             this.IncrementWindowSize(Http2CodecUtil.ConnectionStreamId, -this.Window(Http2CodecUtil.ConnectionStreamId) + 10);
@@ -285,6 +300,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SuccessiveSendsShouldNotInteract()
         {
             // Collapse the connection window to force queueing.
@@ -332,6 +348,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NegativeWindowShouldNotThrowException()
         {
             int initWindow = 20;
@@ -430,6 +447,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InitialWindowUpdateShouldSendEmptyFrame()
         {
             this.controller.SetInitialWindowSize(0);
@@ -464,6 +482,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InitialWindowUpdateShouldSendPartialFrame()
         {
             this.controller.SetInitialWindowSize(0);
@@ -490,6 +509,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionWindowUpdateShouldSendFrame()
         {
             // Set the connection window size to zero.
@@ -521,6 +541,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionWindowUpdateShouldSendPartialFrame()
         {
             // Set the connection window size to zero.
@@ -550,6 +571,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamWindowUpdateShouldSendFrame()
         {
             // Set the stream window size to zero.
@@ -600,6 +622,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamWindowUpdateShouldSendPartialFrame()
         {
             // Set the stream window size to zero.
@@ -642,6 +665,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FlowControlledWriteThrowsAnException()
         {
             var flowControlled = MockedFlowControlledThatThrowsOnWrite();
@@ -671,6 +695,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FlowControlledWriteAndErrorThrowAnException()
         {
             var flowControlled = MockedFlowControlledThatThrowsOnWrite();
@@ -706,6 +731,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FlowControlledWriteCompleteThrowsAnException()
         {
             var flowControlled = new Mock<IHttp2RemoteFlowControlled>();
@@ -742,6 +768,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseStreamInFlowControlledError()
         {
             var flowControlled = new Mock<IHttp2RemoteFlowControlled>();
@@ -771,6 +798,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NonWritableChannelDoesNotAttemptToWrite()
         {
             // Start the channel as not writable and exercise the public methods of the flow controller
@@ -805,6 +833,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ContextShouldSendQueuedFramesWhenSet()
         {
             // Re-initialize the controller so we can ensure the context hasn't been set yet.
@@ -830,6 +859,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InitialWindowSizeWithNoContextShouldNotThrow()
         {
             // Re-initialize the controller so we can ensure the context hasn't been set yet.
@@ -850,37 +880,43 @@ namespace DotNetty.Codecs.Http2.Tests
             dataA.AssertFullyWritten();
         }
 
-        //[Fact]//(expected = AssertionError_class)
+        //[Fact]
+        // [BeforeTest]//(expected = AssertionError_class)
         //public void InvalidParentStreamIdThrows()
         //{
         //    this.controller.UpdateDependencyTree(STREAM_D, -1, Http2CodecUtil.DefaultPriorityWeight, true);
         //}
 
-        //[Fact]//(expected = AssertionError_class)
+        //[Fact]
+        // [BeforeTest]//(expected = AssertionError_class)
         //public void InvalidChildStreamIdThrows()
         //{
         //    this.controller.UpdateDependencyTree(-1, STREAM_D, Http2CodecUtil.DefaultPriorityWeight, true);
         //}
 
-        //[Fact]//(expected = AssertionError_class)
+        //[Fact]
+        // [BeforeTest]//(expected = AssertionError_class)
         //public void ConnectionChildStreamIdThrows()
         //{
         //    this.controller.UpdateDependencyTree(0, STREAM_D, Http2CodecUtil.DefaultPriorityWeight, true);
         //}
 
-        //[Fact]//(expected = AssertionError_class)
+        //[Fact]
+        // [BeforeTest]//(expected = AssertionError_class)
         //public void InvalidWeightTooSmallThrows()
         //{
         //    this.controller.UpdateDependencyTree(STREAM_A, STREAM_D, (short)(Http2CodecUtil.MinWeight - 1), true);
         //}
 
-        //[Fact]//(expected = AssertionError_class)
+        //[Fact]
+        // [BeforeTest]//(expected = AssertionError_class)
         //public void InvalidWeightTooBigThrows()
         //{
         //    this.controller.UpdateDependencyTree(STREAM_A, STREAM_D, (short)(Http2CodecUtil.MaxWeight + 1), true);
         //}
 
-        //[Fact]//(expected = AssertionError_class)
+        //[Fact]
+        // [BeforeTest]//(expected = AssertionError_class)
         //public void DependencyOnSelfThrows()
         //{
         //    this.controller.UpdateDependencyTree(STREAM_A, STREAM_A, Http2CodecUtil.DefaultPriorityWeight, true);

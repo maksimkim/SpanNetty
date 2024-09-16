@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -63,6 +65,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void WriteWithNonActiveStreamShouldNotDobuleAddToPriorityQueue()
         {
             this.InitState(STREAM_A, 400, true);
@@ -94,6 +97,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BytesUnassignedAfterProcessing()
         {
             this.InitState(STREAM_A, 1, true);
@@ -115,6 +119,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionErrorForWriterException()
         {
             this.InitState(STREAM_A, 1, true);
@@ -163,6 +168,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * run out, the remaining streams will be next in line for the next iteration.
          */
         [Fact]
+        [BeforeTest]
         public void MinChunkShouldBeAllocatedPerStream()
         {
             // Re-assign weights.
@@ -218,6 +224,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void EmptyFrameAtHeadIsWritten()
         {
             this.InitState(STREAM_A, 0, true);
@@ -247,6 +254,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void BlockedStreamNoDataShouldSpreadDataToChildren()
         {
             BlockedStreamShouldSpreadDataToChildren(false);
@@ -265,6 +273,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void BlockedStreamWithDataAndNotAllowedToSendShouldSpreadDataToChildren()
         {
             // A cannot stream.
@@ -286,6 +295,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void StreamWithZeroFlowControlWindowAndDataShouldWriteOnlyOnce()
         {
             this.InitState(STREAM_A, 0, true, true);
@@ -375,6 +385,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void ChildrenShouldNotSendDataUntilParentBlocked()
         {
             // B cannot stream.
@@ -405,6 +416,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void ParentShouldWaterFallDataToChildren()
         {
             // B cannot stream.
@@ -451,6 +463,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void ReprioritizeShouldAdjustOutboundFlow()
         {
             // B cannot stream.
@@ -488,6 +501,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void UnstreamableParentsShouldFeedHungryChildren()
         {
             // Setup the priority tree.
@@ -520,6 +534,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void WriteShouldPreferHighestWeight()
         {
             // Root the streams at the connection and assign weights.
@@ -556,6 +571,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void WriteShouldFavorPriority()
         {
             // Root the streams at the connection and assign weights.
@@ -616,6 +632,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void SamePriorityShouldDistributeBasedOnData()
         {
             // Root the streams at the connection with the same weights.
@@ -663,6 +680,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void ZeroDistributeShouldWriteAllZeroFrames()
         {
             this.InitState(STREAM_A, 400, false);
@@ -707,6 +725,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void NonZeroDistributeShouldWriteAllZeroFramesIfAllEligibleDataIsWritten()
         {
             this.InitState(STREAM_A, 400, false);
@@ -750,6 +769,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void BytesDistributedWithRestructureShouldBeCorrect()
         {
             this.InitState(STREAM_A, 400, true);
@@ -802,6 +822,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void BytesDistributedWithAdditionShouldBeCorrect()
         {
             IHttp2Stream streamE = connection.Local.CreateStream(STREAM_E, false);
@@ -855,6 +876,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void BytesDistributedShouldBeCorrectWithInternalStreamClose()
         {
             this.InitState(STREAM_A, 400, true);
@@ -896,6 +918,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </pre>
          */
         [Fact]
+        [BeforeTest]
         public void BytesDistributedShouldBeCorrectWithLeafStreamClose()
         {
             this.InitState(STREAM_A, 400, true);
@@ -920,6 +943,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
 
         [Fact]
+        [BeforeTest]
         public void ActiveStreamDependentOnNewNonActiveStreamGetsQuantum()
         {
             this.Setup(0);
@@ -931,6 +955,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamWindowLargerThanIntDoesNotInfiniteLoop()
         {
             this.InitState(STREAM_A, int.MaxValue + 1L, true, true);

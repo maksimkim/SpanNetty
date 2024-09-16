@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -52,18 +54,21 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GetStreamWithoutStreamShouldReturnNull()
         {
             Assert.Null(_server.Stream(100));
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveAllStreamsWithEmptyStreams()
         {
             TestRemoveAllStreams();
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveAllStreamsWithJustOneLocalStream()
         {
             _client.Local.CreateStream(3, false);
@@ -71,6 +76,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveAllStreamsWithJustOneRemoveStream()
         {
             _client.Remote.CreateStream(2, false);
@@ -78,6 +84,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveAllStreamsWithManyActiveStreams()
         {
             var remote = _client.Remote;
@@ -91,6 +98,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveIndividualStreamsWhileCloseDoesNotNPE()
         {
             IHttp2Stream streamA = _client.Local.CreateStream(3, false);
@@ -114,6 +122,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveAllStreamsWhileIteratingActiveStreams()
         {
             var remote = _client.Remote;
@@ -140,6 +149,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveAllStreamsWhileIteratingActiveStreamsAndExceptionOccurs()
         {
             var remote = _client.Remote;
@@ -176,6 +186,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwayReceivedShouldCloseStreamsGreaterThanLastStream()
         {
             IHttp2Stream stream1 = _client.Local.CreateStream(3, false);
@@ -198,6 +209,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwaySentShouldCloseStreamsGreaterThanLastStream()
         {
             IHttp2Stream stream1 = _server.Remote.CreateStream(3, false);
@@ -217,6 +229,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerCreateStreamShouldSucceed()
         {
             IHttp2Stream stream = _server.Local.CreateStream(2, false);
@@ -245,6 +258,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientCreateStreamShouldSucceed()
         {
             IHttp2Stream stream = _client.Remote.CreateStream(2, false);
@@ -275,6 +289,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerReservePushStreamShouldSucceed()
         {
             IHttp2Stream stream = _server.Remote.CreateStream(3, true);
@@ -286,6 +301,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientReservePushStreamShouldSucceed()
         {
             IHttp2Stream stream = _server.Remote.CreateStream(3, true);
@@ -297,72 +313,84 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerRemoteIncrementAndGetStreamShouldSucceed()
         {
             IncrementAndGetStreamShouldSucceed(_server.Remote);
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerLocalIncrementAndGetStreamShouldSucceed()
         {
             IncrementAndGetStreamShouldSucceed(_server.Local);
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRemoteIncrementAndGetStreamShouldSucceed()
         {
             IncrementAndGetStreamShouldSucceed(_client.Remote);
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientLocalIncrementAndGetStreamShouldSucceed()
         {
             IncrementAndGetStreamShouldSucceed(_client.Local);
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerRemoteIncrementAndGetStreamShouldRespectOverflow()
         {
             Assert.Throws<Http2NoMoreStreamIdsException>(() => IncrementAndGetStreamShouldRespectOverflow(_server.Remote, int.MaxValue));
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerLocalIncrementAndGetStreamShouldRespectOverflow()
         {
             Assert.Throws<Http2NoMoreStreamIdsException>(() => IncrementAndGetStreamShouldRespectOverflow(_server.Local, int.MaxValue - 1));
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientRemoteIncrementAndGetStreamShouldRespectOverflow()
         {
             Assert.Throws<Http2NoMoreStreamIdsException>(() => IncrementAndGetStreamShouldRespectOverflow(_client.Remote, int.MaxValue - 1));
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientLocalIncrementAndGetStreamShouldRespectOverflow()
         {
             Assert.Throws<Http2NoMoreStreamIdsException>(() => IncrementAndGetStreamShouldRespectOverflow(_client.Local, int.MaxValue));
         }
 
         [Fact]
+        [BeforeTest]
         public void NewStreamBehindExpectedShouldThrow()
         {
             Assert.Throws<Http2Exception>(() => _server.Local.CreateStream(0, true));
         }
 
         [Fact]
+        [BeforeTest]
         public void NewStreamNotForServerShouldThrow()
         {
             Assert.Throws<Http2Exception>(() => _server.Local.CreateStream(11, true));
         }
 
         [Fact]
+        [BeforeTest]
         public void NewStreamNotForClientShouldThrow()
         {
             Assert.Throws<Http2Exception>(() => _client.Local.CreateStream(10, true));
         }
 
         [Fact]
+        [BeforeTest]
         public void CreateShouldThrowWhenMaxAllowedStreamsOpenExceeded()
         {
             Assert.Throws<StreamException>(() =>
@@ -373,6 +401,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerCreatePushShouldFailOnRemoteEndpointWhenMaxAllowedStreamsExceeded()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -385,6 +414,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientCreatePushShouldFailOnRemoteEndpointWhenMaxAllowedStreamsExceeded()
         {
             Assert.Throws<StreamException>(() =>
@@ -397,6 +427,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerCreatePushShouldSucceedOnLocalEndpointWhenMaxAllowedStreamsExceeded()
         {
             _server = new DefaultHttp2Connection(true, 0);
@@ -406,6 +437,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReserveWithPushDisallowedShouldThrow()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -417,6 +449,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwayReceivedShouldDisallowLocalCreation()
         {
             Assert.Throws<StreamException>(() =>
@@ -427,6 +460,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwayReceivedShouldAllowRemoteCreation()
         {
             _server.GoAwayReceived(0, (Http2Error)1L, Unpooled.Empty);
@@ -434,6 +468,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwaySentShouldDisallowRemoteCreation()
         {
             Assert.Throws<StreamException>(() =>
@@ -444,6 +479,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwaySentShouldAllowLocalCreation()
         {
             _server.GoAwaySent(0, (Http2Error)1L, Unpooled.Empty);
@@ -451,6 +487,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseShouldSucceed()
         {
             IHttp2Stream stream = _server.Remote.CreateStream(3, true);
@@ -460,6 +497,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseLocalWhenOpenShouldSucceed()
         {
             IHttp2Stream stream = _server.Remote.CreateStream(3, false);
@@ -469,6 +507,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseRemoteWhenOpenShouldSucceed()
         {
             IHttp2Stream stream = _server.Remote.CreateStream(3, false);
@@ -478,6 +517,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseOnlyOpenSideShouldClose()
         {
             IHttp2Stream stream = _server.Remote.CreateStream(3, true);
@@ -487,14 +527,16 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         ////@SuppressWarnings("NumericOverflow")
-        //[Fact] 
+        //[Fact]
+        // [BeforeTest] 
         //public void localStreamInvalidStreamIdShouldThrow()
         //{
         //    client.Local.CreateStream(int.MaxValue + 2L, false);
         //}
 
         ////@SuppressWarnings("NumericOverflow")
-        //[Fact] 
+        //[Fact]
+        // [BeforeTest] 
         //public void remoteStreamInvalidStreamIdShouldThrow()
         //{
         //    client.Remote.CreateStream(int.MaxValue + 1, false);
@@ -510,6 +552,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * </ol>
          */
         [Fact]
+        [BeforeTest]
         public void ListenerThrowShouldNotPreventOtherListenersFromBeingNotified()
         {
             var calledArray = new bool[128];

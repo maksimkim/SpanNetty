@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -176,12 +178,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWithEndOfStreamWriteShouldSignalThatFrameWasConsumedOnError()
         {
             DataWriteShouldSignalThatFrameWasConsumedOnError0(true);
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWriteShouldSignalThatFrameWasConsumedOnError()
         {
             DataWriteShouldSignalThatFrameWasConsumedOnError0(false);
@@ -209,6 +213,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWriteShouldSucceed()
         {
             CreateStream(STREAM_ID, false);
@@ -224,6 +229,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataFramesShouldMerge()
         {
             CreateStream(STREAM_ID, false);
@@ -252,6 +258,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataFramesShouldMergeUseVoidPromise()
         {
             CreateStream(STREAM_ID, false);
@@ -282,6 +289,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataFramesDontMergeWithHeaders()
         {
             CreateStream(STREAM_ID, false);
@@ -294,6 +302,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyFrameShouldSplitPadding()
         {
             var data = Unpooled.Buffer(0);
@@ -302,6 +311,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteHeadersUsingVoidPromise()
         {
             var cause = new Http2RuntimeException("fake exception");
@@ -351,6 +361,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteForUnknownStreamShouldCreateStream()
         {
             WriteAllFlowControlledFrames();
@@ -368,6 +379,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteShouldOpenStreamForPush()
         {
             WriteAllFlowControlledFrames();
@@ -387,6 +399,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TrailersDoNotEndStreamThrows()
         {
             WriteAllFlowControlledFrames();
@@ -411,6 +424,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TrailersDoNotEndStreamWithDataThrows()
         {
             WriteAllFlowControlledFrames();
@@ -438,12 +452,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TooManyHeadersNoEOSThrows()
         {
             TooManyHeadersThrows(false);
         }
 
         [Fact]
+        [BeforeTest]
         public void TooManyHeadersEOSThrows()
         {
             TooManyHeadersThrows(true);
@@ -484,24 +500,28 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InfoHeadersAndTrailersAllowed()
         {
             InfoHeadersAndTrailers(true, 1);
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleInfoHeadersAndTrailersAllowed()
         {
             InfoHeadersAndTrailers(true, 10);
         }
 
         [Fact]
+        [BeforeTest]
         public void InfoHeadersAndTrailersNoEOSThrows()
         {
             InfoHeadersAndTrailers(false, 1);
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleInfoHeadersAndTrailersNoEOSThrows()
         {
             InfoHeadersAndTrailers(false, 10);
@@ -565,12 +585,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TooManyHeadersWithDataNoEOSThrows()
         {
             TooManyHeadersWithDataThrows(false);
         }
 
         [Fact]
+        [BeforeTest]
         public void TooManyHeadersWithDataEOSThrows()
         {
             TooManyHeadersWithDataThrows(true);
@@ -615,24 +637,28 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InfoHeadersAndTrailersWithDataAllowed()
         {
             InfoHeadersAndTrailersWithData(true, 1);
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleInfoHeadersAndTrailersWithDataAllowed()
         {
             InfoHeadersAndTrailersWithData(true, 10);
         }
 
         [Fact]
+        [BeforeTest]
         public void InfoHeadersAndTrailersWithDataNoEOSThrows()
         {
             InfoHeadersAndTrailersWithData(false, 1);
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleInfoHeadersAndTrailersWithDataNoEOSThrows()
         {
             InfoHeadersAndTrailersWithData(false, 10);
@@ -692,6 +718,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseWriteAfterGoAwayReceivedShouldFail()
         {
             CreateStream(STREAM_ID, false);
@@ -703,6 +730,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseWriteShouldReserveStream()
         {
             CreateStream(STREAM_ID, false);
@@ -720,6 +748,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityWriteAfterGoAwayShouldSucceed()
         {
             CreateStream(STREAM_ID, false);
@@ -737,6 +766,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityWriteShouldSetPriorityForStream()
         {
             var promise = NewPromise();
@@ -758,6 +788,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityWriteOnPreviouslyExistingStreamShouldSucceed()
         {
             CreateStream(STREAM_ID, false).Close();
@@ -775,6 +806,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityWriteOnPreviouslyExistingParentStreamShouldSucceed()
         {
             int parentStreamId = STREAM_ID + 2;
@@ -795,6 +827,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamWriteForUnknownStreamShouldIgnore()
         {
             var promise = NewPromise();
@@ -809,6 +842,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamShouldCloseStream()
         {
             // Create the stream and send headers.
@@ -828,6 +862,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PingWriteAfterGoAwayShouldSucceed()
         {
             var promise = NewPromise();
@@ -842,6 +877,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PingWriteShouldSucceed()
         {
             var promise = NewPromise();
@@ -855,6 +891,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsWriteAfterGoAwayShouldSucceed()
         {
             GoAwayReceived(0);
@@ -868,6 +905,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsWriteShouldNotUpdateSettings()
         {
             Http2Settings settings = new Http2Settings();
@@ -885,6 +923,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWriteShouldCreateHalfClosedStream()
         {
             WriteAllFlowControlledFrames();
@@ -907,6 +946,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteShouldHalfCloseStream()
         {
             WriteAllFlowControlledFrames();
@@ -922,6 +962,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteShouldHalfClosePushStream()
         {
             WriteAllFlowControlledFrames();
@@ -938,6 +979,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteShouldHalfCloseAfterOnErrorForPreCreatedStream()
         {
             IPromise promise = NewPromise();
@@ -979,6 +1021,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWriteShouldHalfCloseAfterOnErrorForImplicitlyCreatedStream()
         {
             IPromise promise = NewPromise();
@@ -1019,6 +1062,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EncoderDelegatesGoAwayToLifeCycleManager()
         {
             var promise = NewPromise();
@@ -1034,6 +1078,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWriteToClosedStreamShouldFail()
         {
             CreateStream(STREAM_ID, false).Close();
@@ -1047,6 +1092,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWriteToHalfClosedLocalStreamShouldFail()
         {
             CreateStream(STREAM_ID, true);
@@ -1060,6 +1106,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanWriteDataFrameAfterGoAwaySent()
         {
             IHttp2Stream stream = CreateStream(STREAM_ID, false);
@@ -1073,6 +1120,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanWriteHeaderFrameAfterGoAwaySent()
         {
             WriteAllFlowControlledFrames();
@@ -1090,6 +1138,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanWriteDataFrameAfterGoAwayReceived()
         {
             IHttp2Stream stream = CreateStream(STREAM_ID, false);
@@ -1103,6 +1152,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanWriteHeaderFrameAfterGoAwayReceived()
         {
             WriteAllFlowControlledFrames();
@@ -1119,6 +1169,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWithNoPriority()
         {
             WriteAllFlowControlledFrames();
@@ -1135,6 +1186,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWithPriority()
         {
             WriteAllFlowControlledFrames();

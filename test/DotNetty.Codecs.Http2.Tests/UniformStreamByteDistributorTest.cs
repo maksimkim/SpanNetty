@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -55,6 +57,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BytesUnassignedAfterProcessing()
         {
             this.InitState(STREAM_A, 1, true);
@@ -74,6 +77,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionErrorForWriterException()
         {
             this.InitState(STREAM_A, 1, true);
@@ -122,6 +126,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * run out, the remaining streams will be next in line for the next iteration.
          */
         [Fact]
+        [BeforeTest]
         public void MinChunkShouldBeAllocatedPerStream()
         {
             // Re-assign weights.
@@ -153,6 +158,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamWithMoreDataShouldBeEnqueuedAfterWrite()
         {
             // Give the stream a bunch of data.
@@ -172,6 +178,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyFrameAtHeadIsWritten()
         {
             this.InitState(STREAM_A, 10, true);
@@ -187,6 +194,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamWindowExhaustedDoesNotWrite()
         {
             this.InitState(STREAM_A, 0, true, false);
@@ -201,6 +209,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamWindowLargerThanIntDoesNotInfiniteLoop()
         {
             this.InitState(STREAM_A, int.MaxValue + 1L, true, true);

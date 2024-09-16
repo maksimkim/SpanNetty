@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -10,6 +12,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class HpackHuffmanTest
     {
         [Fact]
+        [BeforeTest]
         public void TestHuffman()
         {
             string s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -25,6 +28,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeEOS()
         {
             byte[] buf = new byte[4];
@@ -36,6 +40,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeIllegalPadding()
         {
             byte[] buf = new byte[1];
@@ -44,6 +49,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeExtraPadding()
         {
             byte[] buf = MakeBuf(0x0f, 0xFF); // '1', 'EOS'
@@ -51,6 +57,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeExtraPadding1byte()
         {
             byte[] buf = MakeBuf(0xFF);
@@ -58,6 +65,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeExtraPadding2byte()
         {
             byte[] buf = MakeBuf(0x1F, 0xFF); // 'a'
@@ -65,6 +73,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeExtraPadding3byte()
         {
             byte[] buf = MakeBuf(0x1F, 0xFF, 0xFF); // 'a'
@@ -72,6 +81,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeExtraPadding4byte()
         {
             byte[] buf = MakeBuf(0x1F, 0xFF, 0xFF, 0xFF); // 'a'
@@ -79,6 +89,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeExtraPadding29bit()
         {
             byte[] buf = MakeBuf(0xFF, 0x9F, 0xFF, 0xFF, 0xFF);  // '|'
@@ -86,6 +97,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodePartialSymbol()
         {
             byte[] buf = MakeBuf(0x52, 0xBC, 0x30, 0xFF, 0xFF, 0xFF, 0xFF); // " pFA\x00", 31 bits of padding, a.k.a. EOS

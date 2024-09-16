@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -45,6 +47,7 @@ namespace DotNetty.Codecs.Http2.Tests
         protected abstract IChannelHandler NewMultiplexer(IChannelHandler upgradeHandler);
 
         [Fact]
+        [BeforeTest]
         public void UpgradeHandlerGetsActivated()
         {
             UpgradeHandler upgradeHandler = new UpgradeHandler();
@@ -62,6 +65,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public virtual void ClientUpgradeWithoutUpgradeHandlerThrowsHttp2Exception()
         {
             var codec = NewCodec(null);

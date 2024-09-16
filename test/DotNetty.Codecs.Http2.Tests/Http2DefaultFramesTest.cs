@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Buffers;
@@ -7,6 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class Http2DefaultFramesTest
     {
         [Fact]
+        [BeforeTest]
         public void TestEqualOperation()
         {
             // in this case, 'goAwayFrame' and 'unknownFrame' will also have an EMPTY_BUFFER data

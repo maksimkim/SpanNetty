@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -78,6 +80,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataShouldMatch()
         {
             var data = Unpooled.Empty;
@@ -93,6 +96,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataShouldMatch()
         {
             var data = Data(10);
@@ -108,6 +112,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DataWithPaddingShouldMatch()
         {
             var data = Data(10);
@@ -124,6 +129,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
 
         [Fact]
+        [BeforeTest]
         public void LargeDataFrameShouldMatch()
         {
             // Create a large message to force chunking.
@@ -182,6 +188,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyHeadersShouldMatch()
         {
             IHttp2Headers headers = EmptyHttp2Headers.Instance;
@@ -197,6 +204,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyHeadersWithPaddingShouldMatch()
         {
             IHttp2Headers headers = EmptyHttp2Headers.Instance;
@@ -212,6 +220,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BinaryHeadersWithoutPriorityShouldMatch()
         {
             IHttp2Headers headers = BinaryHeaders();
@@ -227,6 +236,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersFrameWithoutPriorityShouldMatch()
         {
             IHttp2Headers headers = Headers();
@@ -242,6 +252,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersFrameWithPriorityShouldMatch()
         {
             IHttp2Headers headers = Headers();
@@ -260,6 +271,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWithPaddingWithoutPriorityShouldMatch()
         {
             IHttp2Headers headers = Headers();
@@ -275,6 +287,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersWithPaddingWithPriorityShouldMatch()
         {
             IHttp2Headers headers = Headers();
@@ -293,6 +306,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ContinuedHeadersShouldMatch()
         {
             IHttp2Headers headers = LargeHeaders();
@@ -311,6 +325,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ContinuedHeadersWithPaddingShouldMatch()
         {
             IHttp2Headers headers = LargeHeaders();
@@ -329,6 +344,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersThatAreTooBigShouldFail()
         {
             this.reader = new DefaultHttp2FrameReader(false);
@@ -353,6 +369,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyPushPromiseShouldMatch()
         {
             IHttp2Headers headers = EmptyHttp2Headers.Instance;
@@ -368,6 +385,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseFrameShouldMatch()
         {
             IHttp2Headers headers = Headers();
@@ -383,6 +401,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PushPromiseWithPaddingShouldMatch()
         {
             IHttp2Headers headers = Headers();
@@ -398,6 +417,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ContinuedPushPromiseShouldMatch()
         {
             IHttp2Headers headers = LargeHeaders();
@@ -413,6 +433,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ContinuedPushPromiseWithPaddingShouldMatch()
         {
             IHttp2Headers headers = LargeHeaders();
@@ -428,6 +449,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwayFrameShouldMatch()
         {
             string text = "test";
@@ -447,6 +469,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PingFrameShouldMatch()
         {
             writer.WritePingAsync(this.ctx.Object, false, 1234567, this.ctx.Object.NewPromise());
@@ -461,6 +484,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PingAckFrameShouldMatch()
         {
             writer.WritePingAsync(this.ctx.Object, true, 1234567, this.ctx.Object.NewPromise());
@@ -475,6 +499,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityFrameShouldMatch()
         {
             writer.WritePriorityAsync(this.ctx.Object, STREAM_ID, 1, (short)1, true, this.ctx.Object.NewPromise());
@@ -489,6 +514,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamFrameShouldMatch()
         {
             writer.WriteRstStreamAsync(this.ctx.Object, STREAM_ID, ERROR_CODE, this.ctx.Object.NewPromise());
@@ -501,6 +527,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptySettingsFrameShouldMatch()
         {
             Http2Settings settings = new Http2Settings();
@@ -513,6 +540,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsShouldStripShouldMatch()
         {
             Http2Settings settings = new Http2Settings();
@@ -530,6 +558,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsAckShouldMatch()
         {
             writer.WriteSettingsAckAsync(this.ctx.Object, this.ctx.Object.NewPromise());
@@ -540,6 +569,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateFrameShouldMatch()
         {
             writer.WriteWindowUpdateAsync(this.ctx.Object, STREAM_ID, WINDOW_UPDATE, this.ctx.Object.NewPromise());

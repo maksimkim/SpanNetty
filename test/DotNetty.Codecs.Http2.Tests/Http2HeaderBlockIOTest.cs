@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -28,6 +30,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RoundtripShouldBeSuccessful()
         {
             var input = Headers();
@@ -35,6 +38,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SuccessiveCallsShouldSucceed()
         {
             var input = new DefaultHttp2Headers();
@@ -65,6 +69,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SetMaxHeaderSizeShouldBeSuccessful()
         {
             encoder.SetMaxHeaderTableSize(10);

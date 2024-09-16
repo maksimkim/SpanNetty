@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -154,6 +156,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void OnHttpServerUpgradeWithoutHandlerAdded()
         {
             var b = new Http2ConnectionHandlerBuilder();
@@ -165,6 +168,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void OnHttpClientUpgradeWithoutHandlerAdded()
         {
             var b = new Http2ConnectionHandlerBuilder();
@@ -176,6 +180,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientShouldveSentPrefaceAndSettingsFrameWhenUserEventIsTriggered()
         {
             _connection.Setup(x => x.IsServer).Returns(false);
@@ -206,6 +211,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientShouldSendClientPrefaceStringWhenActive()
         {
             _connection.Setup(x => x.IsServer).Returns(false);
@@ -217,6 +223,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerShouldNotSendClientPrefaceStringWhenActive()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -228,6 +235,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerReceivingInvalidClientPrefaceStringShouldHandleException()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -245,6 +253,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerReceivingHttp1ClientPrefaceStringShouldIncludePreface()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -263,6 +272,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerReceivingClientPrefaceStringFollowedByNonSettingsShouldHandleException()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -284,6 +294,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerReceivingValidClientPrefaceStringShouldContinueReadingFrames()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -299,6 +310,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void VerifyChannelHandlerCanBeReusedInPipeline()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -330,6 +342,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelInactiveShouldCloseStreams()
         {
             _handler = NewHandler();
@@ -338,6 +351,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ConnectionErrorShouldStartShutdown()
         {
             _handler = NewHandler();
@@ -361,6 +375,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerShouldSend431OnHeaderSizeErrorWhenDecodingInitialHeaders()
         {
             int padding = 0;
@@ -402,6 +417,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerShouldNeverSend431HeaderSizeErrorWhenEncoding()
         {
             int padding = 0;
@@ -440,6 +456,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClientShouldNeverSend431WhenHeadersAreTooLarge()
         {
             int padding = 0;
@@ -496,6 +513,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void PrefaceUserEventProcessed()
         {
             var latch = new CountdownEvent(1);
@@ -505,6 +523,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerShouldNeverSend431IfHeadersAlreadySent()
         {
             int padding = 0;
@@ -543,6 +562,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ServerShouldCreateStreamIfNeededBeforeSending431()
         {
             int padding = 0;
@@ -592,6 +612,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EncoderAndDecoderAreClosedOnChannelInactive()
         {
             _handler = NewHandler();
@@ -603,6 +624,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteRstOnNonExistantStreamShouldSucceed()
         {
             _handler = NewHandler();
@@ -623,6 +645,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteRstOnClosedStreamShouldSucceed()
         {
             _handler = NewHandler();
@@ -648,6 +671,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteRstOnIdleStreamShouldNotWriteButStillSucceed()
         {
             _handler = NewHandler();
@@ -664,6 +688,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseListenerShouldBeNotifiedOnlyOneTime()
         {
             _handler = NewHandler();
@@ -704,6 +729,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanSendGoAwayFrame()
         {
             IByteBuffer data = DummyData();
@@ -729,6 +755,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanSendGoAwayFramesWithDecreasingLastStreamIds()
         {
             _handler = NewHandler();
@@ -766,6 +793,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CannotSendGoAwayFrameWithIncreasingLastStreamIds()
         {
             _handler = NewHandler();
@@ -804,6 +832,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CanSendGoAwayUsingVoidPromise()
         {
             _handler = NewHandler();
@@ -834,6 +863,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelReadCompleteTriggersFlush()
         {
             _handler = NewHandler();
@@ -842,6 +872,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelReadCompleteCallsReadWhenAutoReadFalse()
         {
             _channel.Object.Configuration.IsAutoRead = false;
@@ -851,6 +882,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelClosedDoesNotThrowPrefaceException()
         {
             _connection.Setup(x => x.IsServer).Returns(true);
@@ -875,24 +907,28 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteRstStreamForUnknownStreamUsingVoidPromise()
         {
             WriteRstStreamUsingVoidPromise(NON_EXISTANT_STREAM_ID);
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteRstStreamForKnownStreamUsingVoidPromise()
         {
             WriteRstStreamUsingVoidPromise(STREAM_ID);
         }
 
         [Fact]
+        [BeforeTest]
         public void GracefulShutdownTimeoutWhenConnectionErrorHardShutdownTest()
         {
             GracefulShutdownTimeoutWhenConnectionErrorTest0(ShutdownHint.HardShutdown);
         }
 
         [Fact]
+        [BeforeTest]
         public void GracefulShutdownTimeoutWhenConnectionErrorGracefulShutdownTest()
         {
             GracefulShutdownTimeoutWhenConnectionErrorTest0(ShutdownHint.GracefulShutdown);
@@ -927,6 +963,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GracefulShutdownTimeoutTest()
         {
             _handler = NewHandler();
@@ -942,6 +979,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GracefulShutdownTimeoutNoActiveStreams()
         {
             _handler = NewHandler();
@@ -959,6 +997,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GracefulShutdownIndefiniteTimeoutTest()
         {
             _handler = NewHandler();
@@ -974,6 +1013,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteMultipleRstFramesForSameStream()
         {
             _handler = NewHandler();

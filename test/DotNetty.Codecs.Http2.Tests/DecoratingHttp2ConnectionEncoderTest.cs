@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -8,6 +10,7 @@ namespace DotNetty.Codecs.Http2.Tests
     public class DecoratingHttp2ConnectionEncoderTest
     {
         [Fact]
+        [BeforeTest]
         public void TestConsumeReceivedSettingsThrows()
         {
             try
@@ -25,6 +28,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestConsumeReceivedSettingsDelegate()
         {
             var encoder = new Mock<ITestHttp2ConnectionEncoder>();

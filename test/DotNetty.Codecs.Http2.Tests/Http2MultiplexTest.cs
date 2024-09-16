@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -100,6 +102,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteUnknownFrame()
         {
             IHttp2StreamChannel childChannel = NewOutboundStream(new ChannelHandlerForWriteUnknownFrame());
@@ -157,6 +160,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadUnkownFrame()
         {
             LastInboundHandler handler = new LastInboundHandler();
@@ -172,6 +176,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderAndDataFramesShouldBeDelivered()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -195,6 +200,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FramesShouldBeMultiplexed()
         {
             LastInboundHandler handler1 = new LastInboundHandler();
@@ -219,6 +225,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InboundDataFrameShouldUpdateLocalFlowController()
         {
             var flowController = new Mock<IHttp2LocalFlowController>();
@@ -242,6 +249,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UnhandledHttp2FramesShouldBePropagated()
         {
             IHttp2PingFrame pingFrame = new DefaultHttp2PingFrame(0);
@@ -257,6 +265,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelReadShouldRespectAutoRead()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -297,6 +306,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelReadShouldRespectAutoReadAndNotProduceNPE()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -349,12 +359,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadInChannelReadWithoutAutoRead()
         {
             UseReadWithoutAutoRead(false);
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadInChannelReadCompleteWithoutAutoRead()
         {
             UseReadWithoutAutoRead(true);
@@ -395,6 +407,7 @@ namespace DotNetty.Codecs.Http2.Tests
          * should not emit a RST_STREAM frame on close, as this is a connection error of type protocol error.
          */
         [Fact]
+        [BeforeTest]
         public void IdleOutboundStreamShouldNotWriteResetFrameOnClose()
         {
             LastInboundHandler handler = new LastInboundHandler();
@@ -419,6 +432,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void OutboundStreamShouldWriteResetFrameOnClose_HeadersSent()
         {
             IChannelHandler handler = new ChannelHandler_OutboundStreamShouldNotWriteResetFrameOnClose();
@@ -436,6 +450,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void OutboundStreamShouldNotWriteResetFrameOnClose_IfStreamDidntExist()
         {
             bool headersWritten = false;
@@ -480,6 +495,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InboundRstStreamFireChannelInactive()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -500,6 +516,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamExceptionTriggersChildChannelExceptionAndClose()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -514,6 +531,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamClosedErrorTranslatedToClosedChannelExceptionOnWrites()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -548,6 +566,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CreatingWritingReadingAndClosingOutboundStreamShouldWork()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -592,6 +611,7 @@ namespace DotNetty.Codecs.Http2.Tests
         // likely happen due to the max concurrent streams limit being hit or the channel running out of stream identifiers.
         //
         [Fact]
+        [BeforeTest]
         public void FailedOutboundStreamCreationThrowsAndClosesChannel()
         {
             LastInboundHandler handler = new LastInboundHandler();
@@ -625,6 +645,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelClosedWhenCloseListenerCompletes()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -652,6 +673,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelClosedWhenChannelClosePromiseCompletes()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -677,6 +699,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelClosedWhenWriteFutureFails()
         {
             var writePromises = new Deque<IPromise>();
@@ -727,6 +750,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelClosedTwiceMarksPromiseAsSuccessful()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -742,6 +766,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingChannelOptsAndAttrs()
         {
             AttributeKey<string> key = AttributeKey<string>.NewInstance(Guid.NewGuid().ToString());
@@ -756,6 +781,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void OutboundFlowControlWritability()
         {
             IHttp2StreamChannel childChannel = NewOutboundStream(new ChannelHandlerAdapter());
@@ -775,6 +801,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WritabilityOfParentIsRespected()
         {
             IHttp2StreamChannel childChannel = NewOutboundStream(new ChannelHandlerAdapter());
@@ -849,6 +876,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChannelClosedWhenInactiveFired()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -909,6 +937,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void ChannelInactiveHappensAfterExceptionCaughtEvents()
         {
             AtomicInteger count = new AtomicInteger(0);
@@ -931,6 +960,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CallUnsafeCloseMultipleTimes()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();
@@ -973,6 +1003,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EndOfStreamDoesNotDiscardData()
         {
             AtomicInteger numReads = new AtomicInteger(1);
@@ -1035,6 +1066,7 @@ namespace DotNetty.Codecs.Http2.Tests
         protected abstract bool IgnoreWindowUpdateFrames();
 
         [Fact]
+        [BeforeTest]
         public void ChildQueueIsDrainedAndNewDataIsDispatchedInParentReadLoopAutoRead()
         {
             AtomicInteger numReads = new AtomicInteger(1);
@@ -1086,6 +1118,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ChildQueueIsDrainedAndNewDataIsDispatchedInParentReadLoopNoAutoRead()
         {
             AtomicInteger numReads = new AtomicInteger(1);
@@ -1146,12 +1179,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UseReadWithoutAutoReadInRead()
         {
             UseReadWithoutAutoReadBuffered(false);
         }
 
         [Fact]
+        [BeforeTest]
         public void UseReadWithoutAutoReadInReadComplete()
         {
             UseReadWithoutAutoReadBuffered(true);
@@ -1237,6 +1272,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdatesAreFlushed()
         {
             LastInboundHandler inboundHandler = new LastInboundHandler();

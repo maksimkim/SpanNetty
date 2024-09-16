@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -8,30 +10,35 @@ namespace DotNetty.Codecs.Http2.Tests
     public class ReadOnlyHttp2HeadersTest
     {
         [Fact]
+        [BeforeTest]
         public void NotKeyValuePairThrows()
         {
             Assert.Throws<ArgumentException>(() => ReadOnlyHttp2Headers.Trailers(false, new AsciiString[] { null }));
         }
 
         [Fact]
+        [BeforeTest]
         public void NullTrailersNotAllowed()
         {
             Assert.Throws<NullReferenceException>(() => ReadOnlyHttp2Headers.Trailers(false, (AsciiString[])null));
         }
 
         [Fact]
+        [BeforeTest]
         public void NullHeaderNameNotChecked()
         {
             ReadOnlyHttp2Headers.Trailers(false, null, null);
         }
 
         [Fact]
+        [BeforeTest]
         public void NullHeaderNameValidated()
         {
             Assert.Throws<Http2Exception>(() => ReadOnlyHttp2Headers.Trailers(true, null, new AsciiString("foo")));
         }
 
         [Fact]
+        [BeforeTest]
         public void PseudoHeaderNotAllowedAfterNonPseudoHeaders()
         {
             Assert.Throws<ArgumentException>(() =>
@@ -43,18 +50,21 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NullValuesAreNotAllowed()
         {
             Assert.Throws<ArgumentException>(() => ReadOnlyHttp2Headers.Trailers(true, new AsciiString("foo"), null));
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyHeaderNameAllowed()
         {
             ReadOnlyHttp2Headers.Trailers(false, AsciiString.Empty, new AsciiString("foo"));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestPseudoHeadersMustComeFirstWhenIteratingServer()
         {
             var headers = NewServerHeaders();
@@ -62,6 +72,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestPseudoHeadersMustComeFirstWhenIteratingClient()
         {
             var headers = NewClientHeaders();
@@ -69,42 +80,49 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorReadOnlyClient()
         {
             Assert.Throws<NotSupportedException>(() => TestIteratorReadOnly(NewClientHeaders()));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorReadOnlyServer()
         {
             Assert.Throws<NotSupportedException>(() => TestIteratorReadOnly(NewServerHeaders()));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorReadOnlyTrailers()
         {
             Assert.Throws<NotSupportedException>(() => TestIteratorReadOnly(NewTrailers()));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorEntryReadOnlyClient()
         {
             Assert.Throws<NotSupportedException>(() => TestIteratorEntryReadOnly(NewClientHeaders()));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorEntryReadOnlyServer()
         {
             Assert.Throws<NotSupportedException>(() => TestIteratorEntryReadOnly(NewServerHeaders()));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorEntryReadOnlyTrailers()
         {
             Assert.Throws<NotSupportedException>(() => TestIteratorEntryReadOnly(NewTrailers()));
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSize()
         {
             var headers = NewTrailers();
@@ -112,6 +130,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIsNotEmpty()
         {
             var headers = NewTrailers();
@@ -119,6 +138,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIsEmpty()
         {
             var headers = ReadOnlyHttp2Headers.Trailers(false);
@@ -126,6 +146,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestContainsName()
         {
             var headers = NewClientHeaders();
@@ -136,6 +157,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestContainsNameAndValue()
         {
             var headers = NewClientHeaders();
@@ -149,6 +171,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestGet()
         {
             var headers = NewClientHeaders();
@@ -160,24 +183,28 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestClientOtherValueIterator()
         {
             TestValueIteratorSingleValue(NewClientHeaders(), (AsciiString)"name2", (AsciiString)"value2");
         }
 
         [Fact]
+        [BeforeTest]
         public void TestClientPsuedoValueIterator()
         {
             TestValueIteratorSingleValue(NewClientHeaders(), (AsciiString)":path", (AsciiString)"/foo");
         }
 
         [Fact]
+        [BeforeTest]
         public void TestServerPsuedoValueIterator()
         {
             TestValueIteratorSingleValue(NewServerHeaders(), (AsciiString)":status", (AsciiString)"200");
         }
 
         [Fact]
+        [BeforeTest]
         public void TestEmptyValueIterator()
         {
             var headers = NewServerHeaders();
@@ -186,6 +213,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIteratorMultipleValues()
         {
             var headers = ReadOnlyHttp2Headers.ServerHeaders(false, new AsciiString("200"), new AsciiString[] {

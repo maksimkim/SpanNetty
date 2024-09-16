@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Transport.Channels;
@@ -18,6 +20,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         //[Fact]
+        // [BeforeTest]
         //public override void ClientUpgradeWithoutUpgradeHandlerThrowsHttp2Exception()
         //{
         //    var codec = NewCodec(null);

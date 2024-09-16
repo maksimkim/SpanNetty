@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -98,6 +100,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact(Skip = "第二次 EncoderWriteHeaders，引发 DefaultHttp2ConnectionEncoder.ValidateHeadersSentState抛出异常")]
+        [BeforeTest]
         public void MultipleWritesToActiveStream()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -125,6 +128,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EnsureCanCreateNextStreamWhenStreamCloses()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -153,6 +157,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AlternatingWritesToActiveAndBufferedStreams()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -179,6 +184,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BufferingNewStreamFailsAfterGoAwayReceived()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -193,6 +199,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReceivingGoAwayFailsBufferedStreams()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -223,6 +230,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SendingGoAwayShouldNotFailStreams()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -269,6 +277,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EndStreamDoesNotFailBufferedStream()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -293,6 +302,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RstStreamClosesBufferedStream()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -308,6 +318,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BufferUntilActiveStreamsAreReset()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -343,6 +354,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BufferUntilMaxStreamsIncreased()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -376,6 +388,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BufferUntilSettingsReceived()
         {
             int initialLimit = Http2CodecUtil.SmallestMaxConcurrentStreams;
@@ -402,6 +415,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void BufferUntilSettingsReceivedWithNoMaxConcurrentStreamValue()
         {
             int initialLimit = Http2CodecUtil.SmallestMaxConcurrentStreams;
@@ -428,6 +442,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ExhaustedStreamsDoNotBuffer()
         {
             // Write the highest possible stream ID for the client.
@@ -445,6 +460,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClosedBufferedStreamReleasesByteBuf()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -465,6 +481,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseShouldCancelAllBufferedStreams()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());
@@ -481,6 +498,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeadersAfterCloseShouldImmediatelyFail()
         {
             _encoder.WriteSettingsAckAsync(_ctx.Object, NewPromise());

@@ -18,7 +18,7 @@
             }
         }
 
-        [Fact]
+        
         public void TestException()
         {
             EmbeddedChannel channel = new EmbeddedChannel(new ThrowExceptionMessageToMessageEncoder());

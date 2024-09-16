@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -76,12 +78,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AsyncSettingsAckWithMultiplexCodec()
         {
             AsyncSettingsAck0(new Http2MultiplexCodecBuilder(true, DISCARD_HANDLER.Instance).Build(), null);
         }
 
         [Fact]
+        [BeforeTest]
         public void AsyncSettingsAckWithMultiplexHandler()
         {
             AsyncSettingsAck0(new Http2FrameCodecBuilder(true).Build(),
@@ -196,6 +200,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FlushNotDiscarded()
         {
             var executorService = new DefaultEventExecutor();

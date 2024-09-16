@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -111,6 +113,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StateChanges()
         {
             _frameInboundWriter.WriteInboundHeaders(1, _request, 31, true);
@@ -154,6 +157,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderRequestHeaderResponse()
         {
             _frameInboundWriter.WriteInboundHeaders(1, _request, 31, true);
@@ -191,6 +195,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FlowControlShouldBeResilientToMissingStreams()
         {
             IHttp2Connection conn = new DefaultHttp2Connection(true);
@@ -207,6 +212,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EntityRequestEntityResponse()
         {
             _frameInboundWriter.WriteInboundHeaders(1, _request, 0, false);
@@ -267,6 +273,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SendRstStream()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, true);
@@ -295,6 +302,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReceiveRstStream()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -318,6 +326,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SendGoAway()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -347,6 +356,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReceiveGoaway()
         {
             IByteBuffer debugData = Http2TestUtil.BB("foo");
@@ -371,6 +381,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task UnknownFrameTypeShouldThrowAndBeReleased()
         {
 
@@ -394,6 +405,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void GoAwayLastStreamIdOverflowed()
         {
             _frameInboundWriter.WriteInboundHeaders(5, _request, 31, false);
@@ -421,6 +433,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamErrorShouldFireExceptionForInbound()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -451,6 +464,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamErrorShouldNotFireExceptionForOutbound()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -474,6 +488,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateFrameDecrementsConsumedBytes()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -499,6 +514,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateMayFail()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -519,6 +535,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InboundWindowUpdateShouldBeForwarded()
         {
             _frameInboundWriter.WriteInboundHeaders(3, _request, 31, false);
@@ -539,6 +556,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamZeroWindowUpdateIncrementsConnectionWindow()
         {
             IHttp2Connection connection = _frameCodec.Connection;
@@ -561,6 +579,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WindowUpdateDoesNotOverflowConnectionWindow()
         {
             IHttp2Connection connection = _frameCodec.Connection;
@@ -576,6 +595,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WriteUnknownFrame()
         {
             IHttp2FrameStream stream = _frameCodec.NewStream();
@@ -597,6 +617,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SendSettingsFrame()
         {
             Http2Settings settings = new Http2Settings();
@@ -609,7 +630,8 @@ namespace DotNetty.Codecs.Http2.Tests
                     It.IsAny<IPromise>()));
         }
 
-        [Fact]//(timeout = 5000)
+        [Fact]
+        [BeforeTest]//(timeout = 5000)
         public async Task NewOutboundStream()
         {
             IHttp2FrameStream stream = _frameCodec.NewStream();
@@ -627,6 +649,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NewOutboundStreamsShouldBeBuffered()
         {
             var builder = Http2FrameCodecBuilder.ForServer();
@@ -658,6 +681,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleNewOutboundStreamsShouldBeBuffered()
         {
             var builder = Http2FrameCodecBuilder.ForServer();
@@ -745,6 +769,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DoNotLeakOnFailedInitializationForChannels()
         {
             // We use a limit of 1 and then increase it step by step.
@@ -781,6 +806,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StreamIdentifiersExhausted()
         {
             int maxServerStreamId = int.MaxValue - 1;
@@ -803,6 +829,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReceivePing()
         {
             _frameInboundWriter.WriteInboundPing(false, 12345L);
@@ -815,6 +842,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SendPing()
         {
             _channel.WriteAndFlushAsync(new DefaultHttp2PingFrame(12345));
@@ -828,6 +856,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReceiveSettings()
         {
             Http2Settings settings = new Http2Settings().MaxConcurrentStreams(1);
@@ -839,6 +868,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SendSettings()
         {
             Http2Settings settings = new Http2Settings().MaxConcurrentStreams(1);
@@ -852,6 +882,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void IterateActiveStreams()
         {
             var builder = Http2FrameCodecBuilder.ForServer();
@@ -891,6 +922,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AutoAckPingTrue()
         {
             var builder = Http2FrameCodecBuilder.ForServer();
@@ -909,6 +941,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void AutoAckPingFalse()
         {
             var builder = Http2FrameCodecBuilder.ForServer();
@@ -937,6 +970,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task StreamShouldBeOpenInListener()
         {
             IHttp2FrameStream stream2 = _frameCodec.NewStream();
@@ -947,6 +981,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UpgradeEventNoRefCntError()
         {
             _frameInboundWriter.WriteInboundHeaders(Http2CodecUtil.HttpUpgradeStreamId, _request, 31, false);
@@ -980,6 +1015,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
         [Fact]
+        [BeforeTest]
         public void UpgradeWithoutFlowControlling()
         {
             _channel.Pipeline.AddAfter(_frameCodec._ctx.Name, null, new TestUpgradeChannelHandler());

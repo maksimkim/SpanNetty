@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -17,6 +19,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StandardSettingsShouldBeNotSet()
         {
             Assert.Empty(settings);
@@ -29,6 +32,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StandardSettingsShouldBeSet()
         {
             settings.InitialWindowSize(1);
@@ -46,6 +50,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NonStandardSettingsShouldBeSet()
         {
             char key = (char)0;
@@ -55,6 +60,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SettingsShouldSupportUnsignedShort()
         {
             char key = (char)(short.MaxValue + 1);
@@ -64,6 +70,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderListSizeUnsignedInt()
         {
             settings.MaxHeaderListSize(Http2CodecUtil.MaxUnsignedInt);
@@ -71,12 +78,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderListSizeBoundCheck()
         {
             Assert.Throws<ArgumentException>(() => settings.MaxHeaderListSize(long.MaxValue));
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderTableSizeUnsignedInt()
         {
             settings.Put(Http2CodecUtil.SettingsHeaderTableSize, Http2CodecUtil.MaxUnsignedInt);
@@ -85,12 +94,14 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderTableSizeBoundCheck()
         {
             Assert.Throws<ArgumentException>(() => settings.Put(Http2CodecUtil.SettingsHeaderTableSize, long.MaxValue));
         }
 
         [Fact]
+        [BeforeTest]
         public void HeaderTableSizeBoundCheck2()
         {
             Assert.Throws<ArgumentException>(() => settings.Put(Http2CodecUtil.SettingsHeaderTableSize, -1));

@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -35,6 +37,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadHeaderFrame()
         {
             int streamId = 1;
@@ -62,6 +65,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadHeaderFrameAndContinuationFrame()
         {
             int streamId = 1;
@@ -94,6 +98,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadUnknownFrame()
         {
             var input = Unpooled.Buffer();
@@ -116,6 +121,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenUnknownFrameInMiddleOfHeaderBlock()
         {
             int streamId = 1;
@@ -142,6 +148,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenContinuationFrameStreamIdMismatch()
         {
             var input = Unpooled.Buffer();
@@ -169,6 +176,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenContinuationFrameNotFollowHeaderFrame()
         {
             var input = Unpooled.Buffer();
@@ -187,6 +195,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenHeaderFrameDependsOnItself()
         {
             var input = Unpooled.Buffer();
@@ -212,6 +221,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadHeaderAndData()
         {
             var input = Unpooled.Buffer();
@@ -241,6 +251,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenDataFrameNotAssociateWithStream()
         {
             var input = Unpooled.Buffer();
@@ -261,6 +272,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadPriorityFrame()
         {
             var input = Unpooled.Buffer();
@@ -276,6 +288,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenPriorityFrameDependsOnItself()
         {
             var input = Unpooled.Buffer();
@@ -291,6 +304,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenWindowUpdateFrameWithZeroDelta()
         {
             var input = Unpooled.Buffer();
@@ -307,6 +321,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadSettingsFrame()
         {
             var input = Unpooled.Buffer();
@@ -326,6 +341,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReadAckSettingsFrame()
         {
             var input = Unpooled.Buffer();
@@ -343,6 +359,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenSettingsFrameOnNonZeroStream()
         {
             var input = Unpooled.Buffer();
@@ -360,6 +377,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenAckSettingsFrameWithPayload()
         {
             var input = Unpooled.Buffer();
@@ -376,6 +394,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedWhenSettingsFrameWithWrongPayloadLength()
         {
             var input = Unpooled.Buffer();

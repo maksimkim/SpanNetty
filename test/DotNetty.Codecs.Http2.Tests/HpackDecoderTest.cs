@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -40,6 +42,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeULE128IntMax()
         {
             byte[] bytes = { (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0x07 };
@@ -55,6 +58,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeULE128IntOverflow1()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -75,6 +79,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeULE128IntOverflow2()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -95,6 +100,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeULE128LongMax()
         {
             byte[] bytes = {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -111,6 +117,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeULE128LongOverflow1()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -132,6 +139,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeULE128LongOverflow2()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -153,6 +161,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetTableSizeWithMaxUnsigned32BitValueSucceeds()
         {
             byte[] bytes = { (byte)0x3F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0x0E };
@@ -171,6 +180,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSetTableSizeOverLimitFails()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -190,6 +200,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralHuffmanEncodedWithEmptyNameAndValue()
         {
             byte[] bytes = { 0, (byte)0x80, 0 };
@@ -206,6 +217,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralHuffmanEncodedWithPaddingGreaterThan7Throws()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -225,6 +237,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralHuffmanEncodedWithDecodingEOSThrows()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -243,6 +256,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralHuffmanEncodedWithPaddingNotCorrespondingToMSBThrows()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -261,6 +275,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIncompleteIndex()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -281,6 +296,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestUnusedIndex()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -291,6 +307,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIllegalIndex()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -301,6 +318,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestInsidiousIndex()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -311,6 +329,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDynamicTableSizeUpdate()
         {
             this.Decode("20");
@@ -320,6 +339,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDynamicTableSizeUpdateRequired()
         {
             hpackDecoder.SetMaxHeaderTableSize(32);
@@ -328,6 +348,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIllegalDynamicTableSizeUpdate()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -338,6 +359,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestInsidiousMaxDynamicTableSize()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -349,6 +371,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestMaxValidDynamicTableSize()
         {
             hpackDecoder.SetMaxHeaderTableSize(int.MaxValue);
@@ -360,6 +383,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestReduceMaxDynamicTableSize()
         {
             hpackDecoder.SetMaxHeaderTableSize(0);
@@ -368,6 +392,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestTooLargeDynamicTableSizeUpdate()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -379,6 +404,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestMissingDynamicTableSizeUpdate()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -390,6 +416,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralWithIncrementalIndexingWithEmptyName()
         {
             this.Decode("400005" + Hex("value"));
@@ -397,6 +424,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralWithIncrementalIndexingCompleteEviction()
         {
             // Verify indexed host header
@@ -428,6 +456,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralWithIncrementalIndexingWithLargeValue()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -446,6 +475,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralWithoutIndexingWithEmptyName()
         {
             this.Decode("000005" + Hex("value"));
@@ -453,6 +483,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralWithoutIndexingWithLargeName()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -470,6 +501,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralWithoutIndexingWithLargeValue()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -488,6 +520,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralNeverIndexedWithEmptyName()
         {
             this.Decode("100005" + Hex("value"));
@@ -495,6 +528,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralNeverIndexedWithLargeName()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -512,6 +546,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestLiteralNeverIndexedWithLargeValue()
         {
             Assert.Throws<Http2Exception>(() =>
@@ -530,6 +565,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeLargerThanMaxHeaderListSizeUpdatesDynamicTable()
         {
             IByteBuffer input = Unpooled.Buffer(300);
@@ -570,6 +606,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestDecodeCountsNamesOnlyOnce()
         {
             IByteBuffer input = Unpooled.Buffer(200);
@@ -595,6 +632,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestAccountForHeaderOverhead()
         {
             IByteBuffer input = Unpooled.Buffer(100);
@@ -625,6 +663,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestIncompleteHeaderFieldRepresentation()
         {
             // Incomplete Literal Header Field with Incremental Indexing
@@ -641,6 +680,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void UnknownPseudoHeader()
         {
             IByteBuffer input = Unpooled.Buffer(200);
@@ -663,6 +703,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void DisableHeaderValidation()
         {
             IByteBuffer input = Unpooled.Buffer(200);
@@ -691,6 +732,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RequestPseudoHeaderInResponse()
         {
             IByteBuffer input = Unpooled.Buffer(200);
@@ -714,6 +756,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ResponsePseudoHeaderInRequest()
         {
             IByteBuffer input = Unpooled.Buffer(200);
@@ -737,6 +780,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PseudoHeaderAfterRegularHeader()
         {
             IByteBuffer input = Unpooled.Buffer(200);
@@ -760,6 +804,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FailedValidationDoesntCorruptHpack()
         {
             IByteBuffer in1 = Unpooled.Buffer(200);

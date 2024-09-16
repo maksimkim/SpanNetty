@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -25,6 +27,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataFrames()
         {
             var ctx = _ctx.Object;
@@ -52,6 +55,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataFramesWithNonEmptyInBetween()
         {
             var ctx = _ctx.Object;
@@ -83,6 +87,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataFramesWithEndOfStreamInBetween()
         {
             var ctx = _ctx.Object;
@@ -122,6 +127,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataFramesWithHeaderFrameInBetween()
         {
             var ctx = _ctx.Object;
@@ -162,6 +168,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void EmptyDataFramesWithHeaderFrameInBetween2()
         {
             var ctx = _ctx.Object;

@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -80,6 +82,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleOutboundStreams()
         {
             IHttp2StreamChannel childChannel1 = this.NewOutboundStream(new TestChannelInitializer());
@@ -114,6 +117,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CreateOutboundStream()
         {
             IChannel childChannel = this.NewOutboundStream(new TestChannelInitializer());
@@ -147,6 +151,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestSharableCheck()
         {
             Assert.NotNull(Http2MultiplexCodecBuilder.ForServer(new SharableChannelHandler1()));
@@ -154,6 +159,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void TestUnsharableHandler()
         {
             Assert.Throws<ArgumentException>(() => Http2MultiplexCodecBuilder.ForServer(new UnsharableChannelHandler()));

@@ -1,4 +1,7 @@
 ﻿
+using System.Diagnostics;
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -160,37 +163,53 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
-            if (this.clientChannel != null)
-            {
-                this.clientChannel.CloseAsync().GetAwaiter().GetResult();
-                this.clientChannel = null;
-            }
-            if (this.serverChannel != null)
-            {
-                this.serverChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverChannel = null;
-            }
-            var serverConnectedChannel = this.serverConnectedChannel;
-            if (serverConnectedChannel != null)
-            {
-                serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverConnectedChannel = null;
-            }
             try
             {
-                Task.WaitAll(
-                    this.sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
-                    this.sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
-                    this.cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
+                Trace.WriteLine("StartingDispose");
+                Console.WriteLine("StartingDispose");
+                
+                if (this.clientChannel != null)
+                {
+                    this.clientChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.clientChannel = null;
+                }
+
+                if (this.serverChannel != null)
+                {
+                    this.serverChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.serverChannel = null;
+                }
+
+                var serverConnectedChannel = this.serverConnectedChannel;
+                if (serverConnectedChannel != null)
+                {
+                    serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.serverConnectedChannel = null;
+                }
+
+                try
+                {
+                    Task.WaitAll(
+                        this.sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
+                        this.sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
+                        this.cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
+                }
+                catch
+                {
+                    // Ignore RejectedExecutionException(on Azure DevOps)
+                }
+
+                this.serverOut?.Close();
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore RejectedExecutionException(on Azure DevOps)
+                Trace.WriteLine("FailedDispose: " + ex);
+                Console.WriteLine("FailedDispose: " + ex);
             }
-            this.serverOut?.Close();
         }
 
         [Fact]
+        [BeforeTest]
         public async Task JustHeadersNoData()
         {
             await this.BootstrapEnv(0);
@@ -216,6 +235,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task GzipEncodingSingleEmptyMessage()
         {
             string text = "";
@@ -242,6 +262,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task GzipEncodingSingleMessage()
         {
             string text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
@@ -268,6 +289,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task GzipEncodingMultipleMessages()
         {
             string text1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
@@ -298,6 +320,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public async Task DeflateEncodingWriteLargeMessage()
         {
             int BUFFER_SIZE = 1 << 12;

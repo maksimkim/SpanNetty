@@ -1,4 +1,6 @@
 ﻿
+using DotNetty.Common.Tests.Internal.Logging;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using Moq;
@@ -34,6 +36,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ClosingStreamWithChildrenDoesNotCauseConcurrentModification()
         {
             // We create enough streams to wrap around the child array. We carefully craft the stream ids so that they hash
@@ -52,6 +55,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseWhileIteratingDoesNotNPE()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(3, false);
@@ -67,6 +71,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void LocalStreamCanDependUponIdleStream()
         {
             this.Setup(1);
@@ -77,6 +82,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoteStreamCanDependUponIdleStream()
         {
             this.Setup(1);
@@ -87,6 +93,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PrioritizeShouldUseDefaults()
         {
             IHttp2Stream stream = connection.Local.CreateStream(1, false);
@@ -96,6 +103,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ReprioritizeWithNoChangeShouldDoNothing()
         {
             IHttp2Stream stream = connection.Local.CreateStream(1, false);
@@ -106,6 +114,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void StateOnlyPriorityShouldBePreservedWhenStreamsAreCreatedAndClosed()
         {
             this.Setup(3);
@@ -157,6 +166,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void FireFoxQoSStreamsRemainAfterDataStreamsAreClosed()
         {
             // http://bitsup.blogspot.com/2015/01/http2-dependency-priorities-in-firefox.html
@@ -254,6 +264,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void LowestPrecedenceStateShouldBeDropped()
         {
             this.Setup(3);
@@ -382,6 +393,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityOnlyStreamsArePreservedWhenReservedStreamsAreClosed()
         {
             this.Setup(1);
@@ -418,6 +430,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void InsertExclusiveShouldAddNewLevel()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -451,6 +464,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void ExistingChildMadeExclusiveShouldNotCreateTreeCycle()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -487,6 +501,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void NewExclusiveChildShouldUpdateOldParentCorrectly()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -534,6 +549,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void WeightChangeWithNoTreeChangeShouldBeRespected()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -570,6 +586,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void SameNodeDependentShouldNotStackOverflowNorChangePrioritizableForTree()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -609,6 +626,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void MultipleCircularDependencyShouldUpdatePrioritizable()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -655,6 +673,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void RemoveWithPrioritizableDependentsShouldNotRestructureTree()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -685,6 +704,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CloseWithNoPrioritizableDependentsShouldRestructureTree()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -716,6 +736,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void PriorityChangeWithNoPrioritizableDependentsShouldRestructureTree()
         {
             IHttp2Stream streamA = connection.Local.CreateStream(1, false);
@@ -752,6 +773,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CircularDependencyShouldRestructureTree()
         {
             // Using example from https://tools.ietf.org/html/rfc7540#section-5.3.3
@@ -829,6 +851,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        [BeforeTest]
         public void CircularDependencyWithExclusiveShouldRestructureTree()
         {
             // Using example from https://tools.ietf.org/html/rfc7540#section-5.3.3
@@ -911,6 +934,7 @@ namespace DotNetty.Codecs.Http2.Tests
         //    > A dependency on a stream that is not currently in the tree — such as a stream in the
         //    > "idle" state — results in that stream being given a default priority
         [Fact]
+        [BeforeTest]
         public void UnknownParentShouldBeCreatedUnderConnection()
         {
             this.Setup(5);
