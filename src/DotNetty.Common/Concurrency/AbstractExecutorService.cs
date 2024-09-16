@@ -116,7 +116,7 @@ namespace DotNetty.Common.Concurrency
             public void Run() => _action(_state);
         }
 
-        sealed class StateActionWithContextTaskQueueNode : IRunnable
+        internal sealed class StateActionWithContextTaskQueueNode : IRunnable
         {
             readonly Action<object, object> _action;
             readonly object _context;
@@ -128,6 +128,12 @@ namespace DotNetty.Common.Concurrency
                 _context = context;
                 _state = state;
             }
+
+#if DEBUG
+            public object Context => _context;
+            public object State => _state;
+#endif
+            
 
             public void Run() => _action(_context, _state);
         }

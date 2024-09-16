@@ -12,6 +12,24 @@ namespace DotNetty.Common
     internal static class CommonLoggingExtensions
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void OfferTaskDetails(this IInternalLogger logger, IRunnable task, SingleThreadEventExecutor executor)
+        {
+            string taskData = "";
+            if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode stateActionWithContextTaskQueueNode)
+            {
+                taskData += $"context='{stateActionWithContextTaskQueueNode.Context}', state={stateActionWithContextTaskQueueNode.State}";
+            }
+
+            var isShutDown = executor.IsShutdown ? "IsShutDown" : "not ShutDown";
+            var isShuttingDown = executor.IsShuttingDown ? "IsShuttingDown" : "not ShuttingDown";
+            var isTerminated = executor.IsTerminated ? "IsTerminated" : "not IsTerminated";
+            var isBacklogEmpty = executor.IsBacklogEmpty ? "IsBacklogEmpty" : "not IsBacklogEmpty";
+            var inEventloop = executor.InEventLoop ? "InEventLoop" : "not InEventLoop";
+            
+            logger.Debug($"runnable: {taskData}; executor: {isShutDown}; {isShuttingDown}; {isTerminated}; {inEventloop}; {isBacklogEmpty}");
+        }
+        
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ATaskRaisedAnException(this IInternalLogger logger, IRunnable task, Exception ex)
         {
             logger.Warn("A task raised an exception. Task: {}", task, ex);

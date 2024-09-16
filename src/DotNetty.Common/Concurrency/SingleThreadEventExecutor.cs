@@ -541,6 +541,10 @@ namespace DotNetty.Common.Concurrency
         [MethodImpl(InlineMethod.AggressiveInlining)]
         internal bool OfferTask(IRunnable task)
         {
+#if DEBUG
+            Logger.OfferTaskDetails(task, this);
+#endif
+            
             if (IsShutdown) { Reject(); }
 
             return _taskQueue.TryEnqueue(task);
