@@ -36,9 +36,8 @@ namespace DotNetty.Transport
         public static void AbstractSocketIoCompleted<TChannel, TUnsafe>(this IInternalLogger logger, SocketChannelAsyncOperation<TChannel,TUnsafe> operation, TChannel channel, IEventLoop eventLoop) 
             where TChannel : AbstractSocketChannel<TChannel, TUnsafe> where TUnsafe : AbstractSocketChannel<TChannel, TUnsafe>.AbstractSocketUnsafe, new()
         {
-            logger.Debug($"operation: {operation.LastOperation}; {operation.Channel.Id};"
-                         + $"channel: {channel.Id};"
-                         + $"eventLoop: #{eventLoop.GetHashCode()}; inLoop: {eventLoop.InEventLoop}; isShutdown: {eventLoop.IsShutdown}; isShuttingDown: {eventLoop.IsShuttingDown}");
+            logger.Debug($"operation: {operation.LastOperation}; channel: {channel.Id};"
+                       + $"eventLoop: #{eventLoop.GetHashCode()}; inLoop: {eventLoop.InEventLoop}; isShutdown: {eventLoop.IsShutdown}; isShuttingDown: {eventLoop.IsShuttingDown}");
         }
         
         [MethodImpl(MethodImplOptions.NoInlining)]
