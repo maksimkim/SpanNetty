@@ -237,7 +237,7 @@ namespace DotNetty.Transport.Channels.Sockets
             IEventLoop eventLoop = channel.EventLoop;
             
 #if DEBUG
-            if (Logger.DebugEnabled) Logger.AbstractSocketIoCompleted(operation, channel, eventLoop);
+            Logger.AbstractSocketIoCompleted(operation, channel, eventLoop);
 #endif
             switch (args.LastOperation)
             {
