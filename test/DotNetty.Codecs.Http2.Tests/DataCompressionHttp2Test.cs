@@ -165,8 +165,7 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             try
             {
-                Trace.WriteLine("StartingDispose");
-                Console.WriteLine("StartingDispose");
+                Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
                 
                 if (this.clientChannel != null)
                 {

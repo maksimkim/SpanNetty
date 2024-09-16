@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
 
 namespace DotNetty.Codecs.Http2.Tests
@@ -45,6 +46,7 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             try
             {
+                Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
                 _group.ShutdownGracefullyAsync();
             }
             catch

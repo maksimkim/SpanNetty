@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
 
 namespace DotNetty.Codecs.Http2.Tests
@@ -55,6 +56,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
+            Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
             if (this._clientChannel != null)
             {
                 this._clientChannel.CloseAsync().GetAwaiter().GetResult();
