@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -7,7 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using DotNetty.Common.Utilities;
     using Xunit;
 
-    public class HpackDynamicTableTest
+    public class HpackDynamicTableTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -103,6 +105,10 @@ namespace DotNetty.Codecs.Http2.Tests
             table.SetCapacity(0); //clear all
             Assert.Equal(0, table.Length());
             Assert.Equal(0, table.Size());
+        }
+
+        public HpackDynamicTableTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

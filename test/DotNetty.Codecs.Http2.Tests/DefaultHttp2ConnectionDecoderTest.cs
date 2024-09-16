@@ -1,5 +1,6 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -17,7 +18,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class DefaultHttp2ConnectionDecoderTest
+    public class DefaultHttp2ConnectionDecoderTest : TestBase
     {
         private const int STREAM_ID = 3;
         private const int PUSH_STREAM_ID = 2;
@@ -44,7 +45,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private Mock<IHttp2ConnectionEncoder> encoder;
         private Mock<IHttp2LifecycleManager> lifecycleManager;
 
-        public DefaultHttp2ConnectionDecoderTest()
+        public DefaultHttp2ConnectionDecoderTest(ITestOutputHelper output) : base(output)
         {
             this.connection = new Mock<IHttp2Connection>();
             this.remote = new Mock<IHttp2ConnectionEndpoint<IHttp2RemoteFlowController>>();

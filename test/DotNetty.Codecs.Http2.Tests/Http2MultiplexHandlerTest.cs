@@ -1,4 +1,6 @@
 ﻿
+using Xunit.Abstractions;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Codecs.Http2;
@@ -24,6 +26,10 @@ namespace DotNetty.Codecs.Http2.Tests
         protected override bool IgnoreWindowUpdateFrames()
         {
             return true;
+        }
+
+        public Http2MultiplexHandlerTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
         }
     }
 }

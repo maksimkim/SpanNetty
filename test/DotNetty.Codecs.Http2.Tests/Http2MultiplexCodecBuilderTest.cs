@@ -1,6 +1,8 @@
 ﻿
 using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -13,7 +15,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Xunit;
 
     [Collection("BootstrapEnv")]
-    public class Http2MultiplexCodecBuilderTest : IDisposable
+    public class Http2MultiplexCodecBuilderTest : TestBase, IDisposable
     {
         private readonly IEventLoopGroup _group;
 
@@ -22,7 +24,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private IChannel _clientChannel;
         private LastInboundHandler _serverLastInboundHandler;
 
-        public Http2MultiplexCodecBuilderTest()
+        public Http2MultiplexCodecBuilderTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _group = new DefaultEventLoopGroup();
 

@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -7,7 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class DecoratingHttp2ConnectionEncoderTest
+    public class DecoratingHttp2ConnectionEncoderTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -43,5 +45,9 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         public interface ITestHttp2ConnectionEncoder : IHttp2ConnectionEncoder, IHttp2SettingsReceivedConsumer { }
+
+        public DecoratingHttp2ConnectionEncoderTest(ITestOutputHelper output) : base(output)
+        {
+        }
     }
 }

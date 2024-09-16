@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -11,13 +13,13 @@ namespace DotNetty.Codecs.Http2.Tests
     /**
      * Tests for encoding/decoding HTTP2 header blocks.
      */
-    public class Http2HeaderBlockIOTest : IDisposable
+    public class Http2HeaderBlockIOTest : TestBase, IDisposable
     {
         private DefaultHttp2HeadersDecoder decoder;
         private DefaultHttp2HeadersEncoder encoder;
         private IByteBuffer buffer;
 
-        public Http2HeaderBlockIOTest()
+        public Http2HeaderBlockIOTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             this.encoder = new DefaultHttp2HeadersEncoder();
             this.decoder = new DefaultHttp2HeadersDecoder(false);

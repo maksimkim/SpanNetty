@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -12,7 +14,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class Http2ControlFrameLimitEncoderTest : IDisposable
+    public class Http2ControlFrameLimitEncoderTest : TestBase, IDisposable
     {
         private readonly Http2ControlFrameLimitEncoder _encoder;
         private readonly Mock<IHttp2FrameWriter> _writer;
@@ -24,7 +26,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private int _numWrites;
         private Deque<IPromise> _goAwayPromises = new Deque<IPromise>();
 
-        public Http2ControlFrameLimitEncoderTest()
+        public Http2ControlFrameLimitEncoderTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _writer = new Mock<IHttp2FrameWriter>();
             _ctx = new Mock<IChannelHandlerContext>();

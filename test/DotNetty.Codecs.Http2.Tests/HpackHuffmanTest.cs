@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -9,7 +11,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using DotNetty.Common.Utilities;
     using Xunit;
 
-    public class HpackHuffmanTest
+    public class HpackHuffmanTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -161,6 +163,10 @@ namespace DotNetty.Codecs.Http2.Tests
             {
                 buffer.Release();
             }
+        }
+
+        public HpackHuffmanTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

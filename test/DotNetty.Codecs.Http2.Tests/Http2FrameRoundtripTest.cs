@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -17,7 +19,7 @@ namespace DotNetty.Codecs.Http2.Tests
     /**
      * Tests encoding/decoding each HTTP2 frame type.
      */
-    public class Http2FrameRoundtripTest : IDisposable
+    public class Http2FrameRoundtripTest : TestBase, IDisposable
     {
         private static readonly byte[] MESSAGE = Encoding.UTF8.GetBytes("hello world");
         private const int STREAM_ID = 0x7FFFFFFF;
@@ -34,7 +36,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private IHttp2FrameReader reader;
         private readonly List<IByteBuffer> needReleasing = new List<IByteBuffer>();
 
-        public Http2FrameRoundtripTest()
+        public Http2FrameRoundtripTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             this.alloc = new Mock<IByteBufferAllocator>();
             this.alloc.Setup(x => x.Buffer()).Returns(() => Unpooled.Buffer());

@@ -1,5 +1,6 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -35,5 +36,8 @@ namespace DotNetty.Codecs.Http2.Tests
         //        //Assert.True(ch.FinishAndReleaseAll());
         //    }
         //}
+        public Http2MultiplexHandlerClientUpgradeTest(ITestOutputHelper output) : base(output)
+        {
+        }
     }
 }

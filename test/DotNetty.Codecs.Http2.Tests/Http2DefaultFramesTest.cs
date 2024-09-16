@@ -1,12 +1,14 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Buffers;
     using Xunit;
 
-    public class Http2DefaultFramesTest
+    public class Http2DefaultFramesTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -29,6 +31,10 @@ namespace DotNetty.Codecs.Http2.Tests
                 unknownFrame.Release();
                 dflt.Release();
             }
+        }
+
+        public Http2DefaultFramesTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -10,7 +12,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class DefaultHttp2LocalFlowControllerTest : IDisposable
+    public class DefaultHttp2LocalFlowControllerTest : TestBase, IDisposable
     {
         private static readonly int STREAM_ID = 1;
 
@@ -23,7 +25,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private DefaultHttp2Connection _connection;
 
-        public DefaultHttp2LocalFlowControllerTest()
+        public DefaultHttp2LocalFlowControllerTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _frameWriter = new Mock<IHttp2FrameWriter>();
             _ctx = new Mock<IChannelHandlerContext>();

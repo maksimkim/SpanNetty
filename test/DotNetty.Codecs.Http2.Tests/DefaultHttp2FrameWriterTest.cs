@@ -1,6 +1,8 @@
 ﻿
 using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -16,7 +18,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class DefaultHttp2FrameWriterTest : IDisposable
+    public class DefaultHttp2FrameWriterTest : TestBase, IDisposable
     {
         private DefaultHttp2FrameWriter _frameWriter;
 
@@ -32,7 +34,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private Mock<IChannelHandlerContext> _ctx;
 
-        public DefaultHttp2FrameWriterTest()
+        public DefaultHttp2FrameWriterTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _http2HeadersEncoder = new DefaultHttp2HeadersEncoder(
                     NeverSensitiveDetector.Instance, new HpackEncoder(false, 16, 0));

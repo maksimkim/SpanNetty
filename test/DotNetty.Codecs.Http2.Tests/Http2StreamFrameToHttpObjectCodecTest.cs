@@ -1,5 +1,6 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -18,7 +19,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using DotNetty.Transport.Channels.Embedded;
     using Xunit;
 
-    public class Http2StreamFrameToHttpObjectCodecTest
+    public class Http2StreamFrameToHttpObjectCodecTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -1068,6 +1069,10 @@ namespace DotNetty.Codecs.Http2.Tests
             Assert.Equal("/hello/world", headers.Path.ToString());
             Assert.True(((IHttp2HeadersFrame)headersFrame).IsEndStream);
             Assert.False(frames.TryDequeue(out _));
+        }
+
+        public Http2StreamFrameToHttpObjectCodecTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

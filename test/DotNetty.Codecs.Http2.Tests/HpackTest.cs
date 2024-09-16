@@ -1,4 +1,7 @@
 ﻿
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -6,7 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using System.IO;
     using Xunit;
 
-    public class HpackTest
+    public class HpackTest : TestBase
     {
         static readonly string TEST_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"testdata");
 
@@ -29,6 +32,10 @@ namespace DotNetty.Codecs.Http2.Tests
                 hpackTestCase.TestCompress();
                 hpackTestCase.TestDecompress();
             }
+        }
+
+        public HpackTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

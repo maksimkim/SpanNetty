@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -10,12 +12,12 @@ namespace DotNetty.Codecs.Http2.Tests
     /**
      * Tests for {@link DefaultHttp2HeadersEncoder}.
      */
-    public class DefaultHttp2HeadersEncoderTest
+    public class DefaultHttp2HeadersEncoderTest : TestBase
     {
 
         private DefaultHttp2HeadersEncoder encoder;
 
-        public DefaultHttp2HeadersEncoderTest()
+        public DefaultHttp2HeadersEncoderTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             encoder = new DefaultHttp2HeadersEncoder(NeverSensitiveDetector.Instance, Http2TestUtil.NewTestEncoder());
         }

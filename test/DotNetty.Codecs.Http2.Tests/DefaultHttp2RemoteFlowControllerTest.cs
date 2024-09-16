@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -10,7 +12,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public abstract class DefaultHttp2RemoteFlowControllerTest
+    public abstract class DefaultHttp2RemoteFlowControllerTest : TestBase
     {
         private const int STREAM_A = 1;
         private const int STREAM_B = 3;
@@ -29,7 +31,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private DefaultHttp2Connection connection;
 
-        public DefaultHttp2RemoteFlowControllerTest()
+        protected DefaultHttp2RemoteFlowControllerTest(ITestOutputHelper output) : base(output)
         {
             this.ctx = new Mock<IChannelHandlerContext>();
             this.channel = new Mock<IChannel>();

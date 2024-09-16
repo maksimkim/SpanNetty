@@ -1,6 +1,8 @@
 ﻿
 using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -15,7 +17,7 @@ namespace DotNetty.Codecs.Http2.Tests
     /**
      * Tests for {@link DefaultHttp2Connection}.
      */
-    public class DefaultHttp2ConnectionTest : IDisposable
+    public class DefaultHttp2ConnectionTest : TestBase, IDisposable
     {
         private readonly DefaultEventLoopGroup _group;
         private DefaultHttp2Connection _server;
@@ -24,7 +26,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private Mock<IHttp2ConnectionListener> _clientListener;
         private Mock<IHttp2ConnectionListener> _clientListener2;
 
-        public DefaultHttp2ConnectionTest()
+        public DefaultHttp2ConnectionTest(ITestOutputHelper output) : base(output)
         {
             _group = new DefaultEventLoopGroup(2);
 

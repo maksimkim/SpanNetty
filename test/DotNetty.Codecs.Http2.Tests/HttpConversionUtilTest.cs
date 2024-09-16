@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -8,8 +10,12 @@ namespace DotNetty.Codecs.Http2.Tests
     using DotNetty.Common.Utilities;
     using Xunit;
 
-    public class HttpConversionUtilTest
+    public class HttpConversionUtilTest : TestBase
     {
+        public HttpConversionUtilTest(ITestOutputHelper output) : base(output)
+        {
+        }
+        
         [Fact]
         [BeforeTest]
         public void SetHttp2AuthorityWithoutUserInfo()

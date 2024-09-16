@@ -1,6 +1,8 @@
 ﻿
 using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -18,7 +20,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Xunit;
 
     [Collection("BootstrapEnv")]
-    public class Http2MultiplexTransportTest : IDisposable
+    public class Http2MultiplexTransportTest : TestBase, IDisposable
     {
         sealed class DISCARD_HANDLER : ChannelHandlerAdapter
         {
@@ -43,7 +45,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private IChannel _serverChannel;
         private volatile IChannel _serverConnectedChannel;
 
-        public Http2MultiplexTransportTest()
+        public Http2MultiplexTransportTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
 

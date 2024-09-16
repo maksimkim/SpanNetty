@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -8,9 +10,13 @@ namespace DotNetty.Codecs.Http2.Tests
     using DotNetty.Transport.Channels.Embedded;
     using Xunit;
 
-    public abstract class Http2MultiplexClientUpgradeTest<TCodec>
+    public abstract class Http2MultiplexClientUpgradeTest<TCodec> : TestBase
         where TCodec : Http2FrameCodec
     {
+        protected Http2MultiplexClientUpgradeTest(ITestOutputHelper output) : base(output)
+        {
+        }
+        
         internal sealed class NoopHandler : ChannelHandlerAdapter
         {
             public override bool IsSharable => true;

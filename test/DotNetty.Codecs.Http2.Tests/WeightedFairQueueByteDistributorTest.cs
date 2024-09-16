@@ -1,5 +1,6 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -16,7 +17,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private const int STREAM_E = 9;
         private const int ALLOCATION_QUANTUM = 100;
 
-        public WeightedFairQueueByteDistributorTest()
+        public WeightedFairQueueByteDistributorTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             this.writer = new Moq.Mock<IStreamByteDistributorWriter>();
 

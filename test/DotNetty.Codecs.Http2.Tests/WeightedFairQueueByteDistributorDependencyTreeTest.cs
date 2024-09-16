@@ -1,5 +1,6 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -19,7 +20,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private const short speculativeWeight = 1;
         private const short followersWeight = 1;
 
-        public WeightedFairQueueByteDistributorDependencyTreeTest()
+        public WeightedFairQueueByteDistributorDependencyTreeTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             this.writer = new Mock<IStreamByteDistributorWriter>();
             this.Setup(0);

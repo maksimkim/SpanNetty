@@ -1,12 +1,14 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Common.Utilities;
     using Xunit;
 
-    public class DefaultHttp2HeadersTest
+    public class DefaultHttp2HeadersTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -200,6 +202,10 @@ namespace DotNetty.Codecs.Http2.Tests
             headers.Add(AsciiString.Of("name3"), AsciiString.Of("value4"));
             headers.Scheme = AsciiString.Of("https");
             return headers;
+        }
+
+        public DefaultHttp2HeadersTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

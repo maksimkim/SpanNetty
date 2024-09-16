@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -15,7 +17,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class CleartextHttp2ServerUpgradeHandlerTest : IDisposable
+    public class CleartextHttp2ServerUpgradeHandlerTest : TestBase, IDisposable
     {
         private EmbeddedChannel _channel;
         private Mock<IHttp2FrameListener> _frameListener;
@@ -276,6 +278,10 @@ namespace DotNetty.Codecs.Http2.Tests
             settingsBuffer.Release();
 
             Assert.Null(_channel.ReadOutbound());
+        }
+
+        public CleartextHttp2ServerUpgradeHandlerTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

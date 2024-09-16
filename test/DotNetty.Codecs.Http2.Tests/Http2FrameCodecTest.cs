@@ -1,6 +1,8 @@
 ﻿
 using System.Diagnostics;
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -21,7 +23,7 @@ namespace DotNetty.Codecs.Http2.Tests
     /**
      * Unit tests for {@link Http2FrameCodec}.
      */
-    public class Http2FrameCodecTest : IDisposable
+    public class Http2FrameCodecTest : TestBase, IDisposable
     {
         // For verifying outbound frames
         private Mock<IHttp2FrameWriter> _frameWriter;
@@ -36,7 +38,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private readonly IHttp2Headers _request;
         private readonly IHttp2Headers _response;
 
-        public Http2FrameCodecTest()
+        public Http2FrameCodecTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _request = new DefaultHttp2Headers();
             _request.Method = HttpMethod.Get.AsciiName;

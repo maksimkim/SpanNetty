@@ -1,4 +1,6 @@
 ﻿
+using Xunit.Abstractions;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using DotNetty.Transport.Channels;
@@ -18,6 +20,10 @@ namespace DotNetty.Codecs.Http2.Tests
         protected override IChannelHandler NewMultiplexer(IChannelHandler upgradeHandler)
         {
             return null;
+        }
+
+        public Http2MultiplexCodecClientUpgradeTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

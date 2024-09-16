@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -9,7 +11,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class Http2EmptyDataFrameListenerTest
+    public class Http2EmptyDataFrameListenerTest : TestBase
     {
         private Mock<IHttp2FrameListener> _frameListener;
         private Mock<IChannelHandlerContext> _ctx;
@@ -17,7 +19,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private Http2EmptyDataFrameListener _listener;
 
-        public Http2EmptyDataFrameListenerTest()
+        public Http2EmptyDataFrameListenerTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _frameListener = new Mock<IHttp2FrameListener>();
             _ctx = new Mock<IChannelHandlerContext>();

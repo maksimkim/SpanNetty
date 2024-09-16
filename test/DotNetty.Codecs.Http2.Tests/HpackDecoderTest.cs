@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -11,7 +13,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class HpackDecoderTest
+    public class HpackDecoderTest : TestBase
     {
         private HpackDecoder hpackDecoder;
         private Mock<IHttp2Headers> mockHeaders;
@@ -35,7 +37,7 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
 
-        public HpackDecoderTest()
+        public HpackDecoderTest(ITestOutputHelper output) : base(output)
         {
             this.hpackDecoder = new HpackDecoder(8192);
             this.mockHeaders = new Mock<IHttp2Headers>(MockBehavior.Default);

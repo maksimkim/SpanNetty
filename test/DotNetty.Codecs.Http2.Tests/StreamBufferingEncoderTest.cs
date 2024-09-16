@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -13,7 +15,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class StreamBufferingEncoderTest : IDisposable
+    public class StreamBufferingEncoderTest : TestBase, IDisposable
     {
         private StreamBufferingEncoder _encoder;
         private IHttp2Connection _connection;
@@ -25,7 +27,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private Mock<IChannelConfiguration> _config;
         private Mock<IEventExecutor> _executor;
 
-        public StreamBufferingEncoderTest()
+        public StreamBufferingEncoderTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _writer = new Mock<IHttp2FrameWriter>();
             _ctx = new Mock<IChannelHandlerContext>();

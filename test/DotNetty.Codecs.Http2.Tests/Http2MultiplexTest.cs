@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -15,7 +17,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public abstract class Http2MultiplexTest<TCodec> : IDisposable
+    public abstract class Http2MultiplexTest<TCodec> : TestBase, IDisposable
         where TCodec : Http2FrameCodec
     {
         private const int c_initialRemoteStreamWindow = 1024;
@@ -34,7 +36,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private TestChannelInitializer _childChannelInitializer;
         private TCodec _codec;
 
-        public Http2MultiplexTest()
+        public Http2MultiplexTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _childChannelInitializer = new TestChannelInitializer();
             _parentChannel = new EmbeddedChannel();

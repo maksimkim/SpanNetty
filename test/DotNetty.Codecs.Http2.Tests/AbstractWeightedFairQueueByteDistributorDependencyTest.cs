@@ -1,4 +1,7 @@
 ﻿
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -6,7 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using System.Text;
     using Moq;
 
-    public abstract class AbstractWeightedFairQueueByteDistributorDependencyTest
+    public abstract class AbstractWeightedFairQueueByteDistributorDependencyTest : TestBase
     {
         protected IHttp2Connection connection;
         protected WeightedFairQueueByteDistributor distributor;
@@ -49,6 +52,10 @@ namespace DotNetty.Codecs.Http2.Tests
         protected void SetPriority(int streamId, int parent, int weight, bool exclusive)
         {
             distributor.UpdateDependencyTree(streamId, parent, (short)weight, exclusive);
+        }
+
+        protected AbstractWeightedFairQueueByteDistributorDependencyTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

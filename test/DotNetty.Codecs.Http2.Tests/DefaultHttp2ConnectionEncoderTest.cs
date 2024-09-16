@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -15,7 +17,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class DefaultHttp2ConnectionEncoderTest
+    public class DefaultHttp2ConnectionEncoderTest : TestBase
     {
         private const int STREAM_ID = 2;
         private const int PUSH_STREAM_ID = 4;
@@ -37,7 +39,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private List<int> _writtenPadding;
         private bool _streamClosed;
 
-        public DefaultHttp2ConnectionEncoderTest()
+        public DefaultHttp2ConnectionEncoderTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _remoteFlow = new Mock<IHttp2RemoteFlowController>();
             _ctx = new Mock<IChannelHandlerContext>();

@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -8,7 +10,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class UniformStreamByteDistributorTest
+    public class UniformStreamByteDistributorTest : TestBase
     {
         private const int CHUNK_SIZE = Http2CodecUtil.DefaultMinAllocationChunk;
 
@@ -23,7 +25,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private Mock<IStreamByteDistributorWriter> writer;
 
-        public UniformStreamByteDistributorTest()
+        public UniformStreamByteDistributorTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             this.writer = new Mock<IStreamByteDistributorWriter>();
             stateMap = new Dictionary<int, Http2TestUtil.TestStreamByteDistributorStreamState>();

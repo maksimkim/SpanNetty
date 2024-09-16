@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -9,11 +11,11 @@ namespace DotNetty.Codecs.Http2.Tests
     /**
      * Tests for {@link Http2Settings}.
      */
-    public class Http2SettingsTest
+    public class Http2SettingsTest : TestBase
     {
         private Http2Settings settings;
 
-        public Http2SettingsTest()
+        public Http2SettingsTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             this.settings = new Http2Settings();
         }

@@ -1,12 +1,14 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
     using Moq;
     using Xunit;
 
-    public class Http2EmptyDataFrameConnectionDecoderTest
+    public class Http2EmptyDataFrameConnectionDecoderTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -34,6 +36,10 @@ namespace DotNetty.Codecs.Http2.Tests
             Http2EmptyDataFrameConnectionDecoder decoder = new Http2EmptyDataFrameConnectionDecoder(decoder0.Object, 2);
             decoder.FrameListener = null;
             Assert.Null(decoder.FrameListener);
+        }
+
+        public Http2EmptyDataFrameConnectionDecoderTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

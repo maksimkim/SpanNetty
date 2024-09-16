@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -16,7 +18,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class Http2ConnectionHandlerTest : IDisposable
+    public class Http2ConnectionHandlerTest : TestBase, IDisposable
     {
         private const int STREAM_ID = 1;
         private const int NON_EXISTANT_STREAM_ID = 13;
@@ -44,7 +46,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private Task _future;
         private string _goAwayDebugCap;
 
-        public Http2ConnectionHandlerTest()
+        public Http2ConnectionHandlerTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             _connection = new Mock<IHttp2Connection>();
             _remoteFlow = new Mock<IHttp2RemoteFlowController>();

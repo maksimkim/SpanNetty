@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -7,7 +9,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using DotNetty.Common.Utilities;
     using Xunit;
 
-    public class ReadOnlyHttp2HeadersTest
+    public class ReadOnlyHttp2HeadersTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -275,6 +277,10 @@ namespace DotNetty.Codecs.Http2.Tests
                 new AsciiString("name2"), new AsciiString("value2"),
                 new AsciiString("name3"), new AsciiString("value3")
             };
+        }
+
+        public ReadOnlyHttp2HeadersTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

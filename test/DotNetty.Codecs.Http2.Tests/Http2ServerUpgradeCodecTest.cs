@@ -1,5 +1,7 @@
 ﻿
 using DotNetty.Common.Tests.Internal.Logging;
+using DotNetty.Tests.Common;
+using Xunit.Abstractions;
 
 namespace DotNetty.Codecs.Http2.Tests
 {
@@ -13,7 +15,7 @@ namespace DotNetty.Codecs.Http2.Tests
     using Moq;
     using Xunit;
 
-    public class Http2ServerUpgradeCodecTest
+    public class Http2ServerUpgradeCodecTest : TestBase
     {
         [Fact]
         [BeforeTest]
@@ -101,6 +103,10 @@ namespace DotNetty.Codecs.Http2.Tests
         sealed class HttpInboundHandler : ChannelHandlerAdapter
         {
             public override bool IsSharable => true;
+        }
+
+        public Http2ServerUpgradeCodecTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }
