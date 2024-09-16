@@ -320,17 +320,26 @@ namespace DotNetty.Common.Concurrency
         [MethodImpl(InlineMethod.AggressiveOptimization)]
         protected bool CompareAndSetExecutionState(int currentState, int newState)
         {
+#if DEBUG
+            if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: currentState, newState: newState);
+#endif
             return currentState == Interlocked.CompareExchange(ref v_executionState, newState, currentState);
         }
 
         [MethodImpl(InlineMethod.AggressiveOptimization)]
         protected void SetExecutionState(int newState)
         {
+#if DEBUG
+            if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: v_executionState, newState: newState);
+#endif
             _ = Interlocked.Exchange(ref v_executionState, newState);
         }
 
         protected void TrySetExecutionState(int newState)
         {
+#if DEBUG
+            if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: v_executionState, newState: newState);
+#endif
             var currentState = v_executionState;
             int oldState;
             do

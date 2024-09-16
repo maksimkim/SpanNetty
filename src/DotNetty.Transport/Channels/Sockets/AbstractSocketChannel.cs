@@ -235,6 +235,10 @@ namespace DotNetty.Transport.Channels.Sockets
             var channel = operation.Channel;
             var @unsafe = channel.Unsafe;
             IEventLoop eventLoop = channel.EventLoop;
+            
+#if DEBUG
+            if (Logger.DebugEnabled) Logger.AbstractSocketIoCompleted(operation, channel, eventLoop);
+#endif
             switch (args.LastOperation)
             {
                 case SocketAsyncOperation.Accept:

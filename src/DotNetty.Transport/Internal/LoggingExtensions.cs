@@ -26,11 +26,21 @@ using System.Runtime.CompilerServices;
 using DotNetty.Common.Concurrency;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Sockets;
 
 namespace DotNetty.Transport
 {
     internal static class TransportLoggingExtensions
     {
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void AbstractSocketIoCompleted<TChannel, TUnsafe>(this IInternalLogger logger, SocketChannelAsyncOperation<TChannel,TUnsafe> operation, TChannel channel, IEventLoop eventLoop) 
+            where TChannel : AbstractSocketChannel<TChannel, TUnsafe> where TUnsafe : AbstractSocketChannel<TChannel, TUnsafe>.AbstractSocketUnsafe, new()
+        {
+            logger.Debug($"operation: {operation}"
+                         + $"channel: {channel.Id};"
+                         + $"eventLoop: #{eventLoop.GetHashCode()}; inLoop: {eventLoop.InEventLoop}; isShutdown: {eventLoop.IsShutdown}; isShuttingDown: {eventLoop.IsShuttingDown}");
+        }
+        
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void FreedThreadLocalBufferFromThreadFull(this IInternalLogger logger, Exception error, Exception cause)
         {
