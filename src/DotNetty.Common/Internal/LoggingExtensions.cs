@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using DotNetty.Common.Concurrency;
+using DotNetty.Common.Internal;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Common.Utilities;
 
@@ -12,21 +13,30 @@ namespace DotNetty.Common
     internal static class CommonLoggingExtensions
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void OfferTaskDetails(this IInternalLogger logger, IRunnable task, SingleThreadEventExecutor executor)
+        public static void OfferTaskDetails(this IInternalLogger logger, IQueue<IRunnable> taskQueue)
         {
-            string taskData = "";
-            if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode stateActionWithContextTaskQueueNode)
+            var queueIsNull = taskQueue is null ? "is null" : "is not null";
+            string queueDetails = $"queue: {queueIsNull}";
+            if (taskQueue is CompatibleBlockingQueue<IRunnable> compatibleBlockingQueue)
             {
-                taskData += $"context='{stateActionWithContextTaskQueueNode.Context}', state={stateActionWithContextTaskQueueNode.State}";
+                queueDetails += "capacity=" + compatibleBlockingQueue.BoundedCapacity.ToString() + "; ";
+                queueDetails += compatibleBlockingQueue.IsCompleted ? "isCompleted" : "not isCompleted" + "; ";
+                queueDetails += compatibleBlockingQueue.IsAddingCompleted ? "isAddingCompleted" : "not isAddingCompleted" + "; ";
             }
-
+            
+            logger.Debug($"{queueDetails} count={taskQueue?.Count}");
+        }
+        
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void OfferTaskDetails(this IInternalLogger logger, SingleThreadEventExecutor executor)
+        {
             var isShutDown = executor.IsShutdown ? "IsShutDown" : "not ShutDown";
             var isShuttingDown = executor.IsShuttingDown ? "IsShuttingDown" : "not ShuttingDown";
             var isTerminated = executor.IsTerminated ? "IsTerminated" : "not IsTerminated";
             var isBacklogEmpty = executor.IsBacklogEmpty ? "IsBacklogEmpty" : "not IsBacklogEmpty";
             var inEventloop = executor.InEventLoop ? "InEventLoop" : "not InEventLoop";
             
-            logger.Debug($"runnable: {taskData}; executor: {isShutDown}; {isShuttingDown}; {isTerminated}; {inEventloop}; {isBacklogEmpty}");
+            logger.Debug($"executor: {isShutDown}; {isShuttingDown}; {isTerminated}; {inEventloop}; {isBacklogEmpty}");
         }
         
         [MethodImpl(MethodImplOptions.NoInlining)]

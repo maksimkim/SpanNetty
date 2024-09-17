@@ -542,11 +542,14 @@ namespace DotNetty.Common.Concurrency
         internal bool OfferTask(IRunnable task)
         {
 #if DEBUG
-            Logger.OfferTaskDetails(task, this);
+            Logger.OfferTaskDetails(this);
 #endif
             
             if (IsShutdown) { Reject(); }
 
+#if DEBUG
+            Logger.OfferTaskDetails(_taskQueue);
+#endif
             return _taskQueue.TryEnqueue(task);
         }
 
