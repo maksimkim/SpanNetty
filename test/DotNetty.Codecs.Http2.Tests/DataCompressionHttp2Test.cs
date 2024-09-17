@@ -193,9 +193,9 @@ namespace DotNetty.Codecs.Http2.Tests
                         this.sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
                         this.cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore RejectedExecutionException(on Azure DevOps)
+                    Output.WriteLine($"FailedShutdown of {this.GetType().FullName}: " + ex);
                 }
 
                 this.serverOut?.Close();
