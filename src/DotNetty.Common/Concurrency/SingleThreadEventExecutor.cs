@@ -353,9 +353,9 @@ namespace DotNetty.Common.Concurrency
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        protected static void Reject()
+        protected void Reject()
         {
-            ThrowHelper.ThrowRejectedExecutionException_Terminated();
+            throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}");
         }
 
         /// <summary>
