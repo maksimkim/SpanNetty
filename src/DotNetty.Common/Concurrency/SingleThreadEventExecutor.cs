@@ -550,8 +550,23 @@ namespace DotNetty.Common.Concurrency
 
             if (IsShutdown)
             {
+                string context = "";
+                string state = "";
+                if (task is DotNetty.Common.Concurrency.AbstractExecutorService.StateActionWithContextTaskQueueNode stateAction)
+                {
+                    try
+                    {
+                        context = JsonConvert.SerializeObject(stateAction.Context);    
+                    } catch {}
+
+                    try
+                    {
+                        state = JsonConvert.SerializeObject(stateAction.State);
+                    } catch {}
+                }
+                
                 // var taskData = JsonConvert.SerializeObject(task, Formatting.None);
-                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; taskData: type={task.GetType().FullName}");
+                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; taskData: type={task.GetType().FullName}; context={context}, state={state}");
             }
 
 #if DEBUG
