@@ -550,8 +550,8 @@ namespace DotNetty.Common.Concurrency
 
             if (IsShutdown)
             {
-                var taskData = JsonConvert.SerializeObject(task, Formatting.None);
-                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; taskData: {taskData}");
+                // var taskData = JsonConvert.SerializeObject(task, Formatting.None);
+                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; taskData: type={task.GetType().FullName}");
             }
 
 #if DEBUG
