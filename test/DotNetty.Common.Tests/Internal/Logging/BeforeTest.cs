@@ -28,7 +28,7 @@ namespace DotNetty.Common.Tests.Internal.Logging
             //     .Where(x => x is not null)
             //     .Select(x => $"{x.GetMethod()} {x.GetFileName()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}\n");
             // var stackTraceStr = frames is not null ? string.Join("", frames) : "";
-            Trace.WriteLine($"Starting test '{methodUnderTest.ReturnType} {methodUnderTest.Name}'");
+            Trace.WriteLine($"Finished test '{methodUnderTest.ReturnType} {methodUnderTest.Name}'");
             base.After(methodUnderTest);
         }
     }
