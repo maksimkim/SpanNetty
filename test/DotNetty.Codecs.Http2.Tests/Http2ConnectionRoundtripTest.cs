@@ -147,34 +147,47 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
-            Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
-            
-            if (_clientChannel != null)
-            {
-                _clientChannel.CloseAsync().GetAwaiter().GetResult();
-                _clientChannel = null;
-            }
-            if (_serverChannel != null)
-            {
-                _serverChannel.CloseAsync().GetAwaiter().GetResult();
-                _serverChannel = null;
-            }
-            var serverConnectedChannel = _serverConnectedChannel;
-            if (serverConnectedChannel != null)
-            {
-                serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
-                _serverConnectedChannel = null;
-            }
             try
             {
-                Task.WaitAll(
-                    _sb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
-                    _sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
-                    _cb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)));
+                Output.WriteLine($"StartingDispose of {this.GetType().FullName}");
+
+                if (_clientChannel != null)
+                {
+                    _clientChannel.CloseAsync().GetAwaiter().GetResult();
+                    _clientChannel = null;
+                }
+
+                if (_serverChannel != null)
+                {
+                    _serverChannel.CloseAsync().GetAwaiter().GetResult();
+                    _serverChannel = null;
+                }
+
+                var serverConnectedChannel = _serverConnectedChannel;
+                if (serverConnectedChannel != null)
+                {
+                    serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
+                    _serverConnectedChannel = null;
+                }
+
+                try
+                {
+                    Task.WaitAll(
+                        _sb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
+                        _sb.ChildGroup()
+                            .ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
+                        _cb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)));
+                }
+                catch
+                {
+                    // Ignore RejectedExecutionException(on Azure DevOps)
+                }
+                
+                Output.WriteLine($"FinisheDispose of {this.GetType().FullName}");
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore RejectedExecutionException(on Azure DevOps)
+                Output.WriteLine($"FailedDispose of {this.GetType().FullName}: " + ex);
             }
         }
 

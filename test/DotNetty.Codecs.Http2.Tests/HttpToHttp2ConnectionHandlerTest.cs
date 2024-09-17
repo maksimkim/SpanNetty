@@ -122,33 +122,48 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
-            Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
-            if (this.clientChannel != null)
-            {
-                this.clientChannel.CloseAsync().GetAwaiter().GetResult();
-                this.clientChannel = null;
-            }
-            if (this.serverChannel != null)
-            {
-                this.serverChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverChannel = null;
-            }
-            var serverConnectedChannel = this.serverConnectedChannel;
-            if (serverConnectedChannel != null && serverConnectedChannel.IsActive)
-            {
-                serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverConnectedChannel = null;
-            }
             try
             {
-                Task.WaitAll(
-                    this.sb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
-                    this.sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
-                    this.cb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)));
+                Output.WriteLine($"StartingDispose of {this.GetType().FullName}");
+                if (this.clientChannel != null)
+                {
+                    this.clientChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.clientChannel = null;
+                }
+
+                if (this.serverChannel != null)
+                {
+                    this.serverChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.serverChannel = null;
+                }
+
+                var serverConnectedChannel = this.serverConnectedChannel;
+                if (serverConnectedChannel != null && serverConnectedChannel.IsActive)
+                {
+                    serverConnectedChannel.CloseAsync().GetAwaiter().GetResult();
+                    this.serverConnectedChannel = null;
+                }
+
+                try
+                {
+                    Task.WaitAll(
+                        this.sb.Group()
+                            .ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
+                        this.sb.ChildGroup()
+                            .ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
+                        this.cb.Group()
+                            .ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)));
+                }
+                catch
+                {
+                    // Ignore RejectedExecutionException(on Azure DevOps)
+                }
+
+                Output.WriteLine($"FinishedDispose of {this.GetType().FullName}");
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore RejectedExecutionException(on Azure DevOps)
+                Output.WriteLine($"FailedDispose of {this.GetType().FullName}: " + ex);
             }
         }
 

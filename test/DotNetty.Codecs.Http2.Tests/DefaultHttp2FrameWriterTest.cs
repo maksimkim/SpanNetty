@@ -78,10 +78,11 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
-            Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
+            Output.WriteLine($"StartingDispose of {this.GetType().FullName}");
             _outbound.Release();
             _expectedOutbound.Release();
             _frameWriter.Close();
+            Output.WriteLine($"FinishedDispose of {this.GetType().FullName}");
         }
 
         [Fact]

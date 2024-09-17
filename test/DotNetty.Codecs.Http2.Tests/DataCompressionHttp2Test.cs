@@ -199,10 +199,11 @@ namespace DotNetty.Codecs.Http2.Tests
                 }
 
                 this.serverOut?.Close();
+                Output.WriteLine($"FinishedDispose of {this.GetType().FullName}");
             }
             catch (Exception ex)
             {
-                Output.WriteLine("FailedDispose: " + ex);
+                Output.WriteLine($"FailedDispose of {this.GetType().FullName}: " + ex);
             }
         }
 

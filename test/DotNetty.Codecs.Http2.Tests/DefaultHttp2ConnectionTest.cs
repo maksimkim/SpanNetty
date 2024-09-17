@@ -48,8 +48,9 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             try
             {
-                Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
+                Output.WriteLine($"StartingDispose of {this.GetType().FullName}");
                 _group.ShutdownGracefullyAsync();
+                Output.WriteLine($"FinishedDispose of {this.GetType().FullName}");
             }
             catch
             {

@@ -52,8 +52,9 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public void Dispose()
         {
-            Trace.WriteLine($"StartingDispose of {this.GetType().FullName}");
+            Output.WriteLine($"StartingDispose of {this.GetType().FullName}");
             Dispose0();
+            Output.WriteLine($"FinishedDispose of {this.GetType().FullName}");
         }
 
         private void Dispose0()
