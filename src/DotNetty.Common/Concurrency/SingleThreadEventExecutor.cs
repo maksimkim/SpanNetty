@@ -22,6 +22,9 @@
 
 namespace DotNetty.Common.Concurrency
 {
+    // TODO remove after
+    using Newtonsoft.Json;
+    
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -544,8 +547,12 @@ namespace DotNetty.Common.Concurrency
 #if DEBUG
             Logger.OfferTaskDetails(this);
 #endif
-            
-            if (IsShutdown) { Reject(); }
+
+            if (IsShutdown)
+            {
+                var taskData = JsonConvert.SerializeObject(task, Formatting.None);
+                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; taskData: {taskData}");
+            }
 
 #if DEBUG
             Logger.OfferTaskDetails(_taskQueue);
