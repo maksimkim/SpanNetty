@@ -6,9 +6,9 @@ namespace DotNetty.Common.Internal.Logging
     public static class EventLoopLoggerExtensions
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ExecutionStateChange(this IInternalLogger logger, XThread thread, int oldState, int newState) 
+        public static void ExecutionStateChange(this IInternalLogger logger, XThread thread, int oldState, int newState, string location = "") 
         {
-            logger.Debug($"Loop {thread.Name}; oldState: {GetState(oldState)}; newState: {GetState(newState)}");
+            logger.Debug($"[{location}] Loop {thread.Name}; oldState: {GetState(oldState)}; newState: {GetState(newState)}");
         }
 
         private static string GetState(int state) => state switch

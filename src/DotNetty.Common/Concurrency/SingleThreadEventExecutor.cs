@@ -902,6 +902,10 @@ namespace DotNetty.Common.Concurrency
                             break;
                     }
                 }
+                
+#if DEBUG
+                if (Logger.DebugEnabled) Logger.ExecutionStateChange(InnerThread, oldState: oldState, newState: newState, location: "shutdown");
+#endif
                 thisState = Interlocked.CompareExchange(ref v_executionState, newState, oldState);
             } while ((uint)(thisState - oldState) > 0u);
 
