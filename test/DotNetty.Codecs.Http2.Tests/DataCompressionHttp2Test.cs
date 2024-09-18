@@ -100,7 +100,7 @@ namespace DotNetty.Codecs.Http2.Tests
         }
     }
 
-    [Collection("BootstrapEnv")]
+    // [Collection("BootstrapEnv")] // no collection means re-setup for every test
     public abstract class AbstractDataCompressionHttp2Test : TestBase, IDisposable
     {
         private static readonly AsciiString GET = new AsciiString("GET");
