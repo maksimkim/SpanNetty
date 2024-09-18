@@ -195,8 +195,8 @@ namespace DotNetty.Common.Concurrency
             _taskScheduler = new ExecutorTaskScheduler(this);
             
             var stackTrace = new StackTrace();
-            var frames = stackTrace.GetFrames()?.Take(300).Where(x => x is not null).Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
-            this._creationStackTrace = string.Join(" ", frames!);
+            var frames = stackTrace.GetFrames()?.Take(1000).Where(x => x is not null).Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
+            this._creationStackTrace = string.Join("\n", frames!);
         }
 
         #endregion
