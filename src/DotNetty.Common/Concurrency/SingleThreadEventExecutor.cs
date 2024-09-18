@@ -195,7 +195,7 @@ namespace DotNetty.Common.Concurrency
             _taskScheduler = new ExecutorTaskScheduler(this);
             
             var stackTrace = new StackTrace();
-            var frames = stackTrace.GetFrames()?.Take(250).Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
+            var frames = stackTrace.GetFrames()?.Take(300).Where(x => x is not null).Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
             this._creationStackTrace = string.Join(" ", frames!);
         }
 
@@ -556,23 +556,7 @@ namespace DotNetty.Common.Concurrency
 
             if (IsShutdown)
             {
-                string context = "";
-                string state = "";
-                if (task is DotNetty.Common.Concurrency.AbstractExecutorService.StateActionWithContextTaskQueueNode stateAction)
-                {
-                    try
-                    {
-                        context = JsonConvert.SerializeObject(stateAction.Context);    
-                    } catch {}
-
-                    try
-                    {
-                        state = JsonConvert.SerializeObject(stateAction.State);
-                    } catch {}
-                }
-                
-                // var taskData = JsonConvert.SerializeObject(task, Formatting.None);
-                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; taskData: type={task.GetType().FullName}; context={context}, state={state}");
+                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; creationTrace: {_creationStackTrace}");
             }
 
 #if DEBUG
