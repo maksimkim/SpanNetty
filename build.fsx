@@ -224,11 +224,12 @@ Target "RunTests" (fun _ ->
                                           -- "./test/*.Tests/DotNetty.Transport.Tests.csproj"
                                           -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
                                           -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
-                                | _ -> !! "./test/*.Tests/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
-                                       -- "./test/*.Tests/DotNetty.Transport.Tests.csproj"
-                                       -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
-                                       -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
-                                       -- "./test/*.Tests/DotNetty.End2End.Tests.csproj"
+                                | _ -> !! "./test/DotNetty.Codecs.Http2.Tests/*.Tests.csproj"
+                                // | _ -> !! "./test/*.Tests/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
+                                //        -- "./test/*.Tests/DotNetty.Transport.Tests.csproj"
+                                //        -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
+                                //        -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
+                                //        -- "./test/*.Tests/DotNetty.End2End.Tests.csproj"
             rawProjects |> Seq.choose filterProjects
      
         let runSingleProject project =

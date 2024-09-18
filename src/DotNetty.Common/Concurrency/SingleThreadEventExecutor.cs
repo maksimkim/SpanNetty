@@ -43,6 +43,8 @@ namespace DotNetty.Common.Concurrency
     {
         #region @@ Fields @@
 
+        private readonly string _creationStackTrace;
+        
         protected const int NotStartedState = 1;
         protected const int StartedState = 2;
         protected const int ShuttingDownState = 3;
@@ -191,6 +193,10 @@ namespace DotNetty.Common.Concurrency
             _threadLock = new CountdownEvent(1);
 
             _taskScheduler = new ExecutorTaskScheduler(this);
+            
+            var stackTrace = new StackTrace();
+            var frames = stackTrace.GetFrames()?.Take(250).Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
+            this._creationStackTrace = string.Join(" ", frames!);
         }
 
         #endregion
@@ -358,7 +364,7 @@ namespace DotNetty.Common.Concurrency
         [MethodImpl(MethodImplOptions.NoInlining)]
         protected void Reject()
         {
-            throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}");
+            throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}. Creation StackTrace: {_creationStackTrace}");
         }
 
         /// <summary>
