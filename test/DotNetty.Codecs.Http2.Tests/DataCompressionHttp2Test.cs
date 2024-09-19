@@ -192,16 +192,16 @@ namespace DotNetty.Codecs.Http2.Tests
             {
                 Output.WriteLine($"StartingDispose of {GetType().FullName}");
                 
-                if (clientChannel != null)
-                {
-                    clientChannel.CloseAsync().GetAwaiter().GetResult();
-                    clientChannel = null;
-                }
-
                 if (serverChannel != null)
                 {
                     serverChannel.CloseAsync().GetAwaiter().GetResult();
                     serverChannel = null;
+                }
+                
+                if (clientChannel != null)
+                {
+                    clientChannel.CloseAsync().GetAwaiter().GetResult();
+                    clientChannel = null;
                 }
 
                 var serverConnectedChannel = this.serverConnectedChannel;
@@ -213,10 +213,10 @@ namespace DotNetty.Codecs.Http2.Tests
 
                 try
                 {
-                    Task.WaitAll(
-                        sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
-                        sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
-                        cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
+                    // closing one by one in the same order that channels are closed
+                    sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero).GetAwaiter().GetResult();
+                    sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero).GetAwaiter().GetResult();
+                    cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero).GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {
