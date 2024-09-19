@@ -50,7 +50,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public LibuvDataCompressionHttp2Test(ITestOutputHelper output) : base(output) { }
 
-        protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
+        protected override void SetupServerBootstrap(ServerBootstrap bootstrap, string testName)
         {
             var dispatcher = new DispatcherEventLoopGroup();
             var bossGroup = dispatcher;
@@ -59,7 +59,7 @@ namespace DotNetty.Codecs.Http2.Tests
                      .Channel<TcpServerChannel>();
         }
 
-        protected override void SetupBootstrap(Bootstrap bootstrap)
+        protected override void SetupBootstrap(Bootstrap bootstrap, string testName)
         {
             bootstrap.Group(new EventLoopGroup()).Channel<TcpChannel>();
         }
@@ -84,10 +84,10 @@ namespace DotNetty.Codecs.Http2.Tests
 
     public class SocketDataCompressionHttp2Test : AbstractDataCompressionHttp2Test
     {
-        private readonly IRejectedExecutionHandler _parentLoopRejectionExecutionHandler;
-        private readonly IRejectedExecutionHandler _childLoopRejectionExecutionHandler;
+        private readonly CustomRejectedExecutionHandler _parentLoopRejectionExecutionHandler;
+        private readonly CustomRejectedExecutionHandler _childLoopRejectionExecutionHandler;
         
-        private readonly IRejectedExecutionHandler _clientLoopRejectionExecutionHandler;
+        private readonly CustomRejectedExecutionHandler _clientLoopRejectionExecutionHandler;
         
         public SocketDataCompressionHttp2Test(ITestOutputHelper output) : base(output)
         {
@@ -97,8 +97,10 @@ namespace DotNetty.Codecs.Http2.Tests
             _clientLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(output, "client");
         }
 
-        protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
+        protected override void SetupServerBootstrap(ServerBootstrap bootstrap, string testName)
         {
+            SetRejectionHandlerTestName(testName);
+            
             bootstrap
                 .Group(
                     parentGroup: new MultithreadEventLoopGroup(1, _parentLoopRejectionExecutionHandler), 
@@ -106,11 +108,20 @@ namespace DotNetty.Codecs.Http2.Tests
                 .Channel<TcpServerSocketChannel>();
         }
 
-        protected override void SetupBootstrap(Bootstrap bootstrap)
+        protected override void SetupBootstrap(Bootstrap bootstrap, string testName)
         {
+            SetRejectionHandlerTestName(testName);
+            
             bootstrap
                 .Group(new MultithreadEventLoopGroup(_clientLoopRejectionExecutionHandler))
                 .Channel<TcpSocketChannel>();
+        }
+
+        void SetRejectionHandlerTestName(string testName)
+        {
+            _parentLoopRejectionExecutionHandler.TestName = testName;
+            _childLoopRejectionExecutionHandler.TestName = testName;
+            _clientLoopRejectionExecutionHandler.TestName = testName;
         }
     }
 
@@ -225,7 +236,7 @@ namespace DotNetty.Codecs.Http2.Tests
         [BeforeTest]
         public async Task JustHeadersNoData()
         {
-            await BootstrapEnv(0);
+            await BootstrapEnv(0, nameof(JustHeadersNoData));
             IHttp2Headers headers = new DefaultHttp2Headers() { Method = GET, Path = PATH };
             headers.Set(HttpHeaderNames.ContentEncoding, HttpHeaderValues.Gzip);
 
@@ -253,7 +264,7 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             string text = "";
             var data = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text));
-            await BootstrapEnv(data.ReadableBytes);
+            await BootstrapEnv(data.ReadableBytes, nameof(GzipEncodingSingleEmptyMessage));
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
@@ -280,7 +291,7 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             string text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
             var data = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text));
-            await BootstrapEnv(data.ReadableBytes);
+            await BootstrapEnv(data.ReadableBytes, nameof(GzipEncodingSingleMessage));
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
@@ -309,7 +320,7 @@ namespace DotNetty.Codecs.Http2.Tests
             string text2 = "dddddddddddddddddddeeeeeeeeeeeeeeeeeeeffffffffffffffffffff";
             var data1 = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text1));
             var data2 = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text2));
-            await BootstrapEnv(data1.ReadableBytes + data2.ReadableBytes);
+            await BootstrapEnv(data1.ReadableBytes + data2.ReadableBytes, nameof(GzipEncodingMultipleMessages));
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
@@ -339,7 +350,7 @@ namespace DotNetty.Codecs.Http2.Tests
             int BUFFER_SIZE = 1 << 12;
             byte[] bytes = new byte[BUFFER_SIZE];
             new Random().NextBytes(bytes);
-            await BootstrapEnv(BUFFER_SIZE);
+            await BootstrapEnv(BUFFER_SIZE, nameof(DeflateEncodingWriteLargeMessage));
             var data = Unpooled.WrappedBuffer(bytes);
             try
             {
@@ -361,9 +372,9 @@ namespace DotNetty.Codecs.Http2.Tests
             }
         }
 
-        protected abstract void SetupServerBootstrap(ServerBootstrap bootstrap);
+        protected abstract void SetupServerBootstrap(ServerBootstrap bootstrap, string testName);
 
-        protected abstract void SetupBootstrap(Bootstrap bootstrap);
+        protected abstract void SetupBootstrap(Bootstrap bootstrap, string testName);
 
         protected virtual void SetInitialServerChannelPipeline(IChannel ch)
         {
@@ -418,7 +429,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         protected virtual int Port => 0;
 
-        private async Task BootstrapEnv(int serverOutSize)
+        private async Task BootstrapEnv(int serverOutSize, string testName)
         {
             var prefaceWrittenLatch = new CountdownEvent(1);
             serverOut = new MemoryStream(serverOutSize);
@@ -452,14 +463,14 @@ namespace DotNetty.Codecs.Http2.Tests
                 });
             var serverChannelLatch = new CountdownEvent(1);
 
-            SetupServerBootstrap(sb);
+            SetupServerBootstrap(sb, testName);
             sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialServerChannelPipeline(ch);
                 serverChannelLatch.SafeSignal();
             }));
 
-            SetupBootstrap(cb);
+            SetupBootstrap(cb, testName);
             cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialChannelPipeline(ch);

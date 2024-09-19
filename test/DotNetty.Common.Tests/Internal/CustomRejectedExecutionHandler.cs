@@ -11,6 +11,8 @@ namespace DotNetty.Common.Tests.Internal
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly string _name;
         
+        public string TestName { get; set; }
+        
         public CustomRejectedExecutionHandler(ITestOutputHelper testOutputHelper, string name)
         {
             _testOutputHelper = testOutputHelper;
@@ -26,7 +28,7 @@ namespace DotNetty.Common.Tests.Internal
         }
 
         string GetErrorMessage(IRunnable task, SingleThreadEventExecutor executor)
-            => $"Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}";
+            => $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}";
     }
 
     public class CustomEventLoopTerminatedException : Exception
