@@ -39,6 +39,8 @@ namespace DotNetty.Common.Concurrency
     public abstract class SingleThreadEventExecutor : AbstractScheduledEventExecutor, IOrderedEventExecutor
     {
         #region @@ Fields @@
+
+        private readonly string _creationStackTrace;
         
         protected const int NotStartedState = 1;
         protected const int StartedState = 2;
@@ -188,6 +190,13 @@ namespace DotNetty.Common.Concurrency
             _threadLock = new CountdownEvent(1);
 
             _taskScheduler = new ExecutorTaskScheduler(this);
+            
+            var stackTrace = new StackTrace(fNeedFileInfo: true);
+            var frames = stackTrace.GetFrames()?.Take(20)
+                .Where(x => x is not null)
+                .Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
+            
+            _creationStackTrace = string.Join("\t", frames!);
         }
 
         #endregion
@@ -372,6 +381,11 @@ namespace DotNetty.Common.Concurrency
         [MethodImpl(MethodImplOptions.NoInlining)]
         protected void Reject(IRunnable task)
         {
+            if (_rejectedExecutionHandler is DefaultRejectedExecutionHandler)
+            {
+                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. creationStackTrace: {_creationStackTrace};;;");
+            }
+            
             _rejectedExecutionHandler.Rejected(task, this);
             Reject();
         }
