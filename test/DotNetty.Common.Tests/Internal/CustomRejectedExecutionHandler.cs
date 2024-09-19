@@ -19,20 +19,20 @@ namespace DotNetty.Common.Tests.Internal
         
         public void Rejected(IRunnable task, SingleThreadEventExecutor executor)
         {
-            _testOutputHelper.WriteLine($"Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {_exceptionCounter}");
-            throw new CustomEventLoopTerminatedException(_exceptionCounter++);
+            var rejectionMessage = GetErrorMessage(task, executor);
+            
+            _testOutputHelper.WriteLine(rejectionMessage);
+            throw new CustomEventLoopTerminatedException(rejectionMessage);
         }
+
+        string GetErrorMessage(IRunnable task, SingleThreadEventExecutor executor)
+            => $"Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}";
     }
 
     public class CustomEventLoopTerminatedException : Exception
     {
-        public CustomEventLoopTerminatedException(int exceptionCounter)
-            : this($"{nameof(SingleThreadEventExecutor)} terminated", exceptionCounter)
-        {
-        }
-        
-        public CustomEventLoopTerminatedException(string message, int? exceptionCounter = null)
-            : base($"exceptionCounter: {exceptionCounter}; " + message)
+        public CustomEventLoopTerminatedException(string message)
+            : base(message)
         {
         }
     }
