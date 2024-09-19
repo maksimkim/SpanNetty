@@ -235,6 +235,13 @@ namespace DotNetty.Common.Concurrency
         /// <inheritdoc />
         public override bool IsTerminated => (uint)v_executionState >=/*==*/ TerminatedState;
 
+#if DEBUG
+        /// <summary>
+        /// Only used for debug / logging purposes
+        /// </summary>
+        public string State => EventLoopLoggerExtensions.GetState(v_executionState);
+#endif
+
         /// <inheritdoc />
         public override Task TerminationCompletion => _terminationCompletionSource.Task;
 
@@ -366,6 +373,7 @@ namespace DotNetty.Common.Concurrency
         protected void Reject(IRunnable task)
         {
             _rejectedExecutionHandler.Rejected(task, this);
+            Reject();
         }
 
         #endregion

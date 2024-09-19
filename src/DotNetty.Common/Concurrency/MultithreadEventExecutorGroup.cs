@@ -133,7 +133,8 @@ namespace DotNetty.Common.Concurrency
                     if (executor.WaitTermination(timeLeft.ToTimeSpan())) { break; }
                 }
             }
-        LoopEnd:
+            
+            LoopEnd:
             return IsTerminated;
         }
     }
