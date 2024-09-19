@@ -1,5 +1,7 @@
 ﻿
 using System.Diagnostics;
+using System.Linq;
+using DotNetty.Common.Tests.Internal;
 using DotNetty.Common.Tests.Internal.Logging;
 
 namespace DotNetty.Codecs.Http2.Tests
@@ -54,17 +56,51 @@ namespace DotNetty.Codecs.Http2.Tests
 
     public sealed class SocketHttpToHttp2ConnectionHandlerTest : AbstractHttpToHttp2ConnectionHandlerTest
     {
-        public SocketHttpToHttp2ConnectionHandlerTest(ITestOutputHelper output) : base(output) { }
+        private readonly CustomRejectedExecutionHandler _parentLoopRejectionExecutionHandler;
+        private readonly CustomRejectedExecutionHandler _childLoopRejectionExecutionHandler;
+        
+        private readonly CustomRejectedExecutionHandler _clientLoopRejectionExecutionHandler;
+        
+        public SocketHttpToHttp2ConnectionHandlerTest(ITestOutputHelper output) : base(output)
+        {
+            _parentLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(output, "parent");
+            _childLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(output, "child");
+            
+            _clientLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(output, "client");
+        }
 
         protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
         {
-            bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup())
-                     .Channel<TcpServerSocketChannel>();
+            SetRejectionHandlerTestName();
+            
+            bootstrap
+                .Group(
+                    parentGroup: new MultithreadEventLoopGroup(1, _parentLoopRejectionExecutionHandler),
+                    childGroup: new MultithreadEventLoopGroup(_childLoopRejectionExecutionHandler))
+                .Channel<TcpServerSocketChannel>();
         }
 
         protected override void SetupBootstrap(Bootstrap bootstrap)
         {
-            bootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
+            SetRejectionHandlerTestName();
+            
+            bootstrap
+                .Group(new MultithreadEventLoopGroup(_clientLoopRejectionExecutionHandler))
+                .Channel<TcpSocketChannel>();
+        }
+        
+        void SetRejectionHandlerTestName()
+        {
+            var stackTrace = new StackTrace(fNeedFileInfo: true);
+            var testMethod = stackTrace.GetFrames()!.Take(50)
+                .First(x => x.GetMethod()!.GetCustomAttributes(typeof(FactAttribute), inherit: false).Length != 0)
+                .GetMethod();
+
+            var testName = testMethod!.DeclaringType!.Name + "." + testMethod.Name;
+            
+            _parentLoopRejectionExecutionHandler.TestName = testName;
+            _childLoopRejectionExecutionHandler.TestName = testName;
+            _clientLoopRejectionExecutionHandler.TestName = testName;
         }
     }
 
