@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using DotNetty.Common.Concurrency;
-using DotNetty.Common.Internal;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Common.Utilities;
 
@@ -13,21 +11,6 @@ namespace DotNetty.Common
 {
     internal static class CommonLoggingExtensions
     {
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void OfferTaskDetails(this IInternalLogger logger, IQueue<IRunnable> taskQueue)
-        {
-            var queueIsNull = taskQueue is null ? "is null" : "is not null";
-            string queueDetails = $"queue: {queueIsNull}";
-            if (taskQueue is BlockingCollection<IRunnable> compatibleBlockingQueue)
-            {
-                queueDetails += "capacity=" + compatibleBlockingQueue.BoundedCapacity.ToString() + "; ";
-                queueDetails += compatibleBlockingQueue.IsCompleted ? "isCompleted" : "not isCompleted" + "; ";
-                queueDetails += compatibleBlockingQueue.IsAddingCompleted ? "isAddingCompleted" : "not isAddingCompleted" + "; ";
-            }
-            
-            logger.Debug($"{queueDetails} count={taskQueue?.Count}");
-        }
-        
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void OfferTaskDetails(this IInternalLogger logger, SingleThreadEventExecutor executor)
         {

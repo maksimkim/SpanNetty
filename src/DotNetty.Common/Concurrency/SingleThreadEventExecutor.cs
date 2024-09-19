@@ -22,9 +22,6 @@
 
 namespace DotNetty.Common.Concurrency
 {
-    // TODO remove after
-    using Newtonsoft.Json;
-    
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -32,8 +29,8 @@ namespace DotNetty.Common.Concurrency
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
-    using DotNetty.Common.Internal;
-    using DotNetty.Common.Internal.Logging;
+    using Internal;
+    using Internal.Logging;
     using Thread = XThread;
 
     /// <summary>
@@ -42,8 +39,6 @@ namespace DotNetty.Common.Concurrency
     public abstract class SingleThreadEventExecutor : AbstractScheduledEventExecutor, IOrderedEventExecutor
     {
         #region @@ Fields @@
-
-        private readonly string _creationStackTrace;
         
         protected const int NotStartedState = 1;
         protected const int StartedState = 2;
@@ -193,13 +188,6 @@ namespace DotNetty.Common.Concurrency
             _threadLock = new CountdownEvent(1);
 
             _taskScheduler = new ExecutorTaskScheduler(this);
-            
-            var stackTrace = new StackTrace(fNeedFileInfo: true);
-            var frames = stackTrace.GetFrames()?.Take(1500)
-                .Where(x => x is not null)
-                .Where(x => x.GetMethod().ToString() != "MoveNext")
-                .Select(x => $"{x.GetFileName()}.{x.GetMethod()} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}");
-            this._creationStackTrace = string.Join("\n", frames!);
         }
 
         #endregion
@@ -210,7 +198,7 @@ namespace DotNetty.Common.Concurrency
         /// Task Scheduler that will post work to this executor's queue.
         /// </summary>
         public TaskScheduler Scheduler => _taskScheduler;
-
+        
         protected Thread InnerThread => _thread;
 
         ///// <summary>
@@ -365,9 +353,9 @@ namespace DotNetty.Common.Concurrency
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        protected void Reject()
+        protected static void Reject()
         {
-            throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}. Creation StackTrace: {_creationStackTrace}");
+            ThrowHelper.ThrowRejectedExecutionException_Terminated();
         }
 
         /// <summary>
@@ -554,17 +542,9 @@ namespace DotNetty.Common.Concurrency
         internal bool OfferTask(IRunnable task)
         {
 #if DEBUG
-            Logger.OfferTaskDetails(this);
+            if (Logger.DebugEnabled) Logger.OfferTaskDetails(this);
 #endif
-
-            if (IsShutdown)
-            {
-                throw new RejectedExecutionException($"{nameof(SingleThreadEventExecutor)} terminated. Eventloop: {InnerThread.Name}, state: {v_executionState}, queueCount: {_taskQueue.Count}; creationTrace: {_creationStackTrace}");
-            }
-
-#if DEBUG
-            Logger.OfferTaskDetails(_taskQueue);
-#endif
+            if (IsShutdown) { Reject(task); }
             return _taskQueue.TryEnqueue(task);
         }
 
@@ -1212,6 +1192,11 @@ namespace DotNetty.Common.Concurrency
             return true;
         }
 #endif
+
+        /// <summary>
+        /// Returns the inner thread name
+        /// </summary>
+        public string GetInnerThreadName() => InnerThread.Name;
 
         //protected virtual bool EnsureThreadStarted(int oldState)
         //{

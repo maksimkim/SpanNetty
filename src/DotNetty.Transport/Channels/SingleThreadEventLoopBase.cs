@@ -98,7 +98,7 @@ namespace DotNetty.Transport.Channels
         {
             if (task is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.task); }
 
-            if (IsShutdown) { Reject(); }
+            if (IsShutdown) { Reject(task); }
 
             if (!_tailTasks.TryEnqueue(task))
             {
