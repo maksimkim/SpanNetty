@@ -1,5 +1,6 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Linq;
+using DotNetty.Common.Tests.Internal;
 using DotNetty.Common.Tests.Internal.Logging;
 using DotNetty.Tests.Common;
 using Xunit.Abstractions;
@@ -38,6 +39,11 @@ namespace DotNetty.Codecs.Http2.Tests
                 ReferenceCountUtil.Release(evt);
             }
         }
+        
+        private readonly CustomRejectedExecutionHandler _parentLoopRejectionExecutionHandler;
+        private readonly CustomRejectedExecutionHandler _childLoopRejectionExecutionHandler;
+        
+        private readonly CustomRejectedExecutionHandler _clientLoopRejectionExecutionHandler;
 
         private ServerBootstrap _sb;
         private Bootstrap _bs;
@@ -47,6 +53,10 @@ namespace DotNetty.Codecs.Http2.Tests
 
         public Http2MultiplexTransportTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
+            _parentLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(testOutputHelper, "parent");
+            _childLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(testOutputHelper, "child");
+            
+            _clientLoopRejectionExecutionHandler = new CustomRejectedExecutionHandler(testOutputHelper, "client");
         }
 
         public void Dispose()
@@ -77,8 +87,7 @@ namespace DotNetty.Codecs.Http2.Tests
                 {
                     Task.WaitAll(
                         _sb.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
-                        _sb.ChildGroup()
-                            .ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
+                        _sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)),
                         _bs.Group().ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5)));
                 }
                 catch
@@ -117,8 +126,7 @@ namespace DotNetty.Codecs.Http2.Tests
             CountdownEvent serverConnectedChannelLatch = new CountdownEvent(1);
             AtomicReference<IChannel> serverConnectedChannelRef = new AtomicReference<IChannel>();
             _sb = new ServerBootstrap();
-            _sb.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup());
-            _sb.Channel<TcpServerSocketChannel>();
+            SetupServerBootstrap();
             _sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 ch.Pipeline.AddLast(codec);
@@ -132,8 +140,7 @@ namespace DotNetty.Codecs.Http2.Tests
             _serverChannel = _sb.BindAsync(loopback, 0).GetAwaiter().GetResult();
 
             _bs = new Bootstrap();
-            _bs.Group(new MultithreadEventLoopGroup());
-            _bs.Channel<TcpSocketChannel>();
+            SetupBootstrap();
             _bs.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 var builder = Http2MultiplexCodecBuilder.ForClient(DISCARD_HANDLER.Instance);
@@ -224,8 +231,7 @@ namespace DotNetty.Codecs.Http2.Tests
             try
             {
                 _sb = new ServerBootstrap();
-                _sb.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup());
-                _sb.Channel<TcpServerSocketChannel>();
+                SetupServerBootstrap();
                 _sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
                 {
                     ch.Pipeline.AddLast(new Http2FrameCodecBuilder(true).Build());
@@ -237,8 +243,7 @@ namespace DotNetty.Codecs.Http2.Tests
                 CountdownEvent latch = new CountdownEvent(1);
 
                 _bs = new Bootstrap();
-                _bs.Group(new MultithreadEventLoopGroup());
-                _bs.Channel<TcpSocketChannel>();
+                SetupBootstrap();
                 _bs.Handler(new ActionChannelInitializer<IChannel>(ch =>
                 {
                     ch.Pipeline.AddLast(new Http2FrameCodecBuilder(false).Build());
@@ -317,6 +322,38 @@ namespace DotNetty.Codecs.Http2.Tests
             {
                 context.WriteAsync(message, promise);
             }
+        }
+
+        void SetupServerBootstrap()
+        {
+            SetRejectionHandlerTestName();
+            
+            _sb.Group(
+                    parentGroup: new MultithreadEventLoopGroup(1, _parentLoopRejectionExecutionHandler),
+                    childGroup: new MultithreadEventLoopGroup(_childLoopRejectionExecutionHandler))
+               .Channel<TcpServerSocketChannel>();
+        }
+
+        void SetupBootstrap()
+        {
+            SetRejectionHandlerTestName();
+            
+            _bs.Group(new MultithreadEventLoopGroup(_clientLoopRejectionExecutionHandler))
+               .Channel<TcpSocketChannel>();
+        }
+        
+        void SetRejectionHandlerTestName()
+        {
+            var stackTrace = new StackTrace(fNeedFileInfo: true);
+            var testMethod = stackTrace.GetFrames()!.Take(50)
+                .First(x => x.GetMethod()!.GetCustomAttributes(typeof(FactAttribute), inherit: false).Length != 0)
+                .GetMethod();
+
+            var testName = testMethod!.DeclaringType!.Name + "." + testMethod.Name;
+            
+            _parentLoopRejectionExecutionHandler.TestName = testName;
+            _childLoopRejectionExecutionHandler.TestName = testName;
+            _clientLoopRejectionExecutionHandler.TestName = testName;
         }
     }
 }
