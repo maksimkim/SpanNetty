@@ -1,5 +1,6 @@
 ﻿using System;
 using DotNetty.Common.Concurrency;
+using DotNetty.Transport.Channels.Sockets;
 using Xunit.Abstractions;
 
 namespace DotNetty.Common.Tests.Internal
@@ -30,9 +31,26 @@ namespace DotNetty.Common.Tests.Internal
         string GetErrorMessage(IRunnable task, SingleThreadEventExecutor executor)
         {
             string runnable = "[Runnable] ";
-            if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode stateAction)
+            if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode action)
             {
-                runnable += $"context: {stateAction.Context.GetType()}, state: {stateAction.State.GetType()}";
+                var context = action.Context as TcpServerSocketChannel<TcpServerSocketChannel, TcpSocketChannelFactory>.TcpServerSocketChannelUnsafe;
+                var state = action.State as SocketChannelAsyncOperation<TcpServerSocketChannel, TcpServerSocketChannel<TcpServerSocketChannel, TcpSocketChannelFactory>.TcpServerSocketChannelUnsafe>;
+                
+                runnable += $"\ncontext: "
+                    + $"\n\tchannel id: {context!.Channel.Id}"
+                    + $"\n\tlocal address: {context.Channel.LocalAddress}"
+                    + $"\n\tremote address: {context.Channel.RemoteAddress}"
+                    + $"\n\tisActive: {context.Channel.IsActive}; isOpen: {context.Channel.IsOpen}; isRegistered: {context.Channel.IsRegistered}; isWritable: {context.Channel.IsWritable}"
+                    + $"\n\toutboundBuffer: {context.OutboundBuffer.Size}"
+                ;
+
+                runnable += "\nstate: "
+                    + $"\n\toperation: {state!.LastOperation}; socketFlags: {state.SocketFlags}; error: {state.SocketError};"
+                    + $"\n\tsocket connected: {state.AcceptSocket.Connected}; type: {state.AcceptSocket.SocketType};"
+                    + $"\n\tlocal address: {state.AcceptSocket.LocalEndPoint}"
+                    + $"\n\tremote address: {state.AcceptSocket.RemoteEndPoint}"
+                    + $"\n\tconnectByNameError: {state.ConnectByNameError}"
+                ;
             }
             
             return $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. {runnable}";
