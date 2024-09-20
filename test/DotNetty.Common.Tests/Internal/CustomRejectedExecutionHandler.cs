@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Sockets;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace DotNetty.Common.Tests.Internal
@@ -30,6 +33,7 @@ namespace DotNetty.Common.Tests.Internal
 
         string GetErrorMessage(IRunnable task, SingleThreadEventExecutor executor)
         {
+            string[] frames = new string[0];
             string runnable = "[Runnable] ";
             if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode action)
             {
@@ -58,9 +62,12 @@ namespace DotNetty.Common.Tests.Internal
                                 + $"\n\tconnectByNameError: {state?.ConnectByNameError}"
                         ;
                 }
+                
+                var stackTrace = new StackTrace(fNeedFileInfo: true);
+                frames = stackTrace.GetFrames()!.Take(1000).Select(x => $"{x.GetFileName()}.{x.GetMethod().Name} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}").ToArray();
             }
             
-            return $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. {runnable}";
+            return $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. {runnable}. \n\n How We Got Here: {string.Join(" ", frames)}";
         }
     }
 
