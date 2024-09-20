@@ -33,7 +33,6 @@ namespace DotNetty.Common.Tests.Internal
 
         string GetErrorMessage(IRunnable task, SingleThreadEventExecutor executor)
         {
-            string[] frames = new string[0];
             string runnable = "[Runnable] ";
             if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode action)
             {
@@ -56,18 +55,18 @@ namespace DotNetty.Common.Tests.Internal
                 {
                     runnable += "\nstate: "
                                 + $"\n\toperation: {state?.LastOperation}; socketFlags: {state?.SocketFlags}; error: {state?.SocketError};"
-                                + $"\n\tsocket connected: {state?.AcceptSocket?.Connected}; type: {state?.AcceptSocket?.SocketType};"
-                                + $"\n\tlocal address: {state?.AcceptSocket?.LocalEndPoint}"
-                                + $"\n\tremote address: {state?.AcceptSocket?.RemoteEndPoint}"
+                                + $"\n\taccept socket connected: {state?.AcceptSocket?.Connected}; type: {state?.AcceptSocket?.SocketType};"
+                                + $"\n\taccept local address: {state?.AcceptSocket?.LocalEndPoint}"
+                                + $"\n\taccept remote address: {state?.AcceptSocket?.RemoteEndPoint}"
+                                + $"\n\tconnect socket connected: {state?.ConnectSocket?.Connected}; type: {state?.ConnectSocket?.SocketType};"
+                                + $"\n\tconnect local address: {state?.ConnectSocket?.LocalEndPoint}"
+                                + $"\n\tconnect remote address: {state?.ConnectSocket?.RemoteEndPoint}"
                                 + $"\n\tconnectByNameError: {state?.ConnectByNameError}"
                         ;
                 }
-                
-                var stackTrace = new StackTrace(fNeedFileInfo: true);
-                frames = stackTrace.GetFrames()!.Take(1000).Select(x => $"{x.GetFileName()}.{x.GetMethod().Name} at {x.GetFileLineNumber()}:{x.GetFileColumnNumber()}").ToArray();
             }
             
-            return $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. {runnable}. \n\n How We Got Here: {string.Join(" ", frames)}";
+            return $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. {runnable}.";
         }
     }
 
