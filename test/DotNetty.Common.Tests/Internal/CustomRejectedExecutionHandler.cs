@@ -37,22 +37,27 @@ namespace DotNetty.Common.Tests.Internal
                 var state = action.State as SocketChannelAsyncOperation<TcpServerSocketChannel, TcpServerSocketChannel<TcpServerSocketChannel, TcpSocketChannelFactory>.TcpServerSocketChannelUnsafe>;
 
                 runnable += $"contextType (is null = {context is null}) = {action.Context.GetType()}; stateType (is null = {state is null}) = {action.State.GetType()}";
-                
-                runnable += $"\ncontext: "
-                    + $"\n\tchannel id: {context?.Channel?.Id}"
-                    + $"\n\tlocal address: {context?.Channel?.LocalAddress}"
-                    + $"\n\tremote address: {context?.Channel?.RemoteAddress}"
-                    + $"\n\tisActive: {context?.Channel?.IsActive}; isOpen: {context?.Channel?.IsOpen}; isRegistered: {context?.Channel?.IsRegistered}; isWritable: {context?.Channel?.IsWritable}"
-                    + $"\n\toutboundBuffer: {context?.OutboundBuffer?.Size}"
-                ;
 
-                runnable += "\nstate: "
-                    + $"\n\toperation: {state?.LastOperation}; socketFlags: {state?.SocketFlags}; error: {state?.SocketError};"
-                    + $"\n\tsocket connected: {state?.AcceptSocket.Connected}; type: {state?.AcceptSocket.SocketType};"
-                    + $"\n\tlocal address: {state?.AcceptSocket.LocalEndPoint}"
-                    + $"\n\tremote address: {state?.AcceptSocket.RemoteEndPoint}"
-                    + $"\n\tconnectByNameError: {state?.ConnectByNameError}"
-                ;
+                if (context is not null)
+                {
+                    runnable += $"\ncontext: "
+                                + $"\n\tchannel id: {context?.Channel?.Id}"
+                                + $"\n\tlocal address: {context?.Channel?.LocalAddress}"
+                                + $"\n\tremote address: {context?.Channel?.RemoteAddress}"
+                                + $"\n\tisActive: {context?.Channel?.IsActive}; isOpen: {context?.Channel?.IsOpen}; isRegistered: {context?.Channel?.IsRegistered}; isWritable: {context?.Channel?.IsWritable}"
+                                + $"\n\toutboundBuffer: {context?.OutboundBuffer?.Size}"
+                        ;
+                }
+                if (state is not null)
+                {
+                    runnable += "\nstate: "
+                                + $"\n\toperation: {state?.LastOperation}; socketFlags: {state?.SocketFlags}; error: {state?.SocketError};"
+                                + $"\n\tsocket connected: {state?.AcceptSocket.Connected}; type: {state?.AcceptSocket.SocketType};"
+                                + $"\n\tlocal address: {state?.AcceptSocket.LocalEndPoint}"
+                                + $"\n\tremote address: {state?.AcceptSocket.RemoteEndPoint}"
+                                + $"\n\tconnectByNameError: {state?.ConnectByNameError}"
+                        ;
+                }
             }
             
             return $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. {runnable}";
