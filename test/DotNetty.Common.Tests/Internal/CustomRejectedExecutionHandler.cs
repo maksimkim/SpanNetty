@@ -52,9 +52,9 @@ namespace DotNetty.Common.Tests.Internal
                 {
                     runnable += "\nstate: "
                                 + $"\n\toperation: {state?.LastOperation}; socketFlags: {state?.SocketFlags}; error: {state?.SocketError};"
-                                + $"\n\tsocket connected: {state?.AcceptSocket.Connected}; type: {state?.AcceptSocket.SocketType};"
-                                + $"\n\tlocal address: {state?.AcceptSocket.LocalEndPoint}"
-                                + $"\n\tremote address: {state?.AcceptSocket.RemoteEndPoint}"
+                                + $"\n\tsocket connected: {state?.AcceptSocket?.Connected}; type: {state?.AcceptSocket?.SocketType};"
+                                + $"\n\tlocal address: {state?.AcceptSocket?.LocalEndPoint}"
+                                + $"\n\tremote address: {state?.AcceptSocket?.RemoteEndPoint}"
                                 + $"\n\tconnectByNameError: {state?.ConnectByNameError}"
                         ;
                 }
