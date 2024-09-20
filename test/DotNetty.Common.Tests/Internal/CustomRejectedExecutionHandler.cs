@@ -35,13 +35,15 @@ namespace DotNetty.Common.Tests.Internal
             {
                 var context = action.Context as TcpServerSocketChannel<TcpServerSocketChannel, TcpSocketChannelFactory>.TcpServerSocketChannelUnsafe;
                 var state = action.State as SocketChannelAsyncOperation<TcpServerSocketChannel, TcpServerSocketChannel<TcpServerSocketChannel, TcpSocketChannelFactory>.TcpServerSocketChannelUnsafe>;
+
+                runnable += $"contextType (is null = {context is null}) = {action.Context.GetType()}; stateType (is null = {state is null}) = {action.State.GetType()}";
                 
                 runnable += $"\ncontext: "
-                    + $"\n\tchannel id: {context!.Channel.Id}"
-                    + $"\n\tlocal address: {context.Channel.LocalAddress}"
-                    + $"\n\tremote address: {context.Channel.RemoteAddress}"
-                    + $"\n\tisActive: {context.Channel.IsActive}; isOpen: {context.Channel.IsOpen}; isRegistered: {context.Channel.IsRegistered}; isWritable: {context.Channel.IsWritable}"
-                    + $"\n\toutboundBuffer: {context.OutboundBuffer.Size}"
+                    + $"\n\tchannel id: {context?.Channel?.Id}"
+                    + $"\n\tlocal address: {context?.Channel?.LocalAddress}"
+                    + $"\n\tremote address: {context?.Channel?.RemoteAddress}"
+                    + $"\n\tisActive: {context?.Channel?.IsActive}; isOpen: {context?.Channel?.IsOpen}; isRegistered: {context?.Channel?.IsRegistered}; isWritable: {context?.Channel?.IsWritable}"
+                    + $"\n\toutboundBuffer: {context?.OutboundBuffer?.Size}"
                 ;
 
                 runnable += "\nstate: "
