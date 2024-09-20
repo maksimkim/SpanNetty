@@ -27,8 +27,8 @@ namespace DotNetty.Common.Tests.Internal
             throw new CustomEventLoopTerminatedException(rejectionMessage);
         }
 
-        string GetErrorMessage(IRunnable task, SingleThreadEventExecutor executor)
-            => $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}";
+        string GetErrorMessage(IRunnable deleg, SingleThreadEventExecutor executor)
+            => $"[{TestName}] Rejected task from eventLoop '{_name}', id={executor.GetInnerThreadName()}, state='{executor.State}'. ExceptionCounter = {++_exceptionCounter}. Delegate Type: {deleg.GetType()}";
     }
 
     public class CustomEventLoopTerminatedException : Exception
