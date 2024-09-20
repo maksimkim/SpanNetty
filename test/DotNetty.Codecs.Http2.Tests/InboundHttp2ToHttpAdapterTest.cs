@@ -91,8 +91,8 @@ namespace DotNetty.Codecs.Http2.Tests
             
             bootstrap
                 .Group(
-                    parentGroup: new MultithreadEventLoopGroup(1),
-                    childGroup: new MultithreadEventLoopGroup())
+                    parentGroup: new MultithreadEventLoopGroup(1, _parentLoopRejectionExecutionHandler),
+                    childGroup: new MultithreadEventLoopGroup(_childLoopRejectionExecutionHandler))
                 .Channel<TcpServerSocketChannel>();
         }
 
@@ -101,7 +101,7 @@ namespace DotNetty.Codecs.Http2.Tests
             SetRejectionHandlerTestName();
             
             bootstrap
-                .Group(new MultithreadEventLoopGroup())
+                .Group(new MultithreadEventLoopGroup(_clientLoopRejectionExecutionHandler))
                 .Channel<TcpSocketChannel>();
         }
         
