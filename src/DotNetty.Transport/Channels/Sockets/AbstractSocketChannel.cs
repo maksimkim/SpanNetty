@@ -237,8 +237,16 @@ namespace DotNetty.Transport.Channels.Sockets
             IEventLoop eventLoop = channel.EventLoop;
             
 #if DEBUG
-            if (Logger.DebugEnabled) Logger.AbstractSocketIoCompleted(operation, channel, eventLoop);
+            if (Logger.DebugEnabled) Logger.AbstractSocketIoCompletedStarted(operation, channel, eventLoop);
 #endif
+            
+            if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably we received a callback for closure, not for real IO happened
+                && !channel.IsOpen) // channel is already closed, meaning this is an expected closure
+            {
+                if (Logger.InfoEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
+                return;
+            }
+            
             switch (args.LastOperation)
             {
                 case SocketAsyncOperation.Accept:
@@ -248,12 +256,6 @@ namespace DotNetty.Transport.Channels.Sockets
                     }
                     else
                     {
-                        if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably we received a callback for closure, not for real IO happened
-                            && !channel.IsOpen) // channel is already closed, meaning this is an expected closure
-                        {
-                            if (Logger.DebugEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
-                            return;
-                        }
                         eventLoop.Execute(ReadCallbackAction, @unsafe, operation);
                     }
                     break;
