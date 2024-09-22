@@ -236,7 +236,7 @@ Target "RunTests" (fun _ ->
             let arguments =
                 match (hasTeamCity) with
                 | true -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none -teamcity" configuration testNetVersion outputTests)
-                | false -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=detailed\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" configuration testNetVersion outputTests)
+                | false -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" configuration testNetVersion outputTests)
 
             let result = ExecProcess(fun info ->
                 info.FileName <- "dotnet"
