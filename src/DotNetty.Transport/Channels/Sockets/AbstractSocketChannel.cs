@@ -235,7 +235,7 @@ namespace DotNetty.Transport.Channels.Sockets
             var @unsafe = channel.Unsafe;
             IEventLoop eventLoop = channel.EventLoop;
             
-            if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably we received a callback for closure, not for real IO happened
+            if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably we received a callback for closure, no for real IO happened
                 && !channel.IsOpen // channel is already closed, meaning this is an expected closure
                 && eventLoop.IsShuttingDown // if eventLoop itself is shutting down - we will never be able to schedule anything, and just throw exception 
             )
