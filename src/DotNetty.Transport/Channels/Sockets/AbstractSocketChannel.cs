@@ -240,7 +240,7 @@ namespace DotNetty.Transport.Channels.Sockets
                 && eventLoop.IsShuttingDown // if eventLoop itself is shutting down - we will never be able to schedule anything, and just throw exception 
             )
             {
-                if (Logger.InfoEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
+                if (Logger.DebugEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
                 return;
             }
             
