@@ -150,6 +150,10 @@ namespace DotNetty.Transport.Channels.Sockets
                 var ch = _channel;
                 Debug.Assert(ch.EventLoop.InEventLoop);
 
+#if DEBUG
+                if (Logger.InfoEnabled) Logger.ConnectCallbackActionStarted(ch, ch.EventLoop, operation);
+#endif
+                
                 try
                 {
                     bool wasActive = ch.IsActive;

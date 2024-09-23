@@ -916,8 +916,7 @@ namespace DotNetty.Transport.Channels
                 throw;
             }
 
-            AbstractChannelHandlerContext next = FindContextOutbound(
-                flush ? SkipFlags.WriteAndFlush : SkipFlags.Write);
+            AbstractChannelHandlerContext next = FindContextOutbound(flush ? SkipFlags.WriteAndFlush : SkipFlags.Write);
             object m = _pipeline.Touch(msg, next);
             IEventExecutor nextExecutor = next.Executor;
             if (nextExecutor.InEventLoop)
