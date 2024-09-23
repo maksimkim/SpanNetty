@@ -34,7 +34,6 @@ namespace DotNetty.Transport.Channels.Sockets
     using System.Net;
     using System.Net.Sockets;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using DotNetty.Common.Concurrency;
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
     using System.Runtime.InteropServices;
@@ -237,7 +236,9 @@ namespace DotNetty.Transport.Channels.Sockets
             IEventLoop eventLoop = channel.EventLoop;
             
             if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably we received a callback for closure, not for real IO happened
-                && !channel.IsOpen) // channel is already closed, meaning this is an expected closure
+                && !channel.IsOpen // channel is already closed, meaning this is an expected closure
+                && !eventLoop.IsShuttingDown // if eventLoop itself is shutting down - we will never be able to schedule anything, and just throw exception 
+            )
             {
                 if (Logger.InfoEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
                 return;
