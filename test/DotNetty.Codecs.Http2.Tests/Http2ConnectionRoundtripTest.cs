@@ -58,7 +58,11 @@ namespace DotNetty.Codecs.Http2.Tests
 
     public sealed class SocketHttp2ConnectionRoundtripTest : AbstractHttp2ConnectionRoundtripTest
     {
-        public SocketHttp2ConnectionRoundtripTest(ITestOutputHelper output) : base(output) { }
+        public SocketHttp2ConnectionRoundtripTest(ITestOutputHelper output)
+            : base(output)
+        {
+            Output.WriteLine($"Created instance of {nameof(SocketHttp2ConnectionRoundtripTest)} with hashCode: #{this.GetHashCode()}");
+        }
 
         protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
         {
@@ -1455,6 +1459,8 @@ namespace DotNetty.Codecs.Http2.Tests
         private void BootstrapEnv(int dataCountDown, int settingsAckCount,
             int requestCountDown, int trailersCountDown, int goAwayCountDown)
         {
+            Output.WriteLine("StartingBootstrapEnv");
+            
             var prefaceWrittenLatch = new CountdownEvent(1);
             _requestLatch = new CountdownEvent(requestCountDown);
             _serverSettingsAckLatch = new CountdownEvent(settingsAckCount);
@@ -1472,6 +1478,7 @@ namespace DotNetty.Codecs.Http2.Tests
                 SetInitialServerChannelPipeline(ch, serverHandlerRef);
                 serverInitLatch.SafeSignal();
             }));
+            Output.WriteLine("Set server bootstrap");
 
             SetupBootstrap(_cb);
             _cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
@@ -1479,6 +1486,7 @@ namespace DotNetty.Codecs.Http2.Tests
                 SetInitialChannelPipeline(ch);
                 ch.Pipeline.AddLast(new TestChannelHandlerAdapter(prefaceWrittenLatch));
             }));
+            Output.WriteLine("Set client bootstrap");
 
             StartBootstrap();
 
