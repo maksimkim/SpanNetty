@@ -241,6 +241,9 @@ namespace DotNetty.Codecs.Http2
             public override void ChannelActive(IChannelHandlerContext ctx)
             {
                 // The channel just became active - send the connection preface to the remote endpoint.
+#if DEBUG
+                if (Logger.DebugEnabled) Logger.Debug($"[ChannelActive] {ctx.Channel.Id} (active={ctx.Channel.IsActive})");
+#endif
                 SendPreface(ctx);
             }
 
@@ -402,6 +405,10 @@ namespace DotNetty.Codecs.Http2
             _decoder.LifecycleManager(this);
             _encoder.FlowController.SetChannelHandlerContext(ctx);
             _decoder.FlowController.SetChannelHandlerContext(ctx);
+
+#if DEBUG
+            if (Logger.DebugEnabled) Logger.Debug($"[HandlerAdded] {ctx.Channel.Id} (active={ctx.Channel.IsActive})");
+#endif
             _byteDecoder = new PrefaceDecoder(this, ctx);
         }
 
