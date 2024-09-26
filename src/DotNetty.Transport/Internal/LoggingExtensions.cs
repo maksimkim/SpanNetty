@@ -59,7 +59,7 @@ namespace DotNetty.Transport
                 eventLoopState = singleThreadEventExecutor.State;
             }
 
-            logger.Debug($"Skipping callback schedule due to eventLoop closure and socket already closed. operation: {operation.LastOperation} / socketError: {operation.SocketError}; eventLoop: id='{eventLoopId}', state='{eventLoopState}'; channel IsOpen: {channel.IsOpen};");
+            logger.Debug($"Skipping callback schedule due to eventLoop closure and socket already closed. operation: {operation.LastOperation} / socketError: {operation.SocketError}; channel: {channel.Id} (IsOpen: {channel.IsOpen}); eventLoop: id='{eventLoopId}' (state {eventLoopState});");
         }
         
         [MethodImpl(MethodImplOptions.NoInlining)]
