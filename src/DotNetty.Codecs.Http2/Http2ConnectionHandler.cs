@@ -348,7 +348,7 @@ namespace DotNetty.Codecs.Http2
                     loopId = executor.GetInnerThreadName();
                 }
 
-                if (Logger.DebugEnabled) Logger.Debug($"Starting preface on channel {ctx.Channel.Id} (active={ctx.Channel.IsActive}) on loop '{loopId}', isServer={_connHandler.Connection.IsServer}");
+                if (Logger.DebugEnabled) Logger.Debug($"Starting preface on channel {ctx.Channel.Id} (active={ctx.Channel.IsActive}) on loop '{loopId}', isServer={_connHandler.Connection.IsServer}. Is preface already sent? - {_prefaceSent}");
 #endif
                 
                 if (_prefaceSent || !ctx.Channel.IsActive) { return; }

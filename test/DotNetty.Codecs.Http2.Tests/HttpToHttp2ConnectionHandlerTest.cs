@@ -757,7 +757,6 @@ namespace DotNetty.Codecs.Http2.Tests
                 this.SetInitialChannelPipeline(ch);
                 ch.Pipeline.AddLast(new TestChannelHandlerAdapter(prefaceWrittenLatch));
             }));
-
             this.StartBootstrap();
 
             Assert.True(prefaceWrittenLatch.Wait(TimeSpan.FromSeconds(5)));
