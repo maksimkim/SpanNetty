@@ -1432,6 +1432,8 @@ namespace DotNetty.Codecs.Http2.Tests
             var port = ((IPEndPoint)_serverChannel.LocalAddress).Port;
             var ccf = _cb.ConnectAsync(loopback, port);
             _clientChannel = ccf.GetAwaiter().GetResult();
+            
+            Output.WriteLine($"Client channel ConnectAsync() finished: {_clientChannel.Id}, isActive={_clientChannel.IsActive}");
         }
 
         protected TlsHandler CreateTlsHandler(bool isClient)
