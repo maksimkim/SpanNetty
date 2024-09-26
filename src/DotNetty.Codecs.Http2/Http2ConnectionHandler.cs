@@ -341,6 +341,10 @@ namespace DotNetty.Codecs.Http2
             /// <param name="ctx"></param>
             private void SendPreface(IChannelHandlerContext ctx)
             {
+#if DEBUG
+                if (Logger.DebugEnabled) Logger.Debug($"Starting preface on channel {ctx.Channel.Id} (active={ctx.Channel.IsActive}), isServer={_connHandler.Connection.IsServer}");
+#endif
+
                 if (_prefaceSent || !ctx.Channel.IsActive) { return; }
 
                 _prefaceSent = true;
