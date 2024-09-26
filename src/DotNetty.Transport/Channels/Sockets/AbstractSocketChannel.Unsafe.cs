@@ -147,12 +147,11 @@ namespace DotNetty.Transport.Channels.Sockets
 
             public void FinishConnect(SocketChannelAsyncOperation<TChannel, TUnsafe> operation)
             {
+                var ch = _channel;
+                Debug.Assert(ch.EventLoop.InEventLoop);
 #if DEBUG
                 if (Logger.DebugEnabled) Logger.ConnectCallbackActionStarted(ch, ch.EventLoop, operation);
 #endif
-
-                var ch = _channel;
-                Debug.Assert(ch.EventLoop.InEventLoop);
 
                 try
                 {

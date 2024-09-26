@@ -26,6 +26,7 @@ using System.Runtime.CompilerServices;
 using DotNetty.Common.Concurrency;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Sockets;
 
 namespace DotNetty.Transport
 {
