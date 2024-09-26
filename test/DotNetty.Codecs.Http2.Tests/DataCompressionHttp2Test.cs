@@ -384,6 +384,8 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private async Task BootstrapEnv(int serverOutSize)
         {
+            Output.WriteLine($"StartingBootstrapEnv for {this.GetType()} with hashCode {this.GetHashCode()}");
+            
             var prefaceWrittenLatch = new CountdownEvent(1);
             this.serverOut = new MemoryStream(serverOutSize);
             this.serverLatch = new CountdownEvent(1);
@@ -416,19 +418,23 @@ namespace DotNetty.Codecs.Http2.Tests
                 });
             var serverChannelLatch = new CountdownEvent(1);
 
+            Output.WriteLine("Starting set server bootstrap");
             this.SetupServerBootstrap(this.sb);
             this.sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 this.SetInitialServerChannelPipeline(ch);
                 serverChannelLatch.SafeSignal();
             }));
+            Output.WriteLine("Finished set server bootstrap");
 
+            Output.WriteLine("Starting set client bootstrap");
             this.SetupBootstrap(this.cb);
             this.cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 this.SetInitialChannelPipeline(ch);
-                ch.Pipeline.AddLast(new TestChannelHandlerAdapter(prefaceWrittenLatch));
+                ch.Pipeline.AddLast(new TestChannelHandlerAdapter(Output, prefaceWrittenLatch));
             }));
+            Output.WriteLine("Finished set client bootstrap");
 
             var loopback = IPAddress.IPv6Loopback;
             this.serverChannel = await this.sb.BindAsync(loopback, Port);
@@ -442,15 +448,22 @@ namespace DotNetty.Codecs.Http2.Tests
 
         sealed class TestChannelHandlerAdapter : ChannelHandlerAdapter
         {
-            readonly CountdownEvent prefaceWrittenLatch;
+            readonly ITestOutputHelper _output;
+            readonly CountdownEvent _prefaceWrittenLatch;
 
-            public TestChannelHandlerAdapter(CountdownEvent countdown) => this.prefaceWrittenLatch = countdown;
+            public TestChannelHandlerAdapter(ITestOutputHelper output, CountdownEvent countdown)
+            {
+                _output = output;
+                _prefaceWrittenLatch = countdown;
+            }
 
             public override void UserEventTriggered(IChannelHandlerContext ctx, object evt)
             {
+                _output.WriteLine($"Signalling user event triggered latch for channel {ctx.Channel.Id}, state active = {ctx.Channel.IsActive}");
+                
                 if (ReferenceEquals(evt, Http2ConnectionPrefaceAndSettingsFrameWrittenEvent.Instance))
                 {
-                    this.prefaceWrittenLatch.SafeSignal();
+                    this._prefaceWrittenLatch.SafeSignal();
                     ctx.Pipeline.Remove(this);
                 }
             }
