@@ -58,11 +58,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
     public sealed class SocketHttp2ConnectionRoundtripTest : AbstractHttp2ConnectionRoundtripTest
     {
-        public SocketHttp2ConnectionRoundtripTest(ITestOutputHelper output)
-            : base(output)
-        {
-            Output.WriteLine($"Created instance of {nameof(SocketHttp2ConnectionRoundtripTest)} with hashCode: #{this.GetHashCode()}");
-        }
+        public SocketHttp2ConnectionRoundtripTest(ITestOutputHelper output) : base(output) { }
 
         protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
         {
@@ -1404,9 +1400,7 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             _serverConnectedChannel = ch;
             var p = ch.Pipeline;
-            _serverFrameCountDown =
-                    new Http2TestUtil.FrameCountDown(_serverListener.Object, _serverSettingsAckLatch,
-                            _requestLatch, _dataLatch, _trailersLatch, _goAwayLatch);
+            _serverFrameCountDown = new Http2TestUtil.FrameCountDown(_serverListener.Object, _serverSettingsAckLatch,_requestLatch, _dataLatch, _trailersLatch, _goAwayLatch);
             serverHandlerRef.Value = (new Http2ConnectionHandlerBuilder()
             {
                 IsServer = true,
@@ -1459,7 +1453,7 @@ namespace DotNetty.Codecs.Http2.Tests
         private void BootstrapEnv(int dataCountDown, int settingsAckCount,
             int requestCountDown, int trailersCountDown, int goAwayCountDown)
         {
-            Output.WriteLine("StartingBootstrapEnv");
+            Output.WriteLine($"StartingBootstrapEnv for {this.GetType()} with hashCode {this.GetHashCode()}");
             
             var prefaceWrittenLatch = new CountdownEvent(1);
             _requestLatch = new CountdownEvent(requestCountDown);
@@ -1472,21 +1466,26 @@ namespace DotNetty.Codecs.Http2.Tests
 
             AtomicReference<Http2ConnectionHandler> serverHandlerRef = new AtomicReference<Http2ConnectionHandler>();
             var serverInitLatch = new CountdownEvent(1);
+            
+            Output.WriteLine("Starting set server bootstrap");
             SetupServerBootstrap(_sb);
             _sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialServerChannelPipeline(ch, serverHandlerRef);
+                
+                Output.WriteLine($"Signalling server init latch for channel {ch.Id}, state active = {ch.IsActive}");
                 serverInitLatch.SafeSignal();
             }));
-            Output.WriteLine("Set server bootstrap");
+            Output.WriteLine("Finished set server bootstrap");
 
+            Output.WriteLine("Starting set client bootstrap");
             SetupBootstrap(_cb);
             _cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialChannelPipeline(ch);
-                ch.Pipeline.AddLast(new TestChannelHandlerAdapter(prefaceWrittenLatch));
+                ch.Pipeline.AddLast(new TestChannelHandlerAdapter(Output, prefaceWrittenLatch));
             }));
-            Output.WriteLine("Set client bootstrap");
+            Output.WriteLine("Finished set client bootstrap");
 
             StartBootstrap();
 
@@ -1498,12 +1497,19 @@ namespace DotNetty.Codecs.Http2.Tests
 
         sealed class TestChannelHandlerAdapter : ChannelHandlerAdapter
         {
+            readonly ITestOutputHelper _output;
             readonly CountdownEvent _prefaceWrittenLatch;
 
-            public TestChannelHandlerAdapter(CountdownEvent countdown) => _prefaceWrittenLatch = countdown;
+            public TestChannelHandlerAdapter(ITestOutputHelper output, CountdownEvent countdown)
+            {
+                _output = output;
+                _prefaceWrittenLatch = countdown;
+            }
 
             public override void UserEventTriggered(IChannelHandlerContext ctx, object evt)
             {
+                _output.WriteLine($"Signalling user event triggered latch for channel {ctx.Channel.Id}, state active = {ctx.Channel.IsActive}");
+                
                 if (ReferenceEquals(evt, Http2ConnectionPrefaceAndSettingsFrameWrittenEvent.Instance))
                 {
                     _prefaceWrittenLatch.SafeSignal();
