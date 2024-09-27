@@ -110,6 +110,10 @@ namespace DotNetty.Transport.Channels.Sockets
 
             void FulfillConnectPromise(IPromise promise, bool wasActive)
             {
+#if true
+                if (Logger.DebugEnabled) Logger.Debug($"[FulFillConnectPromise] Started for channel {_channel.Id} (state wasActive={wasActive}, active={_channel.IsActive}). Promise: isnull={promise is null}; {promise}");
+#endif
+                
                 if (promise is null)
                 {
                     // Closed via cancellation and the promise has been notified already.
@@ -128,8 +132,8 @@ namespace DotNetty.Transport.Channels.Sockets
                 // Regardless if the connection attempt was cancelled, channelActive() event should be triggered,
                 // because what happened is what happened.
 #if DEBUG
-                if (Logger.DebugEnabled) Logger.Debug($"[FulfillConnectPromise] {_channel.Id} (state wasActive={wasActive}, active={active})");
-#endif
+                if (Logger.DebugEnabled) Logger.Debug($"[FulfillConnectPromise] Before FireChannelActive {_channel.Id} (state wasActive={wasActive}, active={active})");
+#endif 
                 if (!wasActive && active)
                 {
                     _ = ch.Pipeline.FireChannelActive();
