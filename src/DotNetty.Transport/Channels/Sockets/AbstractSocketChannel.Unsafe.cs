@@ -124,6 +124,9 @@ namespace DotNetty.Transport.Channels.Sockets
 
                 // Regardless if the connection attempt was cancelled, channelActive() event should be triggered,
                 // because what happened is what happened.
+#if DEBUG
+                if (Logger.DebugEnabled) Logger.Debug($"[FulfillConnectPromise] {_channel.Id} (state wasActive={wasActive}, active={active})");
+#endif
                 if (!wasActive && active)
                 {
                     _ = ch.Pipeline.FireChannelActive();
