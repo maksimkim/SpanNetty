@@ -68,20 +68,21 @@ namespace DotNetty.Transport.Channels.Sockets
 
                 try
                 {
-                    if (ch._connectPromise is object)
+                    if (ch._connectPromise is not null)
                     {
                         ThrowHelper.ThrowInvalidOperationException_ConnAttemptAlreadyMade();
                     }
 
                     bool wasActive = _channel.IsActive;
+                    var connectPromise = ch.NewPromise(remoteAddress);
                     if (ch.DoConnect(remoteAddress, localAddress))
                     {
-                        FulfillConnectPromise(ch._connectPromise, wasActive);
+                        FulfillConnectPromise(connectPromise, wasActive);
                         return TaskUtil.Completed;
                     }
                     else
-                    {   
-                        ch._connectPromise = ch.NewPromise(remoteAddress);
+                    {
+                        ch._connectPromise = connectPromise;
 
                         // Schedule connect timeout.
                         TimeSpan connectTimeout = ch.Configuration.ConnectTimeout;
@@ -107,11 +108,20 @@ namespace DotNetty.Transport.Channels.Sockets
 
             void FulfillConnectPromise(IPromise promise, bool wasActive)
             {
+                if (promise is null)
+                {
+                    // Closed via cancellation and the promise has been notified already.
+                    return;
+                }
+
                 var ch = _channel;
 
                 // Get the state as trySuccess() may trigger an ChannelFutureListener that will close the Channel.
                 // We still need to ensure we call fireChannelActive() in this case.
                 bool active = ch.IsActive;
+
+                // trySuccess() will return false if a user cancelled the connection attempt.
+                bool promiseSet = promise.TryComplete();
 
                 // Regardless if the connection attempt was cancelled, channelActive() event should be triggered,
                 // because what happened is what happened.
@@ -119,15 +129,6 @@ namespace DotNetty.Transport.Channels.Sockets
                 {
                     _ = ch.Pipeline.FireChannelActive();
                 }
-                        
-                if (promise is null)
-                {
-                    // Closed via cancellation and the promise has been notified already.
-                    return;
-                }
-                        
-                // trySuccess() will return false if a user cancelled the connection attempt.
-                bool promiseSet = promise.TryComplete();
 
                 // If a user cancelled the connection attempt, close the channel, which is followed by channelInactive().
                 if (!promiseSet)
