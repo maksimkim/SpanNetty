@@ -120,21 +120,12 @@ namespace DotNetty.Transport.Channels.Sockets
 #if true
                 if (Logger.DebugEnabled) Logger.Debug($"[FulFillConnectPromise] Started for channel {_channel.Id} (state wasActive={wasActive}, active={_channel.IsActive}). Promise: isnull={promise is null}; {promise}");
 #endif
-                
-                if (promise is null)
-                {
-                    // Closed via cancellation and the promise has been notified already.
-                    return;
-                }
 
                 var ch = _channel;
 
                 // Get the state as trySuccess() may trigger an ChannelFutureListener that will close the Channel.
                 // We still need to ensure we call fireChannelActive() in this case.
                 bool active = ch.IsActive;
-
-                // trySuccess() will return false if a user cancelled the connection attempt.
-                bool promiseSet = promise.TryComplete();
 
                 // Regardless if the connection attempt was cancelled, channelActive() event should be triggered,
                 // because what happened is what happened.
@@ -145,6 +136,15 @@ namespace DotNetty.Transport.Channels.Sockets
                 {
                     _ = ch.Pipeline.FireChannelActive();
                 }
+                        
+                if (promise is null)
+                {
+                    // Closed via cancellation and the promise has been notified already.
+                    return;
+                }
+                        
+                // trySuccess() will return false if a user cancelled the connection attempt.
+                bool promiseSet = promise.TryComplete();
 
                 // If a user cancelled the connection attempt, close the channel, which is followed by channelInactive().
                 if (!promiseSet)
