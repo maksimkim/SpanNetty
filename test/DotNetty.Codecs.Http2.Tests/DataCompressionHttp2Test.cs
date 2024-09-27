@@ -44,7 +44,7 @@ namespace DotNetty.Codecs.Http2.Tests
     {
         static LibuvDataCompressionHttp2Test()
         {
-            DotNetty.Common.ResourceLeakDetector.Level = Common.ResourceLeakDetector.DetectionLevel.Disabled;
+            Common.ResourceLeakDetector.Level = Common.ResourceLeakDetector.DetectionLevel.Disabled;
         }
 
         public LibuvDataCompressionHttp2Test(ITestOutputHelper output) : base(output) { }
@@ -98,7 +98,7 @@ namespace DotNetty.Codecs.Http2.Tests
     }
 
     [Collection("BootstrapEnv")]
-    public abstract class AbstractDataCompressionHttp2Test : TestBase, IDisposable
+    public abstract class AbstractDataCompressionHttp2Test :  Http2ClientServerCommunicationTestBase, IDisposable
     {
         private static readonly AsciiString GET = new AsciiString("GET");
         private static readonly AsciiString POST = new AsciiString("POST");
@@ -108,10 +108,6 @@ namespace DotNetty.Codecs.Http2.Tests
         private Mock<IHttp2FrameListener> clientListener;
 
         private IHttp2ConnectionEncoder clientEncoder;
-        private ServerBootstrap sb;
-        private Bootstrap cb;
-        private IChannel serverChannel;
-        private IChannel clientChannel;
         private volatile IChannel serverConnectedChannel;
         private CountdownEvent serverLatch;
         private IHttp2Connection serverConnection;
@@ -122,10 +118,10 @@ namespace DotNetty.Codecs.Http2.Tests
         public AbstractDataCompressionHttp2Test(ITestOutputHelper output)
             : base(output)
         {
-            this.serverListener = new Mock<IHttp2FrameListener>();
-            this.clientListener = new Mock<IHttp2FrameListener>();
+            serverListener = new Mock<IHttp2FrameListener>();
+            clientListener = new Mock<IHttp2FrameListener>();
 
-            this.serverListener
+            serverListener
                 .Setup(x => x.OnHeadersRead(
                     It.IsAny<IChannelHandlerContext>(),
                     It.IsAny<int>(),
@@ -136,10 +132,10 @@ namespace DotNetty.Codecs.Http2.Tests
                 {
                     if (endOfStream)
                     {
-                        this.serverConnection.Stream(id).Close();
+                        serverConnection.Stream(id).Close();
                     }
                 });
-            this.serverListener
+            serverListener
                 .Setup(x => x.OnHeadersRead(
                     It.IsAny<IChannelHandlerContext>(),
                     It.IsAny<int>(),
@@ -153,22 +149,22 @@ namespace DotNetty.Codecs.Http2.Tests
                 {
                     if (endOfStream)
                     {
-                        this.serverConnection.Stream(id).Close();
+                        serverConnection.Stream(id).Close();
                     }
                 });
         }
 
         public void Dispose()
         {
-            if (this.clientChannel != null)
+            if (_clientChannel != null)
             {
-                this.clientChannel.CloseAsync().GetAwaiter().GetResult();
-                this.clientChannel = null;
+                _clientChannel.CloseAsync().GetAwaiter().GetResult();
+                _clientChannel = null;
             }
-            if (this.serverChannel != null)
+            if (_serverChannel != null)
             {
-                this.serverChannel.CloseAsync().GetAwaiter().GetResult();
-                this.serverChannel = null;
+                _serverChannel.CloseAsync().GetAwaiter().GetResult();
+                _serverChannel = null;
             }
             var serverConnectedChannel = this.serverConnectedChannel;
             if (serverConnectedChannel != null)
@@ -179,31 +175,31 @@ namespace DotNetty.Codecs.Http2.Tests
             try
             {
                 Task.WaitAll(
-                    this.sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
-                    this.sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
-                    this.cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
+                    _sb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
+                    _sb.ChildGroup().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero),
+                    _cb.Group().ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero));
             }
             catch
             {
                 // Ignore RejectedExecutionException(on Azure DevOps)
             }
-            this.serverOut?.Close();
+            serverOut?.Close();
         }
 
         [Fact]
         public async Task JustHeadersNoData()
         {
-            await this.BootstrapEnv(0);
+            await BootstrapEnv(0);
             IHttp2Headers headers = new DefaultHttp2Headers() { Method = GET, Path = PATH };
             headers.Set(HttpHeaderNames.ContentEncoding, HttpHeaderValues.Gzip);
 
-            Http2TestUtil.RunInChannel(this.clientChannel, () =>
+            Http2TestUtil.RunInChannel(_clientChannel, () =>
             {
-                this.clientEncoder.WriteHeadersAsync(this.CtxClient(), 3, headers, 0, true, this.NewPromiseClient());
-                this.clientHandler.Flush(this.CtxClient());
+                clientEncoder.WriteHeadersAsync(CtxClient(), 3, headers, 0, true, NewPromiseClient());
+                clientHandler.Flush(CtxClient());
             });
-            this.AwaitServer();
-            this.serverListener.Verify(
+            AwaitServer();
+            serverListener.Verify(
                 x => x.OnHeadersRead(
                     It.IsAny<IChannelHandlerContext>(),
                     It.Is<int>(v => v == 3),
@@ -220,20 +216,20 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             string text = "";
             var data = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text));
-            await this.BootstrapEnv(data.ReadableBytes);
+            await BootstrapEnv(data.ReadableBytes);
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
                 headers.Set(HttpHeaderNames.ContentEncoding, HttpHeaderValues.Gzip);
 
-                Http2TestUtil.RunInChannel(this.clientChannel, () =>
+                Http2TestUtil.RunInChannel(_clientChannel, () =>
                 {
-                    this.clientEncoder.WriteHeadersAsync(this.CtxClient(), 3, headers, 0, false, this.NewPromiseClient());
-                    this.clientEncoder.WriteDataAsync(this.CtxClient(), 3, (IByteBuffer)data.Retain(), 0, true, this.NewPromiseClient());
-                    this.clientHandler.Flush(this.CtxClient());
+                    clientEncoder.WriteHeadersAsync(CtxClient(), 3, headers, 0, false, NewPromiseClient());
+                    clientEncoder.WriteDataAsync(CtxClient(), 3, (IByteBuffer)data.Retain(), 0, true, NewPromiseClient());
+                    clientHandler.Flush(CtxClient());
                 });
-                this.AwaitServer();
-                Assert.Equal(text, Encoding.UTF8.GetString(this.serverOut.ToArray()));
+                AwaitServer();
+                Assert.Equal(text, Encoding.UTF8.GetString(serverOut.ToArray()));
             }
             finally
             {
@@ -246,20 +242,20 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             string text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc";
             var data = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text));
-            await this.BootstrapEnv(data.ReadableBytes);
+            await BootstrapEnv(data.ReadableBytes);
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
                 headers.Set(HttpHeaderNames.ContentEncoding, HttpHeaderValues.Gzip);
 
-                Http2TestUtil.RunInChannel(this.clientChannel, () =>
+                Http2TestUtil.RunInChannel(_clientChannel, () =>
                 {
-                    this.clientEncoder.WriteHeadersAsync(this.CtxClient(), 3, headers, 0, false, this.NewPromiseClient());
-                    this.clientEncoder.WriteDataAsync(this.CtxClient(), 3, (IByteBuffer)data.Retain(), 0, true, this.NewPromiseClient());
-                    this.clientHandler.Flush(this.CtxClient());
+                    clientEncoder.WriteHeadersAsync(CtxClient(), 3, headers, 0, false, NewPromiseClient());
+                    clientEncoder.WriteDataAsync(CtxClient(), 3, (IByteBuffer)data.Retain(), 0, true, NewPromiseClient());
+                    clientHandler.Flush(CtxClient());
                 });
-                this.AwaitServer();
-                Assert.Equal(text, Encoding.UTF8.GetString(this.serverOut.ToArray()));
+                AwaitServer();
+                Assert.Equal(text, Encoding.UTF8.GetString(serverOut.ToArray()));
             }
             finally
             {
@@ -274,21 +270,21 @@ namespace DotNetty.Codecs.Http2.Tests
             string text2 = "dddddddddddddddddddeeeeeeeeeeeeeeeeeeeffffffffffffffffffff";
             var data1 = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text1));
             var data2 = Unpooled.CopiedBuffer(Encoding.UTF8.GetBytes(text2));
-            await this.BootstrapEnv(data1.ReadableBytes + data2.ReadableBytes);
+            await BootstrapEnv(data1.ReadableBytes + data2.ReadableBytes);
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
                 headers.Set(HttpHeaderNames.ContentEncoding, HttpHeaderValues.Gzip);
 
-                Http2TestUtil.RunInChannel(this.clientChannel, () =>
+                Http2TestUtil.RunInChannel(_clientChannel, () =>
                 {
-                    this.clientEncoder.WriteHeadersAsync(this.CtxClient(), 3, headers, 0, false, this.NewPromiseClient());
-                    this.clientEncoder.WriteDataAsync(this.CtxClient(), 3, (IByteBuffer)data1.Retain(), 0, false, this.NewPromiseClient());
-                    this.clientEncoder.WriteDataAsync(this.CtxClient(), 3, (IByteBuffer)data2.Retain(), 0, true, this.NewPromiseClient());
-                    this.clientHandler.Flush(this.CtxClient());
+                    clientEncoder.WriteHeadersAsync(CtxClient(), 3, headers, 0, false, NewPromiseClient());
+                    clientEncoder.WriteDataAsync(CtxClient(), 3, (IByteBuffer)data1.Retain(), 0, false, NewPromiseClient());
+                    clientEncoder.WriteDataAsync(CtxClient(), 3, (IByteBuffer)data2.Retain(), 0, true, NewPromiseClient());
+                    clientHandler.Flush(CtxClient());
                 });
-                this.AwaitServer();
-                Assert.Equal(text1 + text2, Encoding.UTF8.GetString(this.serverOut.ToArray()));
+                AwaitServer();
+                Assert.Equal(text1 + text2, Encoding.UTF8.GetString(serverOut.ToArray()));
             }
             finally
             {
@@ -303,21 +299,21 @@ namespace DotNetty.Codecs.Http2.Tests
             int BUFFER_SIZE = 1 << 12;
             byte[] bytes = new byte[BUFFER_SIZE];
             new Random().NextBytes(bytes);
-            await this.BootstrapEnv(BUFFER_SIZE);
+            await BootstrapEnv(BUFFER_SIZE);
             var data = Unpooled.WrappedBuffer(bytes);
             try
             {
                 IHttp2Headers headers = new DefaultHttp2Headers() { Method = POST, Path = PATH };
                 headers.Set(HttpHeaderNames.ContentEncoding, HttpHeaderValues.Gzip);
 
-                Http2TestUtil.RunInChannel(this.clientChannel, () =>
+                Http2TestUtil.RunInChannel(_clientChannel, () =>
                 {
-                    this.clientEncoder.WriteHeadersAsync(this.CtxClient(), 3, headers, 0, false, this.NewPromiseClient());
-                    this.clientEncoder.WriteDataAsync(this.CtxClient(), 3, (IByteBuffer)data.Retain(), 0, true, this.NewPromiseClient());
-                    this.clientHandler.Flush(this.CtxClient());
+                    clientEncoder.WriteHeadersAsync(CtxClient(), 3, headers, 0, false, NewPromiseClient());
+                    clientEncoder.WriteDataAsync(CtxClient(), 3, (IByteBuffer)data.Retain(), 0, true, NewPromiseClient());
+                    clientHandler.Flush(CtxClient());
                 });
-                this.AwaitServer();
-                Assert.Equal(data.ResetReaderIndex().ToString(Encoding.UTF8), Encoding.UTF8.GetString(this.serverOut.ToArray()));
+                AwaitServer();
+                Assert.Equal(data.ResetReaderIndex().ToString(Encoding.UTF8), Encoding.UTF8.GetString(serverOut.ToArray()));
             }
             finally
             {
@@ -331,18 +327,18 @@ namespace DotNetty.Codecs.Http2.Tests
 
         protected virtual void SetInitialServerChannelPipeline(IChannel ch)
         {
-            this.serverConnectedChannel = ch;
+            serverConnectedChannel = ch;
             var p = ch.Pipeline;
             IHttp2FrameWriter frameWriter = new DefaultHttp2FrameWriter();
-            this.serverConnection.Remote.FlowController = new DefaultHttp2RemoteFlowController(this.serverConnection);
-            this.serverConnection.Local.FlowController = new DefaultHttp2LocalFlowController(this.serverConnection).FrameWriter(frameWriter);
+            serverConnection.Remote.FlowController = new DefaultHttp2RemoteFlowController(serverConnection);
+            serverConnection.Local.FlowController = new DefaultHttp2LocalFlowController(serverConnection).FrameWriter(frameWriter);
             IHttp2ConnectionEncoder encoder = new CompressorHttp2ConnectionEncoder(
-                    new DefaultHttp2ConnectionEncoder(this.serverConnection, frameWriter));
+                    new DefaultHttp2ConnectionEncoder(serverConnection, frameWriter));
             IHttp2ConnectionDecoder decoder =
-                    new DefaultHttp2ConnectionDecoder(this.serverConnection, encoder, new DefaultHttp2FrameReader());
+                    new DefaultHttp2ConnectionDecoder(serverConnection, encoder, new DefaultHttp2FrameReader());
             Http2ConnectionHandler connectionHandler = new Http2ConnectionHandlerBuilder()
             {
-                FrameListener = new DelegatingDecompressorFrameListener(this.serverConnection, this.serverListener.Object)
+                FrameListener = new DelegatingDecompressorFrameListener(serverConnection, serverListener.Object)
             }
                 .Codec(decoder, encoder).Build();
             p.AddLast(connectionHandler);
@@ -352,22 +348,22 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             var p = ch.Pipeline;
             IHttp2FrameWriter frameWriter = new DefaultHttp2FrameWriter();
-            this.clientConnection.Remote.FlowController = new DefaultHttp2RemoteFlowController(this.clientConnection);
-            this.clientConnection.Local.FlowController = new DefaultHttp2LocalFlowController(this.clientConnection).FrameWriter(frameWriter);
-            this.clientEncoder = new CompressorHttp2ConnectionEncoder(
-                    new DefaultHttp2ConnectionEncoder(this.clientConnection, frameWriter));
+            clientConnection.Remote.FlowController = new DefaultHttp2RemoteFlowController(clientConnection);
+            clientConnection.Local.FlowController = new DefaultHttp2LocalFlowController(clientConnection).FrameWriter(frameWriter);
+            clientEncoder = new CompressorHttp2ConnectionEncoder(
+                    new DefaultHttp2ConnectionEncoder(clientConnection, frameWriter));
 
             IHttp2ConnectionDecoder decoder =
-                    new DefaultHttp2ConnectionDecoder(this.clientConnection, this.clientEncoder,
+                    new DefaultHttp2ConnectionDecoder(clientConnection, clientEncoder,
                             new DefaultHttp2FrameReader());
-            this.clientHandler = new Http2ConnectionHandlerBuilder()
+            clientHandler = new Http2ConnectionHandlerBuilder()
             {
-                FrameListener = new DelegatingDecompressorFrameListener(this.clientConnection, this.clientListener.Object),
+                FrameListener = new DelegatingDecompressorFrameListener(clientConnection, clientListener.Object),
                 // By default tests don't wait for server to gracefully shutdown streams
                 GracefulShutdownTimeout = TimeSpan.Zero
             }
-                .Codec(decoder, this.clientEncoder).Build();
-            p.AddLast(this.clientHandler);
+                .Codec(decoder, clientEncoder).Build();
+            p.AddLast(clientHandler);
         }
 
         protected TlsHandler CreateTlsHandler(bool isClient)
@@ -384,21 +380,21 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private async Task BootstrapEnv(int serverOutSize)
         {
-            Output.WriteLine($"StartingBootstrapEnv for {this.GetType()} with hashCode {this.GetHashCode()}");
+            Output.WriteLine($"StartingBootstrapEnv for {GetType()} with hashCode {GetHashCode()}");
             
             var prefaceWrittenLatch = new CountdownEvent(1);
-            this.serverOut = new MemoryStream(serverOutSize);
-            this.serverLatch = new CountdownEvent(1);
-            this.sb = new ServerBootstrap();
-            this.cb = new Bootstrap();
+            serverOut = new MemoryStream(serverOutSize);
+            serverLatch = new CountdownEvent(1);
+            _sb = new ServerBootstrap();
+            _cb = new Bootstrap();
 
             // Streams are created before the normal flow for this test, so these connection must be initialized up front.
-            this.serverConnection = new DefaultHttp2Connection(true);
-            this.clientConnection = new DefaultHttp2Connection(false);
+            serverConnection = new DefaultHttp2Connection(true);
+            clientConnection = new DefaultHttp2Connection(false);
 
-            this.serverConnection.AddListener(new TestHttp2ConnectionAdapter(this.serverLatch));
+            serverConnection.AddListener(new TestHttp2ConnectionAdapter(serverLatch));
 
-            this.serverListener
+            serverListener
                 .Setup(x => x.OnDataRead(
                     It.IsAny<IChannelHandlerContext>(),
                     It.IsAny<int>(),
@@ -409,64 +405,37 @@ namespace DotNetty.Codecs.Http2.Tests
                 {
                     int processedBytes = buf.ReadableBytes + padding;
 
-                    buf.ReadBytes(this.serverOut, buf.ReadableBytes);
+                    buf.ReadBytes(serverOut, buf.ReadableBytes);
                     if (end)
                     {
-                        this.serverConnection.Stream(id).Close();
+                        serverConnection.Stream(id).Close();
                     }
                     return processedBytes;
                 });
             var serverChannelLatch = new CountdownEvent(1);
 
             Output.WriteLine("Starting set server bootstrap");
-            this.SetupServerBootstrap(this.sb);
-            this.sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
+            SetupServerBootstrap(_sb);
+            _sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
-                this.SetInitialServerChannelPipeline(ch);
+                SetInitialServerChannelPipeline(ch);
                 serverChannelLatch.SafeSignal();
             }));
             Output.WriteLine("Finished set server bootstrap");
 
             Output.WriteLine("Starting set client bootstrap");
-            this.SetupBootstrap(this.cb);
-            this.cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
+            SetupBootstrap(_cb);
+            _cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
-                this.SetInitialChannelPipeline(ch);
+                SetInitialChannelPipeline(ch);
                 ch.Pipeline.AddLast(new TestChannelHandlerAdapter(Output, prefaceWrittenLatch));
             }));
             Output.WriteLine("Finished set client bootstrap");
 
-            var loopback = IPAddress.IPv6Loopback;
-            this.serverChannel = await this.sb.BindAsync(loopback, Port);
-
-            var port = ((IPEndPoint)this.serverChannel.LocalAddress).Port;
-            var ccf = this.cb.ConnectAsync(loopback, port);
-            this.clientChannel = await ccf;
+            await StartBootstrap();
+            
             Assert.True(prefaceWrittenLatch.Wait(TimeSpan.FromSeconds(10)));
             Assert.True(serverChannelLatch.Wait(TimeSpan.FromSeconds(10)));
-        }
-
-        sealed class TestChannelHandlerAdapter : ChannelHandlerAdapter
-        {
-            readonly ITestOutputHelper _output;
-            readonly CountdownEvent _prefaceWrittenLatch;
-
-            public TestChannelHandlerAdapter(ITestOutputHelper output, CountdownEvent countdown)
-            {
-                _output = output;
-                _prefaceWrittenLatch = countdown;
-            }
-
-            public override void UserEventTriggered(IChannelHandlerContext ctx, object evt)
-            {
-                _output.WriteLine($"Signalling user event triggered latch for channel {ctx.Channel.Id}, state active = {ctx.Channel.IsActive}");
-                
-                if (ReferenceEquals(evt, Http2ConnectionPrefaceAndSettingsFrameWrittenEvent.Instance))
-                {
-                    this._prefaceWrittenLatch.SafeSignal();
-                    ctx.Pipeline.Remove(this);
-                }
-            }
         }
 
         class TestHttp2ConnectionAdapter : Http2ConnectionAdapter
@@ -480,24 +449,24 @@ namespace DotNetty.Codecs.Http2.Tests
 
             public override void OnStreamClosed(IHttp2Stream stream)
             {
-                this.serverLatch.SafeSignal();
+                serverLatch.SafeSignal();
             }
         }
 
         private void AwaitServer()
         {
-            Assert.True(this.serverLatch.Wait(TimeSpan.FromSeconds(5)));
-            this.serverOut.Flush();
+            Assert.True(serverLatch.Wait(TimeSpan.FromSeconds(5)));
+            serverOut.Flush();
         }
 
         private IChannelHandlerContext CtxClient()
         {
-            return this.clientChannel.Pipeline.FirstContext();
+            return this._clientChannel.Pipeline.FirstContext();
         }
 
         private IPromise NewPromiseClient()
         {
-            return this.CtxClient().NewPromise();
+            return CtxClient().NewPromise();
         }
     }
 }
