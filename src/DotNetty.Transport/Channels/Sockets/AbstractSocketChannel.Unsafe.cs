@@ -79,11 +79,18 @@ namespace DotNetty.Transport.Channels.Sockets
                     bool wasActive = _channel.IsActive;
                     if (ch.DoConnect(remoteAddress, localAddress))
                     {
+#if DEBUG
+                        if (Logger.DebugEnabled) Logger.Debug($"DoConnect returned true for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive})");
+#endif
                         FulfillConnectPromise(ch._connectPromise, wasActive);
                         return TaskUtil.Completed;
                     }
                     else
                     {
+#if DEBUG
+                        if (Logger.DebugEnabled) Logger.Debug($"DoConnect returned false for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive}). Initiating a new connectPromise");
+#endif
+                        
                         ch._connectPromise = ch.NewPromise(remoteAddress);
 
                         // Schedule connect timeout.
