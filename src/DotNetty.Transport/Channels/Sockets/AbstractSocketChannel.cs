@@ -237,7 +237,6 @@ namespace DotNetty.Transport.Channels.Sockets
             
             if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably we received a callback for closure, no for real IO happened
                 && !channel.IsOpen // channel is already closed, meaning this is an expected closure
-                && !eventLoop.InEventLoop // maybe this will help not ignore those!
             )
             {
                 if (Logger.DebugEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
