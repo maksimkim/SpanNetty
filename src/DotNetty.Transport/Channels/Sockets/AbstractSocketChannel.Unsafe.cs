@@ -73,10 +73,10 @@ namespace DotNetty.Transport.Channels.Sockets
                         ThrowHelper.ThrowInvalidOperationException_ConnAttemptAlreadyMade();
                     }
 
-                    bool wasActive = _channel.IsActive;
 #if DEBUG
                     if (Logger.DebugEnabled) Logger.Debug($"Starting DoConnect() for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive})");
 #endif              
+                    bool wasActive = _channel.IsActive;
                     if (ch.DoConnect(remoteAddress, localAddress))
                     {
                         FulfillConnectPromise(ch._connectPromise, wasActive);
