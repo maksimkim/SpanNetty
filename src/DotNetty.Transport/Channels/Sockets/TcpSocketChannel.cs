@@ -255,8 +255,9 @@ namespace DotNetty.Transport.Channels.Sockets
 
                 bool connected = !Socket.ConnectAsync(eventPayload);
 #if DEBUG
-                if (Logger.DebugEnabled) Logger.Debug($"Invoked System.Net.Sockets.Socket.ConnectAsync() for {this.Id} (state open={IsOpen}, active={IsActive}). Is socket connected = {connected}");
+                if (Logger.DebugEnabled) Logger.Debug($"Invoked System.Net.Sockets.Socket.ConnectAsync() for {Id} (state open={IsOpen}, active={IsActive}). Is socket connected = {connected}");
 #endif          
+                
                 if (connected)
                 {
                     DoFinishConnect(eventPayload);

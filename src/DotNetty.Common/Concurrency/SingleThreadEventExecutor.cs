@@ -246,7 +246,15 @@ namespace DotNetty.Common.Concurrency
         /// <summary>
         /// Only used for debug / logging purposes
         /// </summary>
-        public string State => EventLoopLoggerExtensions.GetState(v_executionState);
+        public string State => v_executionState switch
+        {
+            1 => "NotStartedState",
+            2 => "StartedState",
+            3 => "ShuttingDownState",
+            4 => "ShutdownState",
+            5 => "TerminatedState",
+            _ => throw new ArgumentOutOfRangeException(nameof(v_executionState), v_executionState, null)
+        };
 #endif
         
         /// <inheritdoc />

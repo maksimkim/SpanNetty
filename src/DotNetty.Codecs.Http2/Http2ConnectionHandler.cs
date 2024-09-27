@@ -241,7 +241,7 @@ namespace DotNetty.Codecs.Http2
             public override void ChannelActive(IChannelHandlerContext ctx)
             {
 #if DEBUG
-                if (Logger.DebugEnabled) Logger.Debug($"[ChannelActive] {ctx.Channel.Id} (active={ctx.Channel.IsActive})");
+                if (Logger.DebugEnabled) Logger.Debug($"ChannelActive raised on channel {ctx.Channel.Id} (state open={ctx.Channel.IsOpen}, active={ctx.Channel.IsActive})");
 #endif
                 // The channel just became active - send the connection preface to the remote endpoint.
                 SendPreface(ctx);
@@ -345,13 +345,9 @@ namespace DotNetty.Codecs.Http2
             private void SendPreface(IChannelHandlerContext ctx)
             {
 #if DEBUG
-                string loopId = "";
-                if (ctx.Channel.EventLoop is SingleThreadEventExecutor executor)
-                {
-                    loopId = executor.GetInnerThreadName();
-                }
-
-                if (Logger.DebugEnabled) Logger.Debug($"Starting preface on channel {ctx.Channel.Id} (active={ctx.Channel.IsActive}) on loop '{loopId}', isServer={_connHandler.Connection.IsServer}. Is preface already sent? - {_prefaceSent}");
+                var whichChannel = _connHandler.Connection.IsServer ? "server" : "client";
+                var prefaceSentState = _prefaceSent ? "Preface already sent before" : "Preface was never sent";
+                if (Logger.DebugEnabled) Logger.Debug($"Starting preface on {whichChannel} channel {ctx.Channel.Id} (state open={ctx.Channel.IsOpen}, active={ctx.Channel.IsActive}). {prefaceSentState}");
 #endif
                 
                 if (_prefaceSent || !ctx.Channel.IsActive) { return; }
@@ -407,7 +403,7 @@ namespace DotNetty.Codecs.Http2
             _decoder.FlowController.SetChannelHandlerContext(ctx);
 
 #if DEBUG
-            if (Logger.DebugEnabled) Logger.Debug($"[HandlerAdded] {ctx.Channel.Id} (active={ctx.Channel.IsActive})");
+            if (Logger.DebugEnabled) Logger.Debug($"HandlerAdded raised on channel {ctx.Channel.Id} (state open={ctx.Channel.IsOpen}, active={ctx.Channel.IsActive})");
 #endif
             _byteDecoder = new PrefaceDecoder(this, ctx);
         }

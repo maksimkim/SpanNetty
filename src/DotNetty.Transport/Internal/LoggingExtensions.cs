@@ -31,22 +31,7 @@ using DotNetty.Transport.Channels.Sockets;
 namespace DotNetty.Transport
 {
     internal static class TransportLoggingExtensions
-    {
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ConnectCallbackActionStarted<TChannel, TUnsafe>(this IInternalLogger logger, TChannel channel, IEventLoop eventLoop, SocketChannelAsyncOperation<TChannel,TUnsafe> operation)
-            where TChannel : AbstractSocketChannel<TChannel, TUnsafe> where TUnsafe : AbstractSocketChannel<TChannel, TUnsafe>.AbstractSocketUnsafe, new()
-        {
-            string eventLoopId = "";
-            string eventLoopState = "";
-            if (eventLoop is SingleThreadEventExecutor singleThreadEventExecutor)
-            {
-                eventLoopId = singleThreadEventExecutor.GetInnerThreadName();
-                eventLoopState = singleThreadEventExecutor.State;
-            }
-
-            logger.Debug($"Connect callback started. operation: {operation.LastOperation} / socketError: {operation.SocketError}; eventLoop: id='{eventLoopId}', state='{eventLoopState}'; channel IsOpen: {channel.IsOpen};");
-        }
-        
+    {       
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void AbstractSocketIoCallbackSkipped<TChannel, TUnsafe>(this IInternalLogger logger, SocketChannelAsyncOperation<TChannel,TUnsafe> operation, TChannel channel, IEventLoop eventLoop) 
             where TChannel : AbstractSocketChannel<TChannel, TUnsafe> where TUnsafe : AbstractSocketChannel<TChannel, TUnsafe>.AbstractSocketUnsafe, new()

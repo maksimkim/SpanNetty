@@ -54,7 +54,7 @@ namespace DotNetty.Transport.Channels.Sockets
             }
 
             public sealed override Task ConnectAsync(EndPoint remoteAddress, EndPoint localAddress)
-            {
+            {   
 #if DEBUG
                 if (Logger.DebugEnabled) Logger.Debug($"Initiated ConnectAsync() for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive})");
 #endif
@@ -73,24 +73,14 @@ namespace DotNetty.Transport.Channels.Sockets
                         ThrowHelper.ThrowInvalidOperationException_ConnAttemptAlreadyMade();
                     }
 
-#if DEBUG
-                    if (Logger.DebugEnabled) Logger.Debug($"Starting DoConnect() for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive})");
-#endif              
                     bool wasActive = _channel.IsActive;
                     if (ch.DoConnect(remoteAddress, localAddress))
                     {
-#if DEBUG
-                        if (Logger.DebugEnabled) Logger.Debug($"DoConnect returned true for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive})");
-#endif
                         FulfillConnectPromise(ch._connectPromise, wasActive);
                         return TaskUtil.Completed;
                     }
                     else
-                    {
-#if DEBUG
-                        if (Logger.DebugEnabled) Logger.Debug($"DoConnect returned false for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive}). Initiating a new connectPromise");
-#endif
-                        
+                    {   
                         ch._connectPromise = ch.NewPromise(remoteAddress);
 
                         // Schedule connect timeout.
@@ -117,10 +107,6 @@ namespace DotNetty.Transport.Channels.Sockets
 
             void FulfillConnectPromise(IPromise promise, bool wasActive)
             {
-#if true
-                if (Logger.DebugEnabled) Logger.Debug($"[FulFillConnectPromise] Started for channel {_channel.Id} (state wasActive={wasActive}, active={_channel.IsActive}). Promise: isnull={promise is null}; {promise}");
-#endif
-
                 var ch = _channel;
 
                 // Get the state as trySuccess() may trigger an ChannelFutureListener that will close the Channel.
@@ -129,9 +115,6 @@ namespace DotNetty.Transport.Channels.Sockets
 
                 // Regardless if the connection attempt was cancelled, channelActive() event should be triggered,
                 // because what happened is what happened.
-#if DEBUG
-                if (Logger.DebugEnabled) Logger.Debug($"[FulfillConnectPromise] Before FireChannelActive {_channel.Id} (state wasActive={wasActive}, active={active})");
-#endif 
                 if (!wasActive && active)
                 {
                     _ = ch.Pipeline.FireChannelActive();
@@ -170,10 +153,6 @@ namespace DotNetty.Transport.Channels.Sockets
             {
                 var ch = _channel;
                 Debug.Assert(ch.EventLoop.InEventLoop);
-
-#if DEBUG
-                if (Logger.DebugEnabled) Logger.ConnectCallbackActionStarted(ch, ch.EventLoop, operation);
-#endif
                 
                 try
                 {
