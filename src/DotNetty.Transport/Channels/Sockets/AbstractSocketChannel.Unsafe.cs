@@ -54,7 +54,7 @@ namespace DotNetty.Transport.Channels.Sockets
             }
 
             public sealed override Task ConnectAsync(EndPoint remoteAddress, EndPoint localAddress)
-            {   
+            {
                 // todo: handle cancellation
                 var ch = _channel;
                 if (!ch.IsOpen)

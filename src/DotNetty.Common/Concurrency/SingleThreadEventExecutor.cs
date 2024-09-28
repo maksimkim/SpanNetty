@@ -234,7 +234,7 @@ namespace DotNetty.Common.Concurrency
 
         /// <inheritdoc />
         public override bool IsTerminated => (uint)v_executionState >=/*==*/ TerminatedState;
-        
+
         /// <inheritdoc />
         public override Task TerminationCompletion => _terminationCompletionSource.Task;
 

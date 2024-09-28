@@ -340,7 +340,7 @@ namespace DotNetty.Codecs.Http2
             /// </summary>
             /// <param name="ctx"></param>
             private void SendPreface(IChannelHandlerContext ctx)
-            {   
+            {
                 if (_prefaceSent || !ctx.Channel.IsActive) { return; }
 
                 _prefaceSent = true;
