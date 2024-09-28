@@ -74,16 +74,14 @@ namespace DotNetty.Transport.Channels.Sockets
                     }
 
                     bool wasActive = _channel.IsActive;
-                    var connectPromise = ch.NewPromise(remoteAddress);
+                    ch._connectPromise = ch.NewPromise(remoteAddress);
                     if (ch.DoConnect(remoteAddress, localAddress))
                     {
-                        FulfillConnectPromise(connectPromise, wasActive);
+                        FulfillConnectPromise(ch._connectPromise, wasActive);
                         return TaskUtil.Completed;
                     }
                     else
                     {
-                        ch._connectPromise = connectPromise;
-
                         // Schedule connect timeout.
                         TimeSpan connectTimeout = ch.Configuration.ConnectTimeout;
                         if (connectTimeout > TimeSpan.Zero)
