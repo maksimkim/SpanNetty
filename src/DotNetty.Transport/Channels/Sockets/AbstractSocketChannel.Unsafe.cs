@@ -55,10 +55,6 @@ namespace DotNetty.Transport.Channels.Sockets
 
             public sealed override Task ConnectAsync(EndPoint remoteAddress, EndPoint localAddress)
             {   
-#if DEBUG
-                if (Logger.DebugEnabled) Logger.Debug($"Initiated ConnectAsync() for channel {_channel.Id} (state open={_channel.IsOpen}, active={_channel.IsActive})");
-#endif
-                
                 // todo: handle cancellation
                 var ch = _channel;
                 if (!ch.IsOpen)
@@ -152,7 +148,7 @@ namespace DotNetty.Transport.Channels.Sockets
             {
                 var ch = _channel;
                 Debug.Assert(ch.EventLoop.InEventLoop);
-                
+
                 try
                 {
                     bool wasActive = ch.IsActive;

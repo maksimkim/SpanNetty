@@ -201,13 +201,6 @@ namespace DotNetty.Common.Concurrency
 
         protected Thread InnerThread => _thread;
 
-#if DEBUG
-        /// <summary>
-        /// Returns the inner thread name
-        /// </summary>
-        public string GetInnerThreadName() => InnerThread.Name;
-#endif
-
         ///// <summary>
         ///// Allows to track whether executor is progressing through its backlog. Useful for diagnosing / mitigating stalls due to blocking calls in conjunction with IsBacklogEmpty property.
         ///// </summary>
@@ -241,21 +234,6 @@ namespace DotNetty.Common.Concurrency
 
         /// <inheritdoc />
         public override bool IsTerminated => (uint)v_executionState >=/*==*/ TerminatedState;
-
-#if DEBUG
-        /// <summary>
-        /// Only used for debug / logging purposes
-        /// </summary>
-        public string State => v_executionState switch
-        {
-            1 => "NotStartedState",
-            2 => "StartedState",
-            3 => "ShuttingDownState",
-            4 => "ShutdownState",
-            5 => "TerminatedState",
-            _ => throw new ArgumentOutOfRangeException(nameof(v_executionState), v_executionState, null)
-        };
-#endif
         
         /// <inheritdoc />
         public override Task TerminationCompletion => _terminationCompletionSource.Task;

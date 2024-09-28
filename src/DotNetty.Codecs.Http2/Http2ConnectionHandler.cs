@@ -240,9 +240,6 @@ namespace DotNetty.Codecs.Http2
 
             public override void ChannelActive(IChannelHandlerContext ctx)
             {
-#if DEBUG
-                if (Logger.DebugEnabled) Logger.Debug($"ChannelActive raised on channel {ctx.Channel.Id} (state open={ctx.Channel.IsOpen}, active={ctx.Channel.IsActive})");
-#endif
                 // The channel just became active - send the connection preface to the remote endpoint.
                 SendPreface(ctx);
             }
@@ -343,13 +340,7 @@ namespace DotNetty.Codecs.Http2
             /// </summary>
             /// <param name="ctx"></param>
             private void SendPreface(IChannelHandlerContext ctx)
-            {
-#if DEBUG
-                var whichChannel = _connHandler.Connection.IsServer ? "server" : "client";
-                var prefaceSentState = _prefaceSent ? "Preface already sent before" : "Preface was never sent";
-                if (Logger.DebugEnabled) Logger.Debug($"Starting preface on {whichChannel} channel {ctx.Channel.Id} (state open={ctx.Channel.IsOpen}, active={ctx.Channel.IsActive}). {prefaceSentState}");
-#endif
-                
+            {   
                 if (_prefaceSent || !ctx.Channel.IsActive) { return; }
 
                 _prefaceSent = true;
@@ -401,10 +392,6 @@ namespace DotNetty.Codecs.Http2
             _decoder.LifecycleManager(this);
             _encoder.FlowController.SetChannelHandlerContext(ctx);
             _decoder.FlowController.SetChannelHandlerContext(ctx);
-
-#if DEBUG
-            if (Logger.DebugEnabled) Logger.Debug($"HandlerAdded raised on channel {ctx.Channel.Id} (state open={ctx.Channel.IsOpen}, active={ctx.Channel.IsActive})");
-#endif
             _byteDecoder = new PrefaceDecoder(this, ctx);
         }
 
