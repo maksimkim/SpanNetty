@@ -58,11 +58,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
     public sealed class SocketHttp2ConnectionRoundtripTest : AbstractHttp2ConnectionRoundtripTest
     {
-        public SocketHttp2ConnectionRoundtripTest(ITestOutputHelper output)
-         : base(output) 
-        {
-            Output.WriteLine($"Created instance of {nameof(SocketHttp2ConnectionRoundtripTest)} with hashCode: #{this.GetHashCode()}");
-        }
+        public SocketHttp2ConnectionRoundtripTest(ITestOutputHelper output) : base(output) { }
 
         protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
         {
@@ -1459,8 +1455,6 @@ namespace DotNetty.Codecs.Http2.Tests
         private void BootstrapEnv(int dataCountDown, int settingsAckCount,
             int requestCountDown, int trailersCountDown, int goAwayCountDown)
         {
-            Output.WriteLine("StartingBootstrapEnv");
-
             var prefaceWrittenLatch = new CountdownEvent(1);
             _requestLatch = new CountdownEvent(requestCountDown);
             _serverSettingsAckLatch = new CountdownEvent(settingsAckCount);
@@ -1472,24 +1466,19 @@ namespace DotNetty.Codecs.Http2.Tests
 
             AtomicReference<Http2ConnectionHandler> serverHandlerRef = new AtomicReference<Http2ConnectionHandler>();
             var serverInitLatch = new CountdownEvent(1);
-
-            Output.WriteLine("Starting set server bootstrap");
             SetupServerBootstrap(_sb);
             _sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialServerChannelPipeline(ch, serverHandlerRef);
                 serverInitLatch.SafeSignal();
             }));
-            Output.WriteLine("Finished set server bootstrap");
 
-            Output.WriteLine("Starting set client bootstrap");
             SetupBootstrap(_cb);
             _cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialChannelPipeline(ch);
                 ch.Pipeline.AddLast(new TestChannelHandlerAdapter(prefaceWrittenLatch));
             }));
-            Output.WriteLine("Finished set client bootstrap");
 
             StartBootstrap();
 

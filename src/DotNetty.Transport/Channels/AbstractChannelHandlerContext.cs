@@ -1,4 +1,4 @@
-﻿    /*
+﻿/*
  * Copyright 2012 The Netty Project
  *
  * The Netty Project licenses this file to you under the Apache License,
@@ -916,7 +916,8 @@ namespace DotNetty.Transport.Channels
                 throw;
             }
 
-            AbstractChannelHandlerContext next = FindContextOutbound(flush ? SkipFlags.WriteAndFlush : SkipFlags.Write);
+            AbstractChannelHandlerContext next = FindContextOutbound(
+                flush ? SkipFlags.WriteAndFlush : SkipFlags.Write);
             object m = _pipeline.Touch(msg, next);
             IEventExecutor nextExecutor = next.Executor;
             if (nextExecutor.InEventLoop)

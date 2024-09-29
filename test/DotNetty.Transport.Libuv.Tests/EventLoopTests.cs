@@ -82,7 +82,7 @@ namespace DotNetty.Transport.Libuv.Tests
             Assert.Throws<RejectedExecutionException>(() => this.eventLoop.Execute(this.noOp));
         }
 
-        [Fact(Skip = "flaky")]
+        [Fact]
         public void ScheduleTask()
         {
             const int Delay = 500;
