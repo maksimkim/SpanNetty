@@ -239,7 +239,7 @@ namespace DotNetty.Transport.Channels.Sockets
                 && !channel.IsOpen // channel is already closed, meaning this is an expected closure
             )
             {
-                if (Logger.DebugEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel, eventLoop);
+                if (Logger.DebugEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel);
                 return;
             }
             
