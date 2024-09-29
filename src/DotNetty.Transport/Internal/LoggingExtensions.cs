@@ -36,7 +36,7 @@ namespace DotNetty.Transport
         public static void AbstractSocketIoCallbackSkipped<TChannel, TUnsafe>(this IInternalLogger logger, SocketChannelAsyncOperation<TChannel,TUnsafe> operation, TChannel channel) 
             where TChannel : AbstractSocketChannel<TChannel, TUnsafe> where TUnsafe : AbstractSocketChannel<TChannel, TUnsafe>.AbstractSocketUnsafe, new()
         {
-            logger.Debug($"Skipping callback schedule due to eventLoop closure and socket already closed. operation: {operation.LastOperation} / socketError: {operation.SocketError}; channel: {channel.Id} (IsOpen: {channel.IsOpen})");
+            logger.Debug($"Skipping IO callback schedule due to socket being already closed (and channel is not open as well). operation: {operation.LastOperation} / socketError: {operation.SocketError}; channel: {channel.Id} (IsOpen: {channel.IsOpen})");
         }
         
         [MethodImpl(MethodImplOptions.NoInlining)]
