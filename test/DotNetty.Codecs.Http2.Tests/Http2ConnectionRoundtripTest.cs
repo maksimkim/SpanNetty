@@ -97,17 +97,15 @@ namespace DotNetty.Codecs.Http2.Tests
             bootstrap.Group(new DefaultEventLoopGroup()).Channel<LocalChannel>();
         }
 
-        protected override void StartBootstrap()
+        protected override async Task StartBootstrap()
         {
-            _serverChannel = _sb.BindAsync(new LocalAddress("Http2ConnectionRoundtripTest")).GetAwaiter().GetResult();
-
-            var ccf = _cb.ConnectAsync(_serverChannel.LocalAddress);
-            _clientChannel = ccf.GetAwaiter().GetResult();
+            _serverChannel = await _sb.BindAsync(new LocalAddress("Http2ConnectionRoundtripTest"));
+            _clientChannel = await _cb.ConnectAsync(_serverChannel.LocalAddress);
         }
     }
 
     [Collection("BootstrapEnv")]
-    public abstract class AbstractHttp2ConnectionRoundtripTest : TestBase, IDisposable
+    public abstract class AbstractHttp2ConnectionRoundtripTest : Http2ClientServerCommunicationTestBase, IDisposable
     {
         private const long DEFAULT_AWAIT_TIMEOUT_SECONDS = 15;
 
@@ -116,11 +114,7 @@ namespace DotNetty.Codecs.Http2.Tests
 
         private Http2ConnectionHandler _http2Client;
         private Http2ConnectionHandler _http2Server;
-        protected ServerBootstrap _sb;
-        protected Bootstrap _cb;
-        protected IChannel _serverChannel;
         private volatile IChannel _serverConnectedChannel;
-        protected IChannel _clientChannel;
         private Http2TestUtil.FrameCountDown _serverFrameCountDown;
         private CountdownEvent _requestLatch;
         private CountdownEvent _serverSettingsAckLatch;
@@ -1400,9 +1394,7 @@ namespace DotNetty.Codecs.Http2.Tests
         {
             _serverConnectedChannel = ch;
             var p = ch.Pipeline;
-            _serverFrameCountDown =
-                    new Http2TestUtil.FrameCountDown(_serverListener.Object, _serverSettingsAckLatch,
-                            _requestLatch, _dataLatch, _trailersLatch, _goAwayLatch);
+            _serverFrameCountDown = new Http2TestUtil.FrameCountDown(_serverListener.Object, _serverSettingsAckLatch,_requestLatch, _dataLatch, _trailersLatch, _goAwayLatch);
             serverHandlerRef.Value = (new Http2ConnectionHandlerBuilder()
             {
                 IsServer = true,
@@ -1424,18 +1416,6 @@ namespace DotNetty.Codecs.Http2.Tests
             }).Build());
         }
 
-        protected virtual int Port => 0;
-
-        protected virtual void StartBootstrap()
-        {
-            var loopback = IPAddress.IPv6Loopback;
-            _serverChannel = _sb.BindAsync(loopback, Port).GetAwaiter().GetResult();
-
-            var port = ((IPEndPoint)_serverChannel.LocalAddress).Port;
-            var ccf = _cb.ConnectAsync(loopback, port);
-            _clientChannel = ccf.GetAwaiter().GetResult();
-        }
-
         protected TlsHandler CreateTlsHandler(bool isClient)
         {
             X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
@@ -1455,6 +1435,8 @@ namespace DotNetty.Codecs.Http2.Tests
         private void BootstrapEnv(int dataCountDown, int settingsAckCount,
             int requestCountDown, int trailersCountDown, int goAwayCountDown)
         {
+            Output.WriteLine($"StartingBootstrapEnv for {this.GetType()} with hashCode {this.GetHashCode()}");
+            
             var prefaceWrittenLatch = new CountdownEvent(1);
             _requestLatch = new CountdownEvent(requestCountDown);
             _serverSettingsAckLatch = new CountdownEvent(settingsAckCount);
@@ -1466,42 +1448,33 @@ namespace DotNetty.Codecs.Http2.Tests
 
             AtomicReference<Http2ConnectionHandler> serverHandlerRef = new AtomicReference<Http2ConnectionHandler>();
             var serverInitLatch = new CountdownEvent(1);
+            
+            Output.WriteLine("Starting set server bootstrap");
             SetupServerBootstrap(_sb);
             _sb.ChildHandler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialServerChannelPipeline(ch, serverHandlerRef);
+                
+                Output.WriteLine($"Signalling server init latch for channel {ch.Id}, state active = {ch.IsActive}");
                 serverInitLatch.SafeSignal();
             }));
+            Output.WriteLine("Finished set server bootstrap");
 
+            Output.WriteLine("Starting set client bootstrap");
             SetupBootstrap(_cb);
             _cb.Handler(new ActionChannelInitializer<IChannel>(ch =>
             {
                 SetInitialChannelPipeline(ch);
-                ch.Pipeline.AddLast(new TestChannelHandlerAdapter(prefaceWrittenLatch));
+                ch.Pipeline.AddLast(new TestChannelHandlerAdapter(Output, prefaceWrittenLatch));
             }));
+            Output.WriteLine("Finished set client bootstrap");
 
-            StartBootstrap();
+            StartBootstrap().GetAwaiter().GetResult();
 
             Assert.True(prefaceWrittenLatch.Wait(TimeSpan.FromSeconds(DEFAULT_AWAIT_TIMEOUT_SECONDS)));
             _http2Client = _clientChannel.Pipeline.Get<Http2ConnectionHandler>();
             Assert.True(serverInitLatch.Wait(TimeSpan.FromSeconds(DEFAULT_AWAIT_TIMEOUT_SECONDS)));
             _http2Server = serverHandlerRef.Value;
-        }
-
-        sealed class TestChannelHandlerAdapter : ChannelHandlerAdapter
-        {
-            readonly CountdownEvent _prefaceWrittenLatch;
-
-            public TestChannelHandlerAdapter(CountdownEvent countdown) => _prefaceWrittenLatch = countdown;
-
-            public override void UserEventTriggered(IChannelHandlerContext ctx, object evt)
-            {
-                if (ReferenceEquals(evt, Http2ConnectionPrefaceAndSettingsFrameWrittenEvent.Instance))
-                {
-                    _prefaceWrittenLatch.SafeSignal();
-                    ctx.Pipeline.Remove(this);
-                }
-            }
         }
 
         private IChannelHandlerContext Ctx()

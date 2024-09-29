@@ -64,12 +64,13 @@ namespace DotNetty.Transport.Channels.Sockets
 
                 try
                 {
-                    if (ch._connectPromise is object)
+                    if (ch._connectPromise is not null)
                     {
                         ThrowHelper.ThrowInvalidOperationException_ConnAttemptAlreadyMade();
                     }
 
                     bool wasActive = _channel.IsActive;
+                    ch._connectPromise = ch.NewPromise(remoteAddress);
                     if (ch.DoConnect(remoteAddress, localAddress))
                     {
                         FulfillConnectPromise(ch._connectPromise, wasActive);
@@ -77,8 +78,6 @@ namespace DotNetty.Transport.Channels.Sockets
                     }
                     else
                     {
-                        ch._connectPromise = ch.NewPromise(remoteAddress);
-
                         // Schedule connect timeout.
                         TimeSpan connectTimeout = ch.Configuration.ConnectTimeout;
                         if (connectTimeout > TimeSpan.Zero)
