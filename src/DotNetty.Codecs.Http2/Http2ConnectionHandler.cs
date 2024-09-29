@@ -524,13 +524,12 @@ namespace DotNetty.Codecs.Http2
                 // elapsed.
                 if (future.IsCompleted)
                 {
-                    ctx.CloseAsync(promise);
-/*#if DEBUG
+#if DEBUG
                     // only for testing
                     CreateClosingChannelFutureListener(future, ctx, promise);
 #else
                     ctx.CloseAsync(promise);
-#endif*/
+#endif
                 }
                 else
                 {

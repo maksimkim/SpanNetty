@@ -916,14 +916,13 @@ namespace DotNetty.Codecs.Http2.Tests
             }
             else
             {
-                _ctx.Verify(x => x.CloseAsync(It.IsAny<IPromise>()));
-                /*_executor.Verify(
+                _executor.Verify(
                     x => x.Schedule(
                         It.IsAny<Action<object, object>>(),
                         It.IsAny<object>(),
                         It.IsAny<object>(),
                         It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis))),
-                    Times.AtLeastOnce());*/
+                    Times.AtLeastOnce());
             }
         }
 
@@ -950,18 +949,13 @@ namespace DotNetty.Codecs.Http2.Tests
             long expectedMillis = 1234;
             _handler.GracefulShutdownTimeout = TimeSpan.FromMilliseconds(expectedMillis);
             _handler.Close(_ctx.Object, _promise);
-            _ctx.Verify(
-                x => x.CloseAsync(It.IsAny<IPromise>()),
-                Times.AtLeastOnce()
-            );
-            /*
             _executor.Verify(
                 x => x.Schedule(
                     It.IsAny<Action<object, object>>(),
                     It.IsAny<object>(),
                     It.IsAny<object>(),
                     It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis))),
-                Times.AtLeastOnce());*/
+                Times.AtLeastOnce());
         }
 
         [Fact]
