@@ -34,7 +34,6 @@ namespace DotNetty.Transport.Channels.Sockets
     using System.Net;
     using System.Net.Sockets;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using DotNetty.Common.Concurrency;
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
     using System.Runtime.InteropServices;
@@ -235,6 +234,15 @@ namespace DotNetty.Transport.Channels.Sockets
             var channel = operation.Channel;
             var @unsafe = channel.Unsafe;
             IEventLoop eventLoop = channel.EventLoop;
+            
+            if (operation.SocketError == SocketError.OperationAborted // means System.Net.Sockets.Socket was closed. Most probably the callback was invoked because socket was closed, not because IO operation completed.
+                && !channel.IsOpen // channel is already closed, meaning this is an expected closure
+            )
+            {
+                if (Logger.DebugEnabled) Logger.AbstractSocketIoCallbackSkipped(operation, channel);
+                return;
+            }
+            
             switch (args.LastOperation)
             {
                 case SocketAsyncOperation.Accept:

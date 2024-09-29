@@ -252,6 +252,7 @@ namespace DotNetty.Transport.Channels.Sockets
                 {
                     RemoteEndPoint = remoteAddress
                 };
+
                 bool connected = !Socket.ConnectAsync(eventPayload);
                 if (connected)
                 {

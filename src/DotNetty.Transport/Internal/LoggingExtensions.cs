@@ -26,11 +26,19 @@ using System.Runtime.CompilerServices;
 using DotNetty.Common.Concurrency;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Sockets;
 
 namespace DotNetty.Transport
 {
     internal static class TransportLoggingExtensions
-    {
+    {       
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void AbstractSocketIoCallbackSkipped<TChannel, TUnsafe>(this IInternalLogger logger, SocketChannelAsyncOperation<TChannel,TUnsafe> operation, TChannel channel) 
+            where TChannel : AbstractSocketChannel<TChannel, TUnsafe> where TUnsafe : AbstractSocketChannel<TChannel, TUnsafe>.AbstractSocketUnsafe, new()
+        {
+            logger.Debug($"Skipping IO callback schedule due to socket being already closed (and channel is not open as well). operation: {operation.LastOperation} / socketError: {operation.SocketError}; channel: {channel.Id} (IsOpen: {channel.IsOpen})");
+        }
+        
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void FreedThreadLocalBufferFromThreadFull(this IInternalLogger logger, Exception error, Exception cause)
         {
