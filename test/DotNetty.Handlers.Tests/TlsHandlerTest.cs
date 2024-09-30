@@ -123,13 +123,8 @@ namespace DotNetty.Handlers.Tests
                     Assert.True(isEqual, $"---Expected:\n{ByteBufferUtil.PrettyHexDump(expectedBuffer)}\n---Actual:\n{ByteBufferUtil.PrettyHexDump(finalReadBuffer)}");
                 }
                 driverStream.Dispose();
-
-                if (ch.Finish())
-                {
-                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
-                    Assert.NotNull(emptyByteBufferOutbound);
-                }
-
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                _ = ch.ReadOutbound<EmptyByteBuffer>();
                 Assert.False(ch.Finish());
             }
             finally
@@ -226,13 +221,8 @@ namespace DotNetty.Handlers.Tests
                     Assert.True(isEqual, $"---Expected:\n{ByteBufferUtil.PrettyHexDump(expectedBuffer)}\n---Actual:\n{ByteBufferUtil.PrettyHexDump(finalReadBuffer)}");
                 }
                 driverStream.Dispose();
-
-                if (ch.Finish())
-                {
-                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
-                    Assert.NotNull(emptyByteBufferOutbound);
-                }
-
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                var _ = ch.ReadOutbound<EmptyByteBuffer>();
                 Assert.False(ch.Finish());
             }
             finally
@@ -325,8 +315,8 @@ namespace DotNetty.Handlers.Tests
 
                         if (!output.IsReadable())
                         {
-                            output.Release();
-                            return true;
+                            output.Release(); //received empty message but that's not necessary the end of the data stream
+                            continue;
                         }
 
                         remaining -= output.ReadableBytes;
