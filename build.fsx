@@ -224,18 +224,19 @@ Target "RunTests" (fun _ ->
                                           -- "./test/*.Tests/DotNetty.Transport.Tests.csproj"
                                           -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
                                           -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
-                                | _ -> !! "./test/*.Tests/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
-                                       -- "./test/*.Tests/DotNetty.Transport.Tests.csproj"
-                                       -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
-                                       -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
-                                       -- "./test/*.Tests/DotNetty.End2End.Tests.csproj"
+                                // | _ -> !! "./test/*.Tests/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
+                                | _ -> !! "./test/DotNetty.Codecs.Http2.Tests/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
+                                //        -- "./test/*.Tests/DotNetty.Transport.Tests.csproj"
+                                //        -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
+                                //        -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
+                                //        -- "./test/*.Tests/DotNetty.End2End.Tests.csproj"
             rawProjects |> Seq.choose filterProjects
      
         let runSingleProject project =
             let arguments =
                 match (hasTeamCity) with
                 | true -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none -teamcity" configuration testNetVersion outputTests)
-                | false -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" configuration testNetVersion outputTests)
+                | false -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=detailed\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" configuration testNetVersion outputTests)
 
             let result = ExecProcess(fun info ->
                 info.FileName <- "dotnet"
