@@ -370,6 +370,16 @@ namespace DotNetty.Handlers.Proxy.Tests
                             */
             };
 
+            items = new List<TestItem>
+            {
+                new SuccessTestItem(
+                    "HTTPS proxy: successful connection, AUTO_READ on",
+                    DESTINATION,
+                    true,
+                    CreateClientTlsHandler(),
+                    new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD)),
+            };
+
             // Convert the test items to the list of constructor parameters.
             var parameters = new List<object[]>(items.Count);
             foreach (var i in items)
@@ -596,7 +606,8 @@ namespace DotNetty.Handlers.Proxy.Tests
 
                 var channel = b.ConnectAsync(Destination).Result;
                 var finished = channel.CloseCompletion.Wait(TimeSpan.FromSeconds(10));
-
+                Assert.True(finished);
+                
                 Logger.Debug("Received messages: {0}", testHandler.Received);
 
                 if (testHandler.Exceptions.Count == 0)
@@ -610,7 +621,6 @@ namespace DotNetty.Handlers.Proxy.Tests
                 Assert.Equal(testHandler.Received, new object[] {"0", "1", "2", "3"});
                 Assert.Empty(testHandler.Exceptions);
                 Assert.Equal(testHandler.EventCount, _expectedEventCount);
-                Assert.True(finished);
             }
         }
 
