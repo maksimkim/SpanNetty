@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Security;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Common.Internal.Logging;
@@ -15,7 +14,6 @@ using DotNetty.Tests.Common;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -121,13 +119,10 @@ namespace DotNetty.Handlers.Proxy.Tests
                     BAD_DESTINATION, "status: 403",
                     new HttpProxyHandler(AnonHttpProxy.Address)),
 
-                /*
-                    Note: Test keeps failing and Tom/Max agreed to skip it for now
                 new FailureTestItem(
                     "HTTP proxy: rejected anonymous connection",
                     DESTINATION, "status: 401",
                     new HttpProxyHandler(HttpProxy.Address)),
-                */
 
                 new SuccessTestItem(
                     "HTTP proxy: successful connection, AUTO_READ on",
@@ -171,14 +166,11 @@ namespace DotNetty.Handlers.Proxy.Tests
                     CreateClientTlsHandler(),
                     new HttpProxyHandler(AnonHttpsProxy.Address)),
 
-                /*
-                    Note: Test keeps failing and Tom/Max agreed to skip it for now
                 new FailureTestItem(
                     "Anonymous HTTPS proxy: rejected connection",
                     BAD_DESTINATION, "status: 403",
                     CreateClientTlsHandler(),
                     new HttpProxyHandler(AnonHttpsProxy.Address)),
-                */              
 
                 new FailureTestItem(
                     "HTTPS proxy: rejected anonymous connection",
