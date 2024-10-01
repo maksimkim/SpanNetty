@@ -88,7 +88,7 @@ namespace DotNetty.Handlers.Proxy.Tests
         [MemberData(nameof(CreateTestItems))]
         public void Test(TestItem item)
         {
-            item.Test();
+            item.Test(this.Output);
         }
 
         public void Dispose()
@@ -379,6 +379,8 @@ namespace DotNetty.Handlers.Proxy.Tests
                     CreateClientTlsHandler(),
                     new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD)),
             };
+            
+            
 
             // Convert the test items to the list of constructor parameters.
             var parameters = new List<object[]>(items.Count);
@@ -518,7 +520,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 ClientHandlers = clientHandlers;
             }
 
-            public abstract void Test();
+            public abstract void Test(ITestOutputHelper output);
 
             protected void AssertProxyHandlers(bool success)
             {
@@ -587,7 +589,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 _autoRead = autoRead;
             }
 
-            public override void Test()
+            public override void Test(ITestOutputHelper output)
             {
                 var testHandler = new SuccessTestHandler();
                 var b = new Bootstrap()
@@ -635,7 +637,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 _expectedMessage = expectedMessage;
             }
 
-            public override void Test()
+            public override void Test(ITestOutputHelper output)
             {
                 var testHandler = new FailureTestHandler();
                 var b = new Bootstrap();
@@ -673,7 +675,7 @@ namespace DotNetty.Handlers.Proxy.Tests
             {
             }
 
-            public override void Test()
+            public override void Test(ITestOutputHelper output)
             {
                 const long timeout = 2000;
                 foreach (var h in ClientHandlers)
