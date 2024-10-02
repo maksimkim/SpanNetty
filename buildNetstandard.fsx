@@ -45,8 +45,6 @@ let incrementalistReport = output @@ "incrementalist.txt"
 
 // Configuration values for tests
 let testNetFrameworkVersion = "net471"
-let testNetCoreVersion = "netcoreapp3.1"
-let testNetCore21Version = "netcoreapp2.1"
 let testNetVersion = "net6.0"
 
 Target "Clean" (fun _ ->
@@ -187,7 +185,6 @@ type Runtime =
 
 let getTestAssembly runtime project =
     let assemblyPath = match runtime with
-                        | NetCore -> !! ("test" @@ "**" @@ "bin" @@ "Debug" @@ testNetCoreVersion @@ fileNameWithoutExt project + ".dll")
                         | NetFramework -> !! ("test" @@ "**" @@ "bin" @@ "Debug" @@ "win-x64" @@ testNetFrameworkVersion @@ fileNameWithoutExt project + ".dll")
                         | Net -> !! ("src" @@ "**" @@ "bin" @@ "Release" @@ testNetVersion @@ fileNameWithoutExt project + ".dll")
 
@@ -227,31 +224,6 @@ Target "RunTests" (fun _ ->
                 match (hasTeamCity) with
                 | true -> (sprintf "test -c Debug --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none -teamcity" testNetVersion outputTests)
                 | false -> (sprintf "test -c Debug --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" testNetVersion outputTests)
-
-            let result = ExecProcess(fun info ->
-                info.FileName <- "dotnet"
-                info.WorkingDirectory <- (Directory.GetParent project).FullName
-                info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
-        
-            ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
-
-        CreateDir outputTests
-        projects |> Seq.iter (runSingleProject)
-)
-
-Target "RunTests21" (fun _ ->
-    if not skipBuild.Value then
-        let projects = 
-            let rawProjects = match (isWindows) with 
-                                | true -> !! "./test/*.Tests.Netstandard/*.Tests.csproj"
-                                | _ -> !! "./test/*.Tests.Netstandard/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
-            rawProjects |> Seq.choose filterProjects
-     
-        let runSingleProject project =
-            let arguments =
-                match (hasTeamCity) with
-                | true -> (sprintf "test -c Debug --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none -teamcity" testNetCore21Version outputTests)
-                | false -> (sprintf "test -c Debug --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" testNetCore21Version outputTests)
 
             let result = ExecProcess(fun info ->
                 info.FileName <- "dotnet"
@@ -308,11 +280,9 @@ Target "RunTestsNetCoreFull" DoNothing
 
 // tests dependencies
 "Build" ==> "RunTests"
-"Build" ==> "RunTests21"
 
 // all
 "BuildDebug" ==> "All"
 "RunTests" ==> "All"
-"RunTests21" ==> "All"
 
 RunTargetOrDefault "Help"

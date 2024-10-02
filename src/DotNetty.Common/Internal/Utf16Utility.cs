@@ -152,33 +152,6 @@ namespace DotNetty.Common.Internal
             Debug.Assert(AllCharsInUInt32AreAscii(valueA));
             Debug.Assert(AllCharsInUInt32AreAscii(valueB));
 
-#if NETCOREAPP3_1
-            // a mask of all bits which are different between A and B
-            uint differentBits = valueA ^ valueB;
-
-            // the 0x80 bit of each word of 'lowerIndicator' will be set iff the word has value < 'A'
-            uint lowerIndicator = valueA + 0x0100_0100u - 0x0041_0041u;
-
-            // the 0x80 bit of each word of 'upperIndicator' will be set iff (word | 0x20) has value > 'z'
-            uint upperIndicator = (valueA | 0x0020_0020u) + 0x0080_0080u - 0x007B_007Bu;
-
-            // the 0x80 bit of each word of 'combinedIndicator' will be set iff the word is *not* [A-Za-z]
-            uint combinedIndicator = lowerIndicator | upperIndicator;
-
-            // Shift all the 0x80 bits of 'combinedIndicator' into the 0x20 positions, then set all bits
-            // aside from 0x20. This creates a mask where all bits are set *except* for the 0x20 bits
-            // which correspond to alpha chars (either lower or upper). For these alpha chars only, the
-            // 0x20 bit is allowed to differ between the two input values. Every other char must be an
-            // exact bitwise match between the two input values. In other words, (valueA & mask) will
-            // convert valueA to uppercase, so (valueA & mask) == (valueB & mask) answers "is the uppercase
-            // form of valueA equal to the uppercase form of valueB?" (Technically if valueA has an alpha
-            // char in the same position as a non-alpha char in valueB, or vice versa, this operation will
-            // result in nonsense, but it'll still compute as inequal regardless, which is what we want ultimately.)
-            // The line below is a more efficient way of doing the same check taking advantage of the XOR
-            // computation we performed at the beginning of the method.
-
-            return 0u >= (((combinedIndicator >> 2) | ~0x0020_0020u) & differentBits);
-#else
             // Generate a mask of all bits which are different between A and B. Since [A-Z]
             // and [a-z] differ by the 0x20 bit, we'll left-shift this by 2 now so that
             // this is moved over to the 0x80 bit, which nicely aligns with the calculation
@@ -219,7 +192,6 @@ namespace DotNetty.Common.Internal
             // the two values are *not* equal under an OrdinalIgnoreCase comparer.
 
             return 0u >= (differentBits & indicator);
-#endif
         }
 
         /// <summary>
@@ -235,29 +207,6 @@ namespace DotNetty.Common.Internal
             // ASSUMPTION: Caller has validated that input values are ASCII.
             Debug.Assert(AllCharsInUInt64AreAscii(valueA));
             Debug.Assert(AllCharsInUInt64AreAscii(valueB));
-
-#if NETCOREAPP3_1
-            // the 0x80 bit of each word of 'lowerIndicator' will be set iff the word has value >= 'A'
-            ulong lowerIndicator = valueA + 0x0080_0080_0080_0080ul - 0x0041_0041_0041_0041ul;
-
-            // the 0x80 bit of each word of 'upperIndicator' will be set iff (word | 0x20) has value <= 'z'
-            ulong upperIndicator = (valueA | 0x0020_0020_0020_0020ul) + 0x0100_0100_0100_0100ul - 0x007B_007B_007B_007Bul;
-
-            // the 0x20 bit of each word of 'combinedIndicator' will be set iff the word is [A-Za-z]
-            ulong combinedIndicator = (0x0080_0080_0080_0080ul & lowerIndicator & upperIndicator) >> 2;
-
-            // Convert both values to lowercase (using the combined indicator from the first value)
-            // and compare for equality. It's possible that the first value will contain an alpha character
-            // where the second value doesn't (or vice versa), and applying the combined indicator will
-            // create nonsensical data, but the comparison would have failed anyway in this case so it's
-            // a safe operation to perform.
-            //
-            // This 64-bit method is similar to the 32-bit method, but it performs the equivalent of convert-to-
-            // lowercase-then-compare rather than convert-to-uppercase-and-compare. This particular operation
-            // happens to be faster on x64.
-
-            return (valueA | combinedIndicator) == (valueB | combinedIndicator);
-#else
             // Duplicate of logic in UInt32OrdinalIgnoreCaseAscii, but using 64-bit consts.
             // See comments in that method for more info.
 
@@ -267,7 +216,6 @@ namespace DotNetty.Common.Internal
             indicator += 0x001A_001A_001A_001Aul;
             indicator |= 0xFF7F_FF7F_FF7F_FF7Ful;
             return 0ul >= (differentBits & indicator);
-#endif
         }
     }
 }

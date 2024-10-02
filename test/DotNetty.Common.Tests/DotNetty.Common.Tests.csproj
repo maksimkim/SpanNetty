@@ -6,7 +6,7 @@
     <AssemblyName>DotNetty.Common.Tests</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup  Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <PropertyGroup  Condition=" '$(TargetFramework)' == 'net6.0'">
     <DefineConstants>$(DefineConstants);CORELIBTEST</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(ImportLibs)' == 'netfx' ">
