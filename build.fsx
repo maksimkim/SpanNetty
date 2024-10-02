@@ -45,7 +45,6 @@ let incrementalistReport = output @@ "incrementalist.txt"
 
 // Configuration values for tests
 let testNetFrameworkVersion = "net471"
-let testNetFramework451Version = "net452"
 let testNetCoreVersion = "netcoreapp3.1"
 let testNetCore21Version = "netcoreapp2.1"
 let testNetVersion = "net6.0"
@@ -326,34 +325,6 @@ Target "RunTestsNetFx471" (fun _ ->
     projects |> Seq.iter (runSingleProject)
 )
 
-Target "RunTestsNetFx451" (fun _ ->    
-    let projects = 
-        let rawProjects = match (isWindows) with 
-                            | true -> !! "./test/*.Tests/*.Tests.csproj"
-                                      -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
-                                      -- "./test/*.Tests/DotNetty.Buffers.ReaderWriter.Tests"
-                            | _ -> !! "./test/*.Tests/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
-                                   -- "./test/*.Tests/DotNetty.Suite.Tests.csproj"
-                                   -- "./test/*.Tests/DotNetty.Buffers.ReaderWriter.Tests"
-        rawProjects |> Seq.choose filterProjects
-    
-    let runSingleProject project =
-        let arguments =
-            match (hasTeamCity) with
-            | true -> (sprintf "test -c Debug --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none -teamcity" testNetFramework451Version outputTests)
-            | false -> (sprintf "test -c Debug --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none" testNetFramework451Version outputTests)
-
-        let result = ExecProcess(fun info ->
-            info.FileName <- "dotnet"
-            info.WorkingDirectory <- (Directory.GetParent project).FullName
-            info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
-        
-        ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
-
-    CreateDir outputTests
-    projects |> Seq.iter (runSingleProject)
-)
-
 FinalTarget "KillCreatedProcesses" (fun _ ->
     log "Shutting down dotnet build-server"
     let result = ExecProcess(fun info ->
@@ -401,7 +372,6 @@ Target "RunTestsNetCoreFull" DoNothing
 "Build" ==> "RunTestsNetCore31"
 "Build" ==> "RunTestsNetCore21"
 "Build" ==> "RunTestsNetFx471"
-"Build" ==> "RunTestsNetFx451"
 
 // all
 "BuildDebug" ==> "All"
@@ -409,6 +379,5 @@ Target "RunTestsNetCoreFull" DoNothing
 "RunTestsNetCore31" ==> "All"
 "RunTestsNetCore21" ==> "All"
 "RunTestsNetFx471" ==> "All"
-"RunTestsNetFx451" ==> "All"
 
 RunTargetOrDefault "Help"

@@ -5,7 +5,7 @@
   <PropertyGroup>
     <DeveloperBuildTfms>netstandard2.0</DeveloperBuildTfms>
     <StandardTfms>$(DeveloperBuildTfms)</StandardTfms>
-    <StandardTfms Condition=" '$(OS)' == 'Windows_NT' ">$(StandardTfms);net471;net451</StandardTfms>
+    <StandardTfms Condition=" '$(OS)' == 'Windows_NT' ">$(StandardTfms);net471</StandardTfms>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">

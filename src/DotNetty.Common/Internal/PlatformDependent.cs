@@ -252,9 +252,7 @@ namespace DotNetty.Common.Internal
             uint nlen = unchecked((uint)length);
             if (0u >= nlen) { return; }
 
-#if NET451
-            Buffer.BlockCopy(src, srcIndex, dst, dstIndex, length);
-#elif NET471
+#if NET471
             unsafe
             {
                 fixed (byte* source = &src[srcIndex])
