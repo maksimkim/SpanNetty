@@ -9,6 +9,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Common.Utilities;
+using DotNetty.Handlers.Logging;
 using DotNetty.Handlers.Tls;
 using DotNetty.Tests.Common;
 using DotNetty.Transport.Bootstrapping;
@@ -377,10 +378,10 @@ namespace DotNetty.Handlers.Proxy.Tests
                     DESTINATION,
                     true,
                     CreateClientTlsHandler(),
-                    new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD)),
+                    new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD),
+                    new LoggingHandler("client")
+                )
             };
-            
-            
 
             // Convert the test items to the list of constructor parameters.
             var parameters = new List<object[]>(items.Count);

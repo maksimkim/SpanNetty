@@ -37,7 +37,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 case TestMode.Terminal:
                     p.AddLast(new HttpServerCodec());
                     p.AddLast(new HttpObjectAggregator(1));
-                    p.AddLast(new LoggingHandler());
+                    p.AddLast(new LoggingHandler("proxy"));
                     p.AddLast(new HttpTerminalHandler(this));
                     break;
                 case TestMode.Unresponsive:
