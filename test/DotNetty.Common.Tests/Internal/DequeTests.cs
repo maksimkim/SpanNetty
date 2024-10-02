@@ -507,11 +507,7 @@ namespace DotNetty.Common.Tests.Internal
             InsertTest(new[] { 1, 2, 3, 4 }, new[] { 7, 13 });
         }
 
-#if NET45
-        private void InsertTest(IList<int> initial, IList<int> items)
-#else
         private void InsertTest(IReadOnlyCollection<int> initial, IReadOnlyCollection<int> items)
-#endif
         {
             var totalCapacity = initial.Count + items.Count;
             for (int rotated = 0; rotated <= totalCapacity; ++rotated)
@@ -653,11 +649,7 @@ namespace DotNetty.Common.Tests.Internal
             RemoveTest(new[] { 1, 2, 3, 4 });
         }
 
-#if NET45
-        private void RemoveTest(IList<int> initial)
-#else
         private void RemoveTest(IReadOnlyCollection<int> initial)
-#endif
         {
             for (int count = 0; count <= initial.Count; ++count)
             {

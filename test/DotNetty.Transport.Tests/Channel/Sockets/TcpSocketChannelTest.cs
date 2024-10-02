@@ -44,11 +44,7 @@
                     .ChildHandler(new ChannelInboundHandlerAdapter1(futures));
 
                 sc = sb.BindAsync(new IPEndPoint(IPAddress.Loopback, 0)).GetAwaiter().GetResult();
-#if NET452
-                socket.Connect(sc.LocalAddress);
-#else
                 socket.ConnectAsync(sc.LocalAddress).GetAwaiter().GetResult();
-#endif
 
                 byte[] tempArea = new byte[8192];
 #if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER

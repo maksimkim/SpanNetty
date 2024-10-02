@@ -400,14 +400,7 @@ namespace DotNetty.Buffers
         [MethodImpl(InlineMethod.AggressiveInlining)]
         internal static string GetString(byte* src, int length, Encoding encoding)
         {
-#if NET451
-            int charCount = encoding.GetCharCount(src, length);
-            char* chars = stackalloc char[charCount];
-            encoding.GetChars(src, length, chars, charCount);
-            return new string(chars, 0, charCount);
-#else
             return encoding.GetString(src, length);
-#endif
         }
 
         internal static UnpooledUnsafeDirectByteBuffer NewUnsafeDirectByteBuffer(IByteBufferAllocator alloc, int initialCapacity, int maxCapacity) =>

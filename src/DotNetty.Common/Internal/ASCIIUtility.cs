@@ -364,13 +364,6 @@ namespace DotNetty.Common.Internal
         {
             Debug.Assert(AllCharsInUInt64AreAscii(value));
 
-#if NETCOREAPP3_1
-            if (Bmi2.X64.IsSupported)
-            {
-                // BMI2 will work regardless of the processor's endianness.
-                Unsafe.WriteUnaligned(ref outputBuffer, (uint)Bmi2.X64.ParallelBitExtract(value, 0x00FF00FF_00FF00FFul));
-            }
-#else
             if (Sse2.X64.IsSupported)
             {
                 // Narrows a vector of words [ w0 w1 w2 w3 ] to a vector of bytes
@@ -389,7 +382,6 @@ namespace DotNetty.Common.Internal
                 Vector64<byte> lower = AdvSimd.ExtractNarrowingSaturateUnsignedLower(vecWide);
                 Unsafe.WriteUnaligned<uint>(ref outputBuffer, lower.AsUInt32().ToScalar());
             }
-#endif
             else
             {
                 if (BitConverter.IsLittleEndian)

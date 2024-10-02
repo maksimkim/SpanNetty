@@ -122,26 +122,6 @@ namespace DotNetty.Common.Internal
                         // the alignment check consumes at most a single DWORD.)
 
                         byte* pInputBufferFinalPosAtWhichCanSafelyLoop = pFinalPosWhereCanReadDWordFromInputBuffer - 3 * sizeof(uint); // can safely read 4 DWORDs here
-#if NETCOREAPP3_1
-                        uint mask;
-
-                        do
-                        {
-                            if (Sse2.IsSupported && Bmi1.IsSupported)
-                            {
-                                // pInputBuffer is 32-bit aligned but not necessary 128-bit aligned, so we're
-                                // going to perform an unaligned load. We don't necessarily care about aligning
-                                // this because we pessimistically assume we'll encounter non-ASCII data at some
-                                // point in the not-too-distant future (otherwise we would've stayed entirely
-                                // within the all-ASCII vectorized code at the entry to this method).
-
-                                mask = (uint)Sse2.MoveMask(Sse2.LoadVector128((byte*)pInputBuffer));
-                                if (mask != 0)
-                                {
-                                    goto Sse2LoopTerminatedEarlyDueToNonAsciiData;
-                                }
-                            }
-#else
                         nuint trailingZeroCount;
 
                         Vector128<byte> bitMask128 = BitConverter.IsLittleEndian ?
@@ -173,7 +153,6 @@ namespace DotNetty.Common.Internal
                                     goto LoopTerminatedEarlyDueToNonAsciiData;
                                 }
                             }
-#endif
                             else
                             {
                                 if (!ASCIIUtility.AllBytesInUInt32AreAscii(((uint*)pInputBuffer)[0] | ((uint*)pInputBuffer)[1]))
@@ -191,23 +170,6 @@ namespace DotNetty.Common.Internal
                         } while (pInputBuffer <= pInputBufferFinalPosAtWhichCanSafelyLoop);
 
                         continue; // need to perform a bounds check because we might be running out of data
-
-#if NETCOREAPP3_1
-                    Sse2LoopTerminatedEarlyDueToNonAsciiData:
-
-                        Debug.Assert(BitConverter.IsLittleEndian);
-                        Debug.Assert(Sse2.IsSupported);
-                        Debug.Assert(Bmi1.IsSupported);
-
-                        // The 'mask' value will have a 0 bit for each ASCII byte we saw and a 1 bit
-                        // for each non-ASCII byte we saw. We can count the number of ASCII bytes,
-                        // bump our input counter by that amount, and resume processing from the
-                        // "the first byte is no longer ASCII" portion of the main loop.
-
-                        Debug.Assert(mask != 0);
-
-                        pInputBuffer += Bmi1.TrailingZeroCount(mask);
-#else
                     LoopTerminatedEarlyDueToNonAsciiData:
                         // x86 can only be little endian, while ARM can be big or little endian
                         // so if we reached this label we need to check both combinations are supported
@@ -222,7 +184,6 @@ namespace DotNetty.Common.Internal
                         Debug.Assert(trailingZeroCount < 16);
 
                         pInputBuffer += trailingZeroCount;
-#endif
                         if (pInputBuffer > pFinalPosWhereCanReadDWordFromInputBuffer)
                         {
                             goto ProcessRemainingBytesSlow;

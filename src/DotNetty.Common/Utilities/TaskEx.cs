@@ -41,11 +41,7 @@ namespace DotNetty.Common.Utilities
 
         public static readonly Task<int> Zero = Task.FromResult(0);
 
-#if NET451
-        public static readonly Task Completed = Zero;
-#else
         public static readonly Task Completed = Task.CompletedTask;
-#endif
 
         public static readonly Task<int> Cancelled = CreateCancelledTask();
 
@@ -56,9 +52,7 @@ namespace DotNetty.Common.Utilities
         static Task<int> CreateCancelledTask()
         {
             var tcs = new TaskCompletionSource<int>(
-#if !NET451
                 TaskCreationOptions.RunContinuationsAsynchronously
-#endif
                 );
             tcs.SetCanceled();
             return tcs.Task;
@@ -66,44 +60,22 @@ namespace DotNetty.Common.Utilities
 
         public static Task FromCanceled(CancellationToken cancellationToken)
         {
-#if NET451
-            return CreateCancelledTask();
-#else
             return Task.FromCanceled(cancellationToken);
-#endif
         }
 
         public static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken)
         {
-#if NET451
-            var tcs = new TaskCompletionSource<TResult>();
-            tcs.SetCanceled();
-            return tcs.Task;
-#else
             return Task.FromCanceled<TResult>(cancellationToken);
-#endif
         }
 
         public static Task FromException(Exception exception)
         {
-#if NET451
-            var tcs = new TaskCompletionSource<int>();
-            tcs.TrySetException(exception);
-            return tcs.Task;
-#else
             return Task.FromException(exception);
-#endif
         }
 
         public static Task<T> FromException<T>(Exception exception)
         {
-#if NET451
-            var tcs = new TaskCompletionSource<T>();
-            tcs.TrySetException(exception);
-            return tcs.Task;
-#else
             return Task.FromException<T>(exception);
-#endif
         }
 
         static readonly Action<Task, object> LinkOutcomeContinuationAction = (t, s) => LinkOutcomeContinuation(t, s);
@@ -523,16 +495,9 @@ namespace DotNetty.Common.Utilities
         private static async Task MakeCancellable(Task task, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<object>(
-#if !NET451
                 TaskCreationOptions.RunContinuationsAsynchronously
-#endif
-                );
-            using (cancellationToken.Register(() =>
-                      tcs.TrySetCanceled(
-#if !NET451
-                          cancellationToken
-#endif
-                          ), useSynchronizationContext: false))
+            );
+            using (cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken), useSynchronizationContext: false))
             {
                 var firstToComplete = await Task.WhenAny(task, tcs.Task).ConfigureAwait(false);
 
@@ -591,16 +556,9 @@ namespace DotNetty.Common.Utilities
         private static async Task<T> MakeCancellable<T>(Task<T> task, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<T>(
-#if !NET451
                 TaskCreationOptions.RunContinuationsAsynchronously
-#endif
-                );
-            using (cancellationToken.Register(() =>
-                      tcs.TrySetCanceled(
-#if !NET451
-                          cancellationToken
-#endif
-                          ), useSynchronizationContext: false))
+            );
+            using (cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken), useSynchronizationContext: false))
             {
                 var firstToComplete = await Task.WhenAny(task, tcs.Task).ConfigureAwait(false);
 
