@@ -377,9 +377,11 @@ namespace DotNetty.Handlers.Proxy.Tests
                     "HTTPS proxy: successful connection, AUTO_READ on",
                     DESTINATION,
                     true,
+                    new LoggingHandler("client-tcp"),
                     CreateClientTlsHandler(),
+                    new LoggingHandler("client-tls"),
                     new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD),
-                    new LoggingHandler("client")
+                    new LoggingHandler("client-proxy")
                 )
             };
 
