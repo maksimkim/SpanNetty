@@ -257,15 +257,18 @@ namespace DotNetty.Handlers.Tests
             });
 
             var driverStream = new SslStream(mediationStream, true, (_1, _2, _3, _4) => true);
+            var handshakeTimeout = TimeSpan.FromSeconds(5);
             if (isClient)
             {
                 ServerTlsSettings serverTlsSettings = CertificateSelector(targetHost).Result;
-                await Task.Run(() => driverStream.AuthenticateAsServerAsync(serverTlsSettings.Certificate, false, protocol | serverTlsSettings.EnabledProtocols, false).WithTimeout(TimeSpan.FromSeconds(5)));
+                await Task.Run(() => driverStream.AuthenticateAsServerAsync(serverTlsSettings.Certificate, false, protocol | serverTlsSettings.EnabledProtocols, false).WithTimeout(handshakeTimeout));
             }
             else
             {
-                await Task.Run(() => driverStream.AuthenticateAsClientAsync(targetHost, null, protocol, false)).WithTimeout(TimeSpan.FromSeconds(5));
+                await Task.Run(() => driverStream.AuthenticateAsClientAsync(targetHost, null, protocol, false)).WithTimeout(handshakeTimeout);
             }
+                
+            await ch.Pipeline.Get<TlsHandler>().HandshakeCompletion.WithTimeout(handshakeTimeout);
             writeTasks.Clear();
 
             return Tuple.Create(ch, driverStream);
