@@ -105,10 +105,7 @@ namespace DotNetty.Transport.Channels.Pool
                             ((TaskCompletionSource<bool>)s).TrySetException(TaskUtil.Unwrap(t.Exception));
                         }
                     },
-                    removePromise
-#if !NET451
-                    , TaskContinuationOptions.RunContinuationsAsynchronously
-#endif
+                    removePromise, TaskContinuationOptions.RunContinuationsAsynchronously
                 );
                 return removePromise.Task;
             }

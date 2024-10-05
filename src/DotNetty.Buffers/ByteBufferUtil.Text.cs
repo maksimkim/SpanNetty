@@ -139,29 +139,7 @@ namespace DotNetty.Buffers
         {
             if (0u >= (uint)len) { return string.Empty; }
 
-#if NET451
-            if (src.IsSingleIoBuffer)
-            {
-                ArraySegment<byte> ioBuf = src.GetIoBuffer(readerIndex, len);
-                return encoding.GetString(ioBuf.Array, ioBuf.Offset, ioBuf.Count);
-            }
-            else
-            {
-                int maxLength = encoding.GetMaxCharCount(len);
-                IByteBuffer buffer = src.Allocator.HeapBuffer(maxLength);
-                try
-                {
-                    buffer.WriteBytes(src, readerIndex, len);
-                    ArraySegment<byte> ioBuf = buffer.GetIoBuffer();
-                    return encoding.GetString(ioBuf.Array, ioBuf.Offset, ioBuf.Count);
-                }
-                finally
-                {
-                    // Release the temporary buffer again.
-                    buffer.Release();
-                }
-            }
-#else
+
             var source = src.GetReadableSpan(readerIndex, len);
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
             return encoding.GetString(source);
@@ -173,7 +151,6 @@ namespace DotNetty.Buffers
                     return encoding.GetString(bytes, source.Length);
                 }
             }
-#endif
 #endif
         }
     }

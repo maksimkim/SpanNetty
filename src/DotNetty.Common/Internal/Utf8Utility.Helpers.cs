@@ -10,9 +10,6 @@ using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-#if NETCOREAPP3_1
-using System.Runtime.Intrinsics.X86;
-#endif
 
 namespace DotNetty.Common.Internal
 {
@@ -74,27 +71,6 @@ namespace DotNetty.Common.Internal
         {
             if (BitConverter.IsLittleEndian)
             {
-#if NETCOREAPP3_1
-                if (Bmi2.IsSupported)
-                {
-                    // need to reverse endianness for bit manipulation to work correctly
-                    value = BinaryPrimitives.ReverseEndianness(value);
-
-                    // value = [ 11110uuu 10uuzzzz 10yyyyyy 10xxxxxx ]
-                    // want to return [ 110110wwwwxxxxxx 110111xxxxxxxxxx ]
-                    // where wwww = uuuuu - 1
-
-                    uint highSurrogateChar = Bmi2.ParallelBitExtract(value, 0b00000111_00111111_00110000_00000000u);
-                    uint lowSurrogateChar = Bmi2.ParallelBitExtract(value, 0b00000000_00000000_00001111_00111111u);
-
-                    uint combined = (lowSurrogateChar << 16) + highSurrogateChar;
-                    combined -= 0x40u; // wwww = uuuuu - 1
-                    combined += 0xDC00_D800u; // add surrogate markers
-                    return combined;
-                }
-                else
-                {
-#endif
                     // input is UTF8 [ 10xxxxxx 10yyyyyy 10uuzzzz 11110uuu ] = scalar 000uuuuu zzzzyyyy yyxxxxxx
                     // want to return UTF16 scalar 000uuuuuzzzzyyyyyyxxxxxx = [ 110111yy yyxxxxxx 110110ww wwzzzzyy ]
                     // where wwww = uuuuu - 1
@@ -108,9 +84,6 @@ namespace DotNetty.Common.Internal
                     retVal += 0x0000_0800u; // retVal = [ 000000yy yyxxxxxx 110110ww wwzzzzyy ]
                     retVal += 0xDC00_0000u; // retVal = [ 110111yy yyxxxxxx 110110ww wwzzzzyy ]
                     return retVal;
-#if NETCOREAPP3_1
-                }
-#endif
             }
             else
             {
@@ -144,25 +117,6 @@ namespace DotNetty.Common.Internal
                 // input = [ 110111yyyyxxxxxx 110110wwwwzzzzyy ] = scalar (000uuuuu zzzzyyyy yyxxxxxx)
                 // must return [ 10xxxxxx 10yyyyyy 10uuzzzz 11110uuu ], where wwww = uuuuu - 1
 
-#if NETCOREAPP3_1
-                if (Bmi2.IsSupported)
-                {
-                    // Since pdep and pext have high latencies and can only be dispatched to a single execution port, we want
-                    // to use them conservatively. Here, we'll build up the scalar value (this would normally be pext) via simple
-                    // logical and arithmetic operations, and use only pdep for the expensive step of exploding the scalar across
-                    // all four output bytes.
-
-                    uint unmaskedScalar = (value << 10) + (value >> 16) + ((0x40u) << 10) /* uuuuu = wwww + 1 */ - 0xDC00u /* remove low surrogate marker */;
-
-                    // Now, unmaskedScalar = [ xxxxxx11 011uuuuu zzzzyyyy yyxxxxxx ]. There's a bit of unneeded junk at the beginning
-                    // that should normally be masked out via an and, but we'll just direct pdep to ignore it.
-
-                    uint exploded = Bmi2.ParallelBitDeposit(unmaskedScalar, 0b00000111_00111111_00111111_00111111u); // = [ 00000uuu 00uuzzzz 00yyyyyy 00xxxxxx ]
-                    return BinaryPrimitives.ReverseEndianness(exploded + 0xF080_8080u); // = [ 10xxxxxx 10yyyyyy 10uuzzzz 11110uuu ]
-                }
-                else
-                {
-#endif
                     value += 0x0000_0040u; // = [ 110111yyyyxxxxxx 11011uuuuuzzzzyy ]
 
                     uint tempA = BinaryPrimitives.ReverseEndianness(value & 0x003F_0700u); // = [ 00000000 00000uuu 00xxxxxx 00000000 ]
@@ -176,9 +130,6 @@ namespace DotNetty.Common.Internal
                     tempD |= 0x8080_80F0u;
 
                     return tempD | tempA | tempC; // = [ 10xxxxxx 10yyyyyy 10uuzzzz 11110uuu ]
-#if NETCOREAPP3_1
-                }
-#endif
             }
             else
             {
@@ -768,45 +719,6 @@ namespace DotNetty.Common.Internal
             return (BitConverter.IsLittleEndian && (0u >= (value & 0x0080_0000u)))
                 || (!BitConverter.IsLittleEndian && (0u >= (value & 0x8000u)));
         }
-
-#if NETCOREAPP3_1
-        /// <summary>
-        /// Given a DWORD which represents a buffer of 4 ASCII bytes, widen each byte to a 16-bit WORD
-        /// and writes the resulting QWORD into the destination with machine endianness.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Widen4AsciiBytesToCharsAndWrite(ref char outputBuffer, uint value)
-        {
-            if (Bmi2.X64.IsSupported)
-            {
-                // BMI2 will work regardless of the processor's endianness.
-                Unsafe.WriteUnaligned(ref Unsafe.As<char, byte>(ref outputBuffer), Bmi2.X64.ParallelBitDeposit(value, 0x00FF00FF_00FF00FFul));
-            }
-            else
-            {
-                if (BitConverter.IsLittleEndian)
-                {
-                    outputBuffer = (char)(byte)value;
-                    value >>= 8;
-                    Unsafe.Add(ref outputBuffer, 1) = (char)(byte)value;
-                    value >>= 8;
-                    Unsafe.Add(ref outputBuffer, 2) = (char)(byte)value;
-                    value >>= 8;
-                    Unsafe.Add(ref outputBuffer, 3) = (char)value;
-                }
-                else
-                {
-                    Unsafe.Add(ref outputBuffer, 3) = (char)(byte)value;
-                    value >>= 8;
-                    Unsafe.Add(ref outputBuffer, 2) = (char)(byte)value;
-                    value >>= 8;
-                    Unsafe.Add(ref outputBuffer, 1) = (char)(byte)value;
-                    value >>= 8;
-                    outputBuffer = (char)value;
-                }
-            }
-        }
-#endif
 
         /// <summary>
         /// Given a DWORD which represents a buffer of 2 packed UTF-16 values in machine endianess,

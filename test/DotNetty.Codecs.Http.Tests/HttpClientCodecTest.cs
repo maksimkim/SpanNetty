@@ -99,11 +99,7 @@ namespace DotNetty.Codecs.Http.Tests
         [Fact]
         public void ServerCloseSocketInputProvidesData()
         {
-#if NETCOREAPP2_1
-            var runInAzureDevOps = false; // 本地测试
-#else
             var runInAzureDevOps = true;
-#endif
             if (runInAzureDevOps)
             {
                 // TODO Azure DevOps 有时测试无法通过

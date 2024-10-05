@@ -116,13 +116,8 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
-
-                if (ch.Finish())
-                {
-                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
-                    Assert.NotNull(emptyByteBufferOutbound);
-                }
-
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                var _ = ch.ReadOutbound<EmptyByteBuffer>();
                 Assert.False(ch.Finish());
             }
             finally
@@ -203,13 +198,8 @@ namespace DotNetty.Handlers.Tests
                 }
 
                 driverStream.Dispose();
-                
-                if (ch.Finish())
-                {
-                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
-                    Assert.NotNull(emptyByteBufferOutbound);
-                }
-
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                var _ = ch.ReadOutbound<EmptyByteBuffer>();
                 Assert.False(ch.Finish());
             }
             finally
@@ -267,15 +257,18 @@ namespace DotNetty.Handlers.Tests
             });
 
             var driverStream = new SslStream(mediationStream, true, (_1, _2, _3, _4) => true);
+            var handshakeTimeout = TimeSpan.FromSeconds(5);
             if (isClient)
             {
                 ServerTlsSettings serverTlsSettings = CertificateSelector(targetHost).Result;
-                await Task.Run(() => driverStream.AuthenticateAsServerAsync(serverTlsSettings.Certificate, false, protocol | serverTlsSettings.EnabledProtocols, false).WithTimeout(TimeSpan.FromSeconds(5)));
+                await Task.Run(() => driverStream.AuthenticateAsServerAsync(serverTlsSettings.Certificate, false, protocol | serverTlsSettings.EnabledProtocols, false).WithTimeout(handshakeTimeout));
             }
             else
             {
-                await Task.Run(() => driverStream.AuthenticateAsClientAsync(targetHost, null, protocol, false)).WithTimeout(TimeSpan.FromSeconds(5));
+                await Task.Run(() => driverStream.AuthenticateAsClientAsync(targetHost, null, protocol, false)).WithTimeout(handshakeTimeout);
             }
+                
+            await ch.Pipeline.Get<TlsHandler>().HandshakeCompletion.WithTimeout(handshakeTimeout);
             writeTasks.Clear();
 
             return Tuple.Create(ch, driverStream);
@@ -312,8 +305,8 @@ namespace DotNetty.Handlers.Tests
 
                         if (!output.IsReadable())
                         {
-                            output.Release();
-                            return true;
+                            output.Release(); //received empty message but that's not necessary the end of the data stream
+                            continue;
                         }
 
                         remaining -= output.ReadableBytes;
