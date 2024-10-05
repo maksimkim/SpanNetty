@@ -221,8 +221,13 @@ namespace DotNetty.Handlers.Tests
                     Assert.True(isEqual, $"---Expected:\n{ByteBufferUtil.PrettyHexDump(expectedBuffer)}\n---Actual:\n{ByteBufferUtil.PrettyHexDump(finalReadBuffer)}");
                 }
                 driverStream.Dispose();
-                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
-                var _ = ch.ReadOutbound<EmptyByteBuffer>();
+
+                if (ch.Finish())
+                {
+                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
+                    Assert.NotNull(emptyByteBufferOutbound);
+                }
+
                 Assert.False(ch.Finish());
             }
             finally
