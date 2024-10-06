@@ -371,8 +371,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                             */
             };
 
-            items = new List<TestItem>
-            {
+            items = Enumerable.Range(0, 100).Select(_ => 
                 new SuccessTestItem(
                     "HTTPS proxy: successful connection, AUTO_READ on",
                     DESTINATION,
@@ -382,8 +381,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                     new LoggingHandler("client-tls"),
                     new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD),
                     new LoggingHandler("client-proxy")
-                )
-            };
+                )).Cast<TestItem>().ToList();
 
             // Convert the test items to the list of constructor parameters.
             var parameters = new List<object[]>(items.Count);
