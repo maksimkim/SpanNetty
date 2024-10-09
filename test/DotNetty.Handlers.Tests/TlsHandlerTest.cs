@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Threading;
+
 namespace DotNetty.Handlers.Tests
 {
     using System;
@@ -230,6 +232,108 @@ namespace DotNetty.Handlers.Tests
                 await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
             }
         }
+        
+#if NET6_0_OR_GREATER
+        [Fact]
+        public async Task Tls_Renegotiation()
+        {
+            var serverProtocol = SslProtocols.Tls | SslProtocols.Tls12;
+            var clientProtocol = SslProtocols.Tls11 | SslProtocols.Tls12;
+            
+            this.Output.WriteLine($"using DotNetty as a client");
+            this.Output.WriteLine($"serverProtocol: {serverProtocol}");
+            this.Output.WriteLine($"clientProtocol: {clientProtocol}");
+
+            var writeStrategy = new AsIsWriteStrategy();
+            this.Output.WriteLine($"writeStrategy: {writeStrategy}");
+
+            var executor = new DefaultEventExecutor();
+
+            try
+            {
+                var writeTasks = new List<Task>();
+                var pair = await SetupStreamAndChannelAsync(isClient: true, executor, writeStrategy, serverProtocol, clientProtocol, writeTasks);
+                EmbeddedChannel ch = pair.Item1;
+                SslStream driverStream = pair.Item2;
+
+                int randomSeed = Environment.TickCount;
+                var random = new Random(randomSeed);
+                IByteBuffer expectedBuffer = Unpooled.Buffer(16 * 1024);
+
+                var frameLengths = new int[] { 200, 200, 200, 200 };
+                var cancelWrites = false;
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                Task.Run(async () =>
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                {
+                    while (!cancelWrites)
+                    {
+                        var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+
+                        await Task.Run(() =>
+                        {
+                            Output.WriteLine("writing frames on client");
+                            ch.WriteOutbound(frameLengths.Select(len =>
+                            {
+                                var data = new byte[len];
+                                random.NextBytes(data);
+                                expectedBuffer.WriteBytes(data);
+                                return (object)Unpooled.WrappedBuffer(data);
+                            }).ToArray());
+                        }, cancellationToken: cts.Token);
+                    }
+                });                
+
+                IByteBuffer finalReadBuffer = Unpooled.Buffer(16 * 1024);
+                var readBuffer = new byte[16 * 1024 * 10];
+
+                var startTimeStamp = DateTime.UtcNow;
+                var cancelReads = false;
+                var clientCertRenegotiationStarted = false;
+                while (!cancelReads)
+                {
+                    var tasks = new List<Task>
+                    {
+                        ReadOutboundAsync(async () =>
+                        {
+                            Output.WriteLine("reading frames on server");
+                            int read = await driverStream.ReadAsync(readBuffer, 0, readBuffer.Length);
+                            return Unpooled.WrappedBuffer(readBuffer, 0, read);
+                        }, expectedBuffer.ReadableBytes, finalReadBuffer, TestTimeout)
+                    };
+                    
+                    if (!clientCertRenegotiationStarted && DateTime.UtcNow - startTimeStamp > TimeSpan.FromSeconds(1))
+                    {
+                        clientCertRenegotiationStarted = true;
+                        
+                        Output.WriteLine("Performing client cert re-negotiation");
+                        // scheduling a negotiation
+                        tasks.Add(driverStream
+                            .NegotiateClientCertificateAsync(CancellationToken.None)
+                            .ContinueWith(async task =>
+                            {
+                                cancelWrites = true;
+                                await Task.Delay(TimeSpan.FromSeconds(1)); // lets cancel writes and wait for another second so that we are sure nothing was blocked
+                                cancelReads = true;
+                            })
+                        );
+                    }
+
+                    await Task.WhenAll(tasks);
+                }
+                
+                await driverStream.DisposeAsync();
+                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
+                _ = ch.ReadOutbound<EmptyByteBuffer>();
+                Assert.False(ch.Finish());
+            }
+            finally
+            {
+                await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
+            }
+        }
+#endif
 
         static async Task<Tuple<EmbeddedChannel, SslStream>> SetupStreamAndChannelAsync(bool isClient, IEventExecutor executor, IWriteStrategy writeStrategy, SslProtocols serverProtocol, SslProtocols clientProtocol, List<Task> writeTasks)
         {
