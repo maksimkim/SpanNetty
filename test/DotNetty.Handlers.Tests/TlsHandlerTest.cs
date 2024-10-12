@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Threading;
+
 namespace DotNetty.Handlers.Tests
 {
     using System;
@@ -25,7 +27,6 @@ namespace DotNetty.Handlers.Tests
     public class TlsHandlerTest : TestBase
     {
         static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(10);
-
 
         public TlsHandlerTest(ITestOutputHelper output)
             : base(output)
@@ -236,12 +237,64 @@ namespace DotNetty.Handlers.Tests
             }
         }
 
+#if NET6_0_OR_GREATER        
+        [Fact]
+        public async Task TlsClientWriteWithRenegotiation()
+        {
+            var random = new Random(Environment.TickCount);
+            int[] frameLengths = Enumerable.Repeat(0, 30).Select(_ => random.Next(0, 17000)).ToArray();
+            SslProtocols serverProtocol = SslProtocols.Tls12;
+            SslProtocols clientProtocol = SslProtocols.Tls12;
+
+            var writeStrategy = new AsIsWriteStrategy();
+            this.Output.WriteLine($"writeStrategy: {writeStrategy}");
+
+            var executor = new DefaultEventExecutor();
+
+            try
+            {
+                var writeTasks = new List<Task>();
+                var pair = await SetupStreamAndChannelAsync(isClient: true, executor, writeStrategy, serverProtocol, clientProtocol, writeTasks);
+                EmbeddedChannel ch = pair.Item1;
+                SslStream driverStream = pair.Item2;
+
+                await Task.WhenAll(
+                    Task.Run(async () =>
+                    {
+                        foreach (var len in frameLengths)
+                        {
+                            var data = new byte[len];
+                            random.NextBytes(data);
+                            var buf = Unpooled.WrappedBuffer(data);
+                            await ch.WriteAndFlushAsync(buf, ch.NewPromise());    
+                        }
+                    }),
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await driverStream.NegotiateClientCertificateAsync(CancellationToken.None);
+                            Assert.NotNull(driverStream.RemoteCertificate);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            //expected: Received data during renegotiation.
+                        }
+                    })
+                ).WithTimeout(TimeSpan.FromSeconds(5));
+            }
+            finally
+            {
+                await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
+            }
+        }        
+#endif
         static async Task<Tuple<EmbeddedChannel, SslStream>> SetupStreamAndChannelAsync(bool isClient, IEventExecutor executor, IWriteStrategy writeStrategy, SslProtocols serverProtocol, SslProtocols clientProtocol, List<Task> writeTasks)
         {
             X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
             string targetHost = tlsCertificate.GetNameInfo(X509NameType.DnsName, false);
             TlsHandler tlsHandler = isClient ?
-                new TlsHandler(new ClientTlsSettings(clientProtocol, false, new List<X509Certificate>(), targetHost).AllowAnyServerCertificate()) :
+                new TlsHandler(new ClientTlsSettings(clientProtocol, false, new List<X509Certificate> { tlsCertificate }, targetHost).AllowAnyServerCertificate()) :
                 new TlsHandler(new ServerTlsSettings(tlsCertificate, false, false, serverProtocol).AllowAnyClientCertificate());
             //var ch = new EmbeddedChannel(new LoggingHandler("BEFORE"), tlsHandler, new LoggingHandler("AFTER"));
             var ch = new EmbeddedChannel(tlsHandler);
@@ -259,9 +312,9 @@ namespace DotNetty.Handlers.Tests
                 {
                     if (ch.IsActive)
                     {
-#pragma warning disable CS1998 // 异步方法缺少 "await" 运算符，将以同步方式运行
+#pragma warning disable CS1998 // еј‚ж­Ґж–№жі•зјєе°‘ "await" иїђз®—з¬¦пјЊе°†д»ҐеђЊж­Ґж–№ејЏиїђиЎЊ
                         await ReadOutboundAsync(async () => ch.ReadOutbound<IByteBuffer>(), output.Count - readResultBuffer.ReadableBytes, readResultBuffer, TestTimeout, readResultBuffer.ReadableBytes != 0 ? 0 : 1);
-#pragma warning restore CS1998 // 异步方法缺少 "await" 运算符，将以同步方式运行
+#pragma warning restore CS1998 // еј‚ж­Ґж–№жі•зјєе°‘ "await" иїђз®—з¬¦пјЊе°†д»ҐеђЊж­Ґж–№ејЏиїђиЎЊ
                     }
                 }
                 int read = Math.Min(output.Count, readResultBuffer.ReadableBytes);
