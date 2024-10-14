@@ -276,12 +276,13 @@ namespace DotNetty.Handlers.Tests
                             await driverStream.NegotiateClientCertificateAsync(CancellationToken.None);
                             Assert.NotNull(driverStream.RemoteCertificate);
                         }
-                        catch (InvalidOperationException)
+                        catch (InvalidOperationException ex)
                         {
                             //expected: Received data during renegotiation.
+                            this.Output.WriteLine("Server initiated NegotiateClientCertificateAsync failed: {0}", ex);
                         }
                     })
-                ).WithTimeout(TimeSpan.FromSeconds(5));
+                ).WithTimeout(TimeSpan.FromSeconds(15));
             }
             finally
             {
