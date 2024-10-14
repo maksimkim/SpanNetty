@@ -261,17 +261,21 @@ namespace DotNetty.Handlers.Tests
                 await Task.WhenAll(
                     Task.Run(async () =>
                     {
-                        foreach (var len in frameLengths)
+                        //foreach (var len in frameLengths)
+                        for (var i = 0; i < frameLengths.Length; i++)
                         {
+                            var len = frameLengths[i];
                             var data = new byte[len];
                             random.NextBytes(data);
                             var buf = Unpooled.WrappedBuffer(data);
-                            await ch.WriteAndFlushAsync(buf, ch.NewPromise());    
+                            this.Output.WriteLine("Sending message#{0}. Size: {1}", i, len);
+                            await ch.WriteAndFlushAsync(buf, ch.NewPromise());
+                            this.Output.WriteLine("Message#{0} sent. Size: {1}", i, len);
                         }
                     }),
                     Task.Run(async () =>
                     {
-                        return;
+                        //return;
                         try
                         {
                             await driverStream.NegotiateClientCertificateAsync(CancellationToken.None);
