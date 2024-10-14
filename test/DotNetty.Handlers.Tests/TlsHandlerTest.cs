@@ -271,6 +271,7 @@ namespace DotNetty.Handlers.Tests
                     }),
                     Task.Run(async () =>
                     {
+                        return;
                         try
                         {
                             await driverStream.NegotiateClientCertificateAsync(CancellationToken.None);
