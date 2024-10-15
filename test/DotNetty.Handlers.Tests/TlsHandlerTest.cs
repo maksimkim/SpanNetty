@@ -265,9 +265,9 @@ namespace DotNetty.Handlers.Tests
                 {
                     if (ch.IsActive)
                     {
-#pragma warning disable CS1998 // еј‚ж­Ґж–№жі•зјєе°‘ "await" иїђз®—з¬¦пјЊе°†д»ҐеђЊж­Ґж–№ејЏиїђиЎЊ
+#pragma warning disable CS1998 // 异步方法缺少 "await" 运算符，将以同步方式运行
                         await ReadOutboundAsync(async () => ch.ReadOutbound<IByteBuffer>(), output.Count - readResultBuffer.ReadableBytes, readResultBuffer, TestTimeout, readResultBuffer.ReadableBytes != 0 ? 0 : 1);
-#pragma warning restore CS1998 // еј‚ж­Ґж–№жі•зјєе°‘ "await" иїђз®—з¬¦пјЊе°†д»ҐеђЊж­Ґж–№ејЏиїђиЎЊ
+#pragma warning restore CS1998 // 异步方法缺少 "await" 运算符，将以同步方式运行
                     }
                 }
                 int read = Math.Min(output.Count, readResultBuffer.ReadableBytes);
