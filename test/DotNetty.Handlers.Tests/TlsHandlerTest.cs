@@ -1,6 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.ComponentModel;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using DotNetty.Transport.Bootstrapping;
+using DotNetty.Transport.Channels.Sockets;
+
 namespace DotNetty.Handlers.Tests
 {
     using System;
@@ -25,7 +32,6 @@ namespace DotNetty.Handlers.Tests
     public class TlsHandlerTest : TestBase
     {
         static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(10);
-
 
         public TlsHandlerTest(ITestOutputHelper output)
             : base(output)
@@ -221,8 +227,13 @@ namespace DotNetty.Handlers.Tests
                     Assert.True(isEqual, $"---Expected:\n{ByteBufferUtil.PrettyHexDump(expectedBuffer)}\n---Actual:\n{ByteBufferUtil.PrettyHexDump(finalReadBuffer)}");
                 }
                 driverStream.Dispose();
-                await ch.CloseAsync(); //closing channel causes TlsHandler.Flush() to send final empty buffer
-                var _ = ch.ReadOutbound<EmptyByteBuffer>();
+
+                if (ch.Finish())
+                {
+                    var emptyByteBufferOutbound = ch.ReadOutbound<EmptyByteBuffer>();
+                    Assert.NotNull(emptyByteBufferOutbound);
+                }
+
                 Assert.False(ch.Finish());
             }
             finally
@@ -236,7 +247,7 @@ namespace DotNetty.Handlers.Tests
             X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
             string targetHost = tlsCertificate.GetNameInfo(X509NameType.DnsName, false);
             TlsHandler tlsHandler = isClient ?
-                new TlsHandler(new ClientTlsSettings(clientProtocol, false, new List<X509Certificate>(), targetHost).AllowAnyServerCertificate()) :
+                new TlsHandler(new ClientTlsSettings(clientProtocol, false, new List<X509Certificate> { tlsCertificate }, targetHost).AllowAnyServerCertificate()) :
                 new TlsHandler(new ServerTlsSettings(tlsCertificate, false, false, serverProtocol).AllowAnyClientCertificate());
             //var ch = new EmbeddedChannel(new LoggingHandler("BEFORE"), tlsHandler, new LoggingHandler("AFTER"));
             var ch = new EmbeddedChannel(tlsHandler);
@@ -285,7 +296,7 @@ namespace DotNetty.Handlers.Tests
             }
             
             await tlsHandler.HandshakeCompletion.WithTimeout(handshakeTimeout);
-            
+
             writeTasks.Clear();
 
             return Tuple.Create(ch, driverStream);
@@ -381,5 +392,131 @@ namespace DotNetty.Handlers.Tests
                 }
             }
         }
+        
+ 
+#if NET6_0_OR_GREATER
+        [Fact]
+        [Description("Channel event loop should not be blocked by hanging renegotiation")]
+        public async Task TlsClientWriteWithRenegotiationOverSocketChannel()
+        {
+            SslProtocols tlsProto = SslProtocols.Tls12;
+            var ioTimeout = TimeSpan.FromSeconds(5);
+            var handshakeTimeout = TimeSpan.FromSeconds(5);
+            X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
+            string targetHost = tlsCertificate.GetNameInfo(X509NameType.DnsName, false);
+                
+            var serverListener = new TcpListener(IPAddress.IPv6Loopback, 0);
+            serverListener.Start();
+            this.Output.WriteLine("[Server] Started on {0}", serverListener.LocalEndpoint);
+            var serverEndpoint = serverListener.LocalEndpoint;
+
+            var negotiateTrigger = new TaskCompletionSource();
+
+            var serverTask = Task.Run(async () =>
+            {
+                this.Output.WriteLine("[Server] Waiting for incoming connection on {0}", serverEndpoint);
+                using var serverConnection = await serverListener.AcceptTcpClientAsync();
+                this.Output.WriteLine("[Server] Incoming connection received: {0} => {1}", serverConnection.Client.RemoteEndPoint, serverEndpoint);
+                await using var serverStream = serverConnection.GetStream();
+                await using var tlsStream = new SslStream(serverStream, true, (_1, _2, _3, _4) => true);
+                
+                try
+                {
+                    this.Output.WriteLine("[Server] Waiting TLS handshake request");
+                    await tlsStream.AuthenticateAsServerAsync(tlsCertificate, false, tlsProto, false).WithTimeout(handshakeTimeout);
+                    this.Output.WriteLine("[Server] TLS handshake completed");
+                    
+                    await negotiateTrigger.Task;
+                    try
+                    {
+                        this.Output.WriteLine("[Server] Negotiate client certificate started");
+                        await tlsStream.NegotiateClientCertificateAsync();
+                        this.Output.WriteLine("[Server] Negotiate client certificate completed");
+                        Assert.NotNull(tlsStream.RemoteCertificate);
+                    }
+                    catch (InvalidOperationException ex) when (ex.Message == "Received data during renegotiation.")
+                    {
+                        this.Output.WriteLine("[Server] Negotiate client certificate failed: {0}", ex);
+                        return;
+                    }
+
+                    //draining incoming data in case of successful renegotiation
+                    var buf = new byte[1024];
+                    int read;
+                    do
+                    {
+                        read = await tlsStream.ReadAsync(buf, 0, buf.Length);
+                        this.Output.WriteLine("[Server] {0} bytes received", read);
+                    } while (read > 0);
+                }
+                finally
+                {
+                    tlsStream.Close();
+                    serverStream.Close();
+                    serverConnection.Close();
+                }
+            });
+            
+            var clientBootstrap = new Bootstrap();
+            clientBootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
+            TlsHandler tlsHandler = new TlsHandler(new ClientTlsSettings(tlsProto, false, new List<X509Certificate> {tlsCertificate}, targetHost).AllowAnyServerCertificate());
+            clientBootstrap.Handler(new ActionChannelInitializer<IChannel>(ch => ch.Pipeline.AddLast(tlsHandler)));
+            IEventLoop channelLoop = null;
+
+            var clientTask = Task.Run(async () =>
+            {
+                this.Output.WriteLine("[Client] Connecting to {0}", serverEndpoint);
+                var ch = await clientBootstrap.ConnectAsync(serverEndpoint);
+                this.Output.WriteLine("[Client] Connection established: {0}", ch);
+                channelLoop = ch.EventLoop;
+
+                await tlsHandler.HandshakeCompletion.WithTimeout(handshakeTimeout);
+                this.Output.WriteLine("[Client] TLS handshake completed");
+
+                var random = new Random(Environment.TickCount);
+                int[] frameLengths = Enumerable.Repeat(0, 30).Select(_ => random.Next(0, 17000)).ToArray();
+
+                try
+                {
+                    for (var i = 0; i < frameLengths.Length; i++)
+                    {
+                        var len = frameLengths[i];
+                        var data = new byte[len];
+                        random.NextBytes(data);
+                        var buf = Unpooled.WrappedBuffer(data);
+                        var writeTask = ch.WriteAndFlushAsync(buf, ch.NewPromise()).WithTimeout(ioTimeout);
+                        negotiateTrigger.TrySetResult();
+                        await writeTask;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.Output.WriteLine("[Client] write failed: {0}", ex);
+                }
+
+                this.Output.WriteLine("[Client] Connection closing: {0}", ch);
+                await ch.CloseAsync();
+                this.Output.WriteLine("[Client] Connection closed: {0}", ch);
+            });
+
+            try
+            {
+                await Task.WhenAll(serverTask, clientTask).WithTimeout(ioTimeout);
+            }
+            catch (TimeoutException)
+            {
+                this.Output.WriteLine($"Client or Server tasks didn't complete within {ioTimeout} timeout.");
+            }
+            finally
+            {
+                serverListener.Stop();  
+                this.Output.WriteLine("[Server] Stopped");
+            }
+            
+            Assert.NotNull(channelLoop);
+            //assert event loop is not blocked
+            await channelLoop.SubmitAsync(() => 1).WithTimeout(TimeSpan.FromSeconds(5));
+        }        
+#endif
     }
 }

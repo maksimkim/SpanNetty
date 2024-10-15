@@ -61,16 +61,16 @@ namespace DotNetty.Handlers.Tls
             // Discard bytes of the cumulation buffer if needed.
             DiscardSomeReadBytes();
 
-            ReadIfNeeded(ctx);
+            ReadIfNeeded(ctx, isWrite: false);
 
             _firedChannelRead = false;
             _ = ctx.FireChannelReadComplete();
         }
 
-        private void ReadIfNeeded(IChannelHandlerContext ctx)
+        private void ReadIfNeeded(IChannelHandlerContext ctx, bool isWrite)
         {
             // if handshake is not finished yet, we need more data
-            if (!ctx.Channel.Configuration.IsAutoRead && (!_firedChannelRead || !State.HasAny(TlsHandlerState.AuthenticationCompleted)))
+            if (!ctx.Channel.Configuration.IsAutoRead && ((!isWrite && !_firedChannelRead) || !State.HasAny(TlsHandlerState.AuthenticationCompleted)))
             {
                 // No auto-read used and no message was passed through the ChannelPipeline or the handshake was not completed
                 // yet, which means we need to trigger the read to ensure we will not stall
