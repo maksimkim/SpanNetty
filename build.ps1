@@ -21,7 +21,7 @@ Remaining arguments are added here.
 Param(
     [string]$Target = "Default",
     [ValidateSet("Release", "Debug")]
-    [string]$Configuration = "Debug",
+    [string]$Configuration = "Release",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
     [string]$Verbosity = "Verbose",
     [switch]$WhatIf,

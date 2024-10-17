@@ -1,10 +1,4 @@
-# Pull request validation for Windows against the `future` and `release/*` branches
-# See https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema for reference
-trigger:
-  branches:
-    include:
-      - main
-      - release/*
+trigger: none
 
 pr:
   autoCancel: true # indicates whether additional pushes to a PR should cancel in-progress runs for the same PR. Defaults to true
@@ -42,7 +36,7 @@ stages:
         displayName: Windows Build
         inputs:
           filename: build.cmd
-          arguments: 'Build' #Add ' incremental' to build incremental-ly
+          arguments: 'Build'
         continueOnError: true
         condition: eq( variables['Agent.OS'], 'Windows_NT' )
       - task: CopyFiles@2
@@ -63,7 +57,7 @@ stages:
       displayName: 'Unit Tests (Windows 2022)'
       vmImage: 'windows-2022'
       scriptFileName: build.cmd
-      scriptArgs: RunTestsNetFx471 #Add ' incremental' to Run tests incremental-ly
+      scriptArgs: RunTestsNetFx471
       outputDirectory: 'TestResults'
       artifactName: 'netfx_tests_windows-$(Build.BuildId)'
       packageFeed: $(packageFeed)
