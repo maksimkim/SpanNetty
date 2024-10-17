@@ -1,4 +1,7 @@
-﻿namespace DotNetty.Buffers.Tests
+﻿using System.Buffers;
+using DotNetty.Common;
+
+namespace DotNetty.Buffers.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -72,20 +75,24 @@
         [Fact]
         public void HashCode()
         {
-            var map = new Dictionary<byte[], int>();
-            map.Add(EmptyBytes, 1);
-            map.Add(new byte[] { 1 }, 32);
-            map.Add(new byte[] { 2 }, 33);
-            map.Add(new byte[] { 0, 1 }, 962);
-            map.Add(new byte[] { 1, 2 }, 994);
-            map.Add(new byte[] { 0, 1, 2, 3, 4, 5 }, 63504931);
-            map.Add(new byte[] { 6, 7, 8, 9, 0, 1 }, unchecked((int)97180294697L));
-            map.Add(new byte[] { 255, 255, 255, 0xE1 }, 1);
+            var map = new Dictionary<byte[], (int length, int hashCode)>();
+            map.Add(EmptyBytes, (0, 1));
+            map.Add(new byte[] { 1 }.RentThisData(), (1, 32));
+            map.Add(new byte[] { 2 }.RentThisData(), (1, 33));
+            map.Add(new byte[] { 0, 1 }.RentThisData(), (2, 962));
+            map.Add(new byte[] { 1, 2 }.RentThisData(), (2, 994));
+            map.Add(new byte[] { 0, 1, 2, 3, 4, 5 }.RentThisData(), (6, 63504931));
+            map.Add(new byte[] { 6, 7, 8, 9, 0, 1 }.RentThisData(), (6, unchecked((int)97180294697L)));
+            map.Add(new byte[] { 255, 255, 255, 0xE1 }.RentThisData(), (4, 1));
 
-            foreach (KeyValuePair<byte[], int> e in map)
+            foreach (KeyValuePair<byte[], (int, int)> item in map)
             {
-                IByteBuffer buffer = WrappedBuffer(e.Key);
-                Assert.Equal(e.Value, ByteBufferUtil.HashCode(buffer));
+                var bytes = item.Key;
+                var length = item.Value.Item1;
+                var expectedHashCode = item.Value.Item2;
+                
+                IByteBuffer buffer = WrappedBuffer(bytes, offset: 0, length: length);
+                Assert.Equal(expectedHashCode, ByteBufferUtil.HashCode(buffer));
                 buffer.Release();
             }
         }
@@ -97,61 +104,61 @@
             IByteBuffer a = WrappedBuffer(new byte[] { 1 });
             IByteBuffer b = WrappedBuffer(new byte[] { 1, 2 });
             Assert.False(ByteBufferUtil.Equals(a, b));
-            a.Release();
-            b.Release();
+            a.ReleaseSafely();
+            b.ReleaseSafely();
 
             // Same content, same firstIndex, short length.
             a = WrappedBuffer(new byte[] { 1, 2, 3 });
             b = WrappedBuffer(new byte[] { 1, 2, 3 });
             Assert.True(ByteBufferUtil.Equals(a, b));
-            a.Release();
-            b.Release();
+            a.ReleaseSafely();
+            b.ReleaseSafely();
 
             // Same content, different firstIndex, short length.
             a = WrappedBuffer(new byte[] { 1, 2, 3 });
             b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4 }, 1, 3);
             Assert.True(ByteBufferUtil.Equals(a, b));
-            a.Release();
-            b.Release();
+            a.ReleaseSafely();
+            b.ReleaseSafely();
 
             // Different content, same firstIndex, short length.
             a = WrappedBuffer(new byte[] { 1, 2, 3 });
             b = WrappedBuffer(new byte[] { 1, 2, 4 });
             Assert.False(ByteBufferUtil.Equals(a, b));
-            a.Release();
-            b.Release();
+            a.ReleaseSafely();
+            b.ReleaseSafely();
 
             // Different content, different firstIndex, short length.
             a = WrappedBuffer(new byte[] { 1, 2, 3 });
             b = WrappedBuffer(new byte[] { 0, 1, 2, 4, 5 }, 1, 3);
             Assert.False(ByteBufferUtil.Equals(a, b));
-            a.Release();
-            b.Release();
+            a.ReleaseSafely();
+            b.ReleaseSafely();
 
             // Same content, same firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }.RentThisData());
+            b = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }.RentThisData());
             Assert.True(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Same content, different firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, 1, 10);
+            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.RentThisData(), offset: 0, length: 10);
+            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.RentThisData(), 1, 10);
             Assert.True(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Different content, same firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 1, 2, 3, 4, 6, 7, 8, 5, 9, 10 });
+            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.RentThisData());
+            b = WrappedBuffer(new byte[] { 1, 2, 3, 4, 6, 7, 8, 5, 9, 10 }.RentThisData());
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Different content, different firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 5, 9, 10, 11 }, 1, 10);
+            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.RentThisData(), offset: 0, length: 10);
+            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 5, 9, 10, 11 }.RentThisData(), 1, 10);
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
@@ -161,22 +168,23 @@
         public void Compare()
         {
             IList<IByteBuffer> expected = new List<IByteBuffer>();
-            expected.Add(WrappedBuffer(new byte[] { 1 }));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2 }));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }));
-            expected.Add(WrappedBuffer(new byte[] { 2 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4 }, 1, 1));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4 }, 2, 2));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 1, 10));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 2, 12));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5 }, 2, 1));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5 }, 3, 2));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 2, 10));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }, 3, 12));
+            
+            expected.Add(WrappedBuffer(new byte[] { 1 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 2 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }.RentThisData()));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4 }.RentThisData(), 1, 1));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4 }.RentThisData(), 2, 2));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.RentThisData(), 1, 10));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.RentThisData(), 2, 12));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5 }.RentThisData(), 2, 1));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5 }.RentThisData(), 3, 2));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.RentThisData(), 2, 10));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }.RentThisData(), 3, 12));
 
             for (int i = 0; i < expected.Count; i++)
             {
@@ -198,7 +206,7 @@
             }
             foreach (IByteBuffer buffer in expected)
             {
-                buffer.Release();
+                buffer.ReleaseSafely();
             }
         }
 
@@ -268,18 +276,18 @@
             //        new byte[] { 3 })));
 
             Assert.Equal(
-                WrappedBuffer(new byte[] { 1, 2, 3 }),
-                WrappedBuffer(new []
-                {
-                    WrappedBuffer(new byte[] { 1, 2, 3 })
-                }));
+                WrappedBuffer(new byte[] { 1, 2, 3 }.RentThisData(), offset: 0, length: 3),
+                WrappedBuffer(new [] { WrappedBuffer(new byte[] { 1, 2, 3 }.RentThisData(), offset: 0, length: 3) })
+            );
 
             Assert.Equal(
-                WrappedBuffer(new byte[] { 1, 2, 3 }),
+                WrappedBuffer(new byte[] { 1, 2, 3 }.RentThisData(), offset: 0, length: 3),
                 this.FreeLater(WrappedBuffer(
-                    WrappedBuffer(new byte[] { 1 }),
-                    WrappedBuffer(new byte[] { 2 }), 
-                    WrappedBuffer(new byte[] { 3 }))));
+                    WrappedBuffer(new byte[] { 1 }.RentThisData(), offset: 0, length: 1),
+                    WrappedBuffer(new byte[] { 2 }.RentThisData(), offset: 0, length: 1), 
+                    WrappedBuffer(new byte[] { 3 }.RentThisData(), offset: 0, length: 1)
+                ))
+            );
         }
 
         [Fact]
@@ -384,14 +392,14 @@
         {
             Assert.Equal("", ByteBufferUtil.HexDump(Empty));
 
-            IByteBuffer buffer = WrappedBuffer(new byte[] { 0x12, 0x34, 0x56 });
+            IByteBuffer buffer = WrappedBuffer(new byte[] { 0x12, 0x34, 0x56 }.RentThisData(), offset: 0, length: 3);
             Assert.Equal("123456", ByteBufferUtil.HexDump(buffer));
             buffer.Release();
 
             buffer = WrappedBuffer(new byte[]{
                 0x12, 0x34, 0x56, 0x78,
                 0x90, 0xAB, 0xCD, 0xEF
-            });
+            }.RentThisData(), offset: 0, length: 8);
             Assert.Equal("1234567890abcdef", ByteBufferUtil.HexDump(buffer));
         }
 
@@ -591,5 +599,35 @@
             expected.Release();
             actual.Release();
         }
+    }
+    
+    static class ArrayPoolingHelpers
+    {
+        public static byte[] RentThisData(this byte[] arr)
+        {          
+            var rentedArr = ArrayPool<byte>.Shared.Rent(arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                rentedArr[i] = arr[i];
+            }
+
+            return rentedArr;
+        }
+        
+        public static bool ReleaseSafely(this IReferenceCounted buffer)
+        {
+            try
+            {
+                return buffer.Release();
+            }
+            catch (System.ArgumentException ex) when (ex.Message.Contains("The buffer is not associated with this pool and may not be returned to it"))
+            {
+                // ignoring because it's test.
+                // It happens when instead of using ArrayPool.Rent() (via buffer or separately) dev passes non-rented array to the buffer (i.e. `new byte[3] { ... }`)
+                
+                // we dont really care if that happens in the test, but that is not covered with Exception
+                return false;
+            }
+        } 
     }
 }
