@@ -169,22 +169,22 @@ namespace DotNetty.Buffers.Tests
         {
             IList<IByteBuffer> expected = new List<IByteBuffer>();
             
-            expected.Add(WrappedBuffer(new byte[] { 1 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 2 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }.RentThisData()));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4 }.RentThisData(), 1, 1));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4 }.RentThisData(), 2, 2));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.RentThisData(), 1, 10));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.RentThisData(), 2, 12));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5 }.RentThisData(), 2, 1));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5 }.RentThisData(), 3, 2));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.RentThisData(), 2, 10));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }.RentThisData(), 3, 12));
+            expected.Add(WrappedBuffer(new byte[] { 1 }));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2 }));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }));
+            expected.Add(WrappedBuffer(new byte[] { 2 }));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3 }));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4 }, 1, 1));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4 }, 2, 2));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 1, 10));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 2, 12));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5 }, 2, 1));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5 }, 3, 2));
+            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 2, 10));
+            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }, 3, 12));
 
             for (int i = 0; i < expected.Count; i++)
             {
