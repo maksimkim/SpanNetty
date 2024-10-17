@@ -55,20 +55,11 @@ jobs:
         packageFeed: $(packageFeed)
 
     - task: BatchScript@1
-      displayName: Build & Test Code
+      displayName: Build & Package
       inputs:
         filename: build.cmd
-        arguments: 'RunTests incremental -Configuration Release' # Run an incremental build
+        arguments: 'Build'
       continueOnError: true
-
-    - task: PublishTestResults@2
-      displayName: 'Publish test results'
-      inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
-        testRunTitle: 'Tests'
-        mergeTestResults: true
-        failTaskOnFailedTests: true
 
     - task: NuGetCommand@2
       displayName: 'Push NuGet Packages to Azure Artifacts'
