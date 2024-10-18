@@ -1,4 +1,6 @@
-﻿namespace DotNetty.Buffers.Tests
+﻿using System.Buffers;
+
+namespace DotNetty.Buffers.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -72,20 +74,23 @@
         [Fact]
         public void HashCode()
         {
-            var map = new Dictionary<byte[], int>();
-            map.Add(EmptyBytes, 1);
-            map.Add(new byte[] { 1 }, 32);
-            map.Add(new byte[] { 2 }, 33);
-            map.Add(new byte[] { 0, 1 }, 962);
-            map.Add(new byte[] { 1, 2 }, 994);
-            map.Add(new byte[] { 0, 1, 2, 3, 4, 5 }, 63504931);
-            map.Add(new byte[] { 6, 7, 8, 9, 0, 1 }, unchecked((int)97180294697L));
-            map.Add(new byte[] { 255, 255, 255, 0xE1 }, 1);
-
-            foreach (KeyValuePair<byte[], int> e in map)
+            var map = new Dictionary<IByteBuffer, int> // buffer -> expected hashcode for the buffer data
             {
-                IByteBuffer buffer = WrappedBuffer(e.Key);
-                Assert.Equal(e.Value, ByteBufferUtil.HashCode(buffer));
+                { WrappedBuffer(EmptyBytes), 1 },
+                { new byte[] { 1 }.WrapWithRenting(length: 1), 32 },
+                { new byte[] { 2 }.WrapWithRenting(length: 1), 33 },
+                { new byte[] { 0, 1 }.WrapWithRenting(length: 2), 962 },
+                { new byte[] { 1, 2 }.WrapWithRenting(length: 2), 994 },
+                { new byte[] { 0, 1, 2, 3, 4, 5 }.WrapWithRenting(length: 6), 63504931 },
+                { new byte[] { 6, 7, 8, 9, 0, 1 }.WrapWithRenting(length: 6), unchecked((int)97180294697L) },
+                { new byte[] { 255, 255, 255, 0xE1 }.WrapWithRenting(length: 4), 1 }
+            };
+
+            foreach (var item in map)
+            {
+                var buffer = item.Key;
+                var expectedHashCode = item.Value;
+                Assert.Equal(expectedHashCode, ByteBufferUtil.HashCode(buffer));
                 buffer.Release();
             }
         }
@@ -94,64 +99,64 @@
         public void Equals1()
         {
             // Different length.
-            IByteBuffer a = WrappedBuffer(new byte[] { 1 });
-            IByteBuffer b = WrappedBuffer(new byte[] { 1, 2 });
+            IByteBuffer a = new byte[] { 1 }.WrapWithRenting(0, 1);
+            IByteBuffer b = new byte[] { 1, 2 }.WrapWithRenting(0, 2);
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Same content, same firstIndex, short length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3 });
-            b = WrappedBuffer(new byte[] { 1, 2, 3 });
+            a = new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3);
+            b = new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3);
             Assert.True(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Same content, different firstIndex, short length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3 });
-            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4 }, 1, 3);
+            a = new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3);
+            b = new byte[] { 0, 1, 2, 3, 4 }.WrapWithRenting(offset: 1, length: 3);
             Assert.True(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Different content, same firstIndex, short length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3 });
-            b = WrappedBuffer(new byte[] { 1, 2, 4 });
+            a = new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3);
+            b = new byte[] { 1, 2, 4 }.WrapWithRenting(length: 3);
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Different content, different firstIndex, short length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3 });
-            b = WrappedBuffer(new byte[] { 0, 1, 2, 4, 5 }, 1, 3);
+            a = new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3);
+            b = new byte[] { 0, 1, 2, 4, 5 }.WrapWithRenting(offset: 1, length: 3);
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Same content, same firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            a = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }.WrapWithRenting();
+            b = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }.WrapWithRenting();
             Assert.True(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Same content, different firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, 1, 10);
+            a = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.WrapWithRenting(length: 10);
+            b = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.WrapWithRenting(offset: 1, length: 10);
             Assert.True(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Different content, same firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 1, 2, 3, 4, 6, 7, 8, 5, 9, 10 });
+            a = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.WrapWithRenting();
+            b = new byte[] { 1, 2, 3, 4, 6, 7, 8, 5, 9, 10 }.WrapWithRenting();
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
 
             // Different content, different firstIndex, long length.
-            a = WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            b = WrappedBuffer(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 5, 9, 10, 11 }, 1, 10);
+            a = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.WrapWithRenting(length: 10);
+            b = new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 5, 9, 10, 11 }.WrapWithRenting(offset: 1, length: 10);
             Assert.False(ByteBufferUtil.Equals(a, b));
             a.Release();
             b.Release();
@@ -161,22 +166,23 @@
         public void Compare()
         {
             IList<IByteBuffer> expected = new List<IByteBuffer>();
-            expected.Add(WrappedBuffer(new byte[] { 1 }));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2 }));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }));
-            expected.Add(WrappedBuffer(new byte[] { 2 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4 }, 1, 1));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4 }, 2, 2));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 1, 10));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 2, 12));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5 }, 2, 1));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5 }, 3, 2));
-            expected.Add(WrappedBuffer(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, 2, 10));
-            expected.Add(WrappedBuffer(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }, 3, 12));
+            
+            expected.Add(new byte[] { 1 }.WrapWithRenting(length: 1));
+            expected.Add(new byte[] { 1, 2 }.WrapWithRenting(length: 2));
+            expected.Add(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.WrapWithRenting(length: 10));
+            expected.Add(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }.WrapWithRenting(length: 12));
+            expected.Add(new byte[] { 2 }.WrapWithRenting(length: 1));
+            expected.Add(new byte[] { 2, 3 }.WrapWithRenting(length: 2));
+            expected.Add(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.WrapWithRenting(length: 10));
+            expected.Add(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }.WrapWithRenting(length: 12));
+            expected.Add(new byte[] { 2, 3, 4 }.WrapWithRenting(offset: 1, length: 1));
+            expected.Add(new byte[] { 1, 2, 3, 4 }.WrapWithRenting(offset: 2, length: 2));
+            expected.Add(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.WrapWithRenting(offset: 1, length: 10));
+            expected.Add(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.WrapWithRenting(offset: 2, length: 12));
+            expected.Add(new byte[] { 2, 3, 4, 5 }.WrapWithRenting(offset: 2, length: 1));
+            expected.Add(new byte[] { 1, 2, 3, 4, 5 }.WrapWithRenting(offset: 3, length: 2));
+            expected.Add(new byte[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }.WrapWithRenting(offset: 2, length: 10));
+            expected.Add(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }.WrapWithRenting(offset: 3, length: 12));
 
             for (int i = 0; i < expected.Count; i++)
             {
@@ -256,30 +262,19 @@
         [Fact]
         public void WrappedBuffers()
         {
-            //Assert.Equal(
-            //    WrappedBuffer(new byte[] { 1, 2, 3 }),
-            //    WrappedBuffer(new byte[][] { new byte[] { 1, 2, 3 } }));
-
-            //Assert.Equal(
-            //    WrappedBuffer(new byte[] { 1, 2, 3 }),
-            //    this.FreeLater(WrappedBuffer(
-            //        new byte[] { 1 }, 
-            //        new byte[] { 2 }, 
-            //        new byte[] { 3 })));
+            Assert.Equal(
+                new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3),
+                WrappedBuffer(new [] { new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3) })
+            );
 
             Assert.Equal(
-                WrappedBuffer(new byte[] { 1, 2, 3 }),
-                WrappedBuffer(new []
-                {
-                    WrappedBuffer(new byte[] { 1, 2, 3 })
-                }));
-
-            Assert.Equal(
-                WrappedBuffer(new byte[] { 1, 2, 3 }),
+                new byte[] { 1, 2, 3 }.WrapWithRenting(length: 3),
                 this.FreeLater(WrappedBuffer(
-                    WrappedBuffer(new byte[] { 1 }),
-                    WrappedBuffer(new byte[] { 2 }), 
-                    WrappedBuffer(new byte[] { 3 }))));
+                    new byte[] { 1 }.WrapWithRenting(length: 1),
+                    new byte[] { 2 }.WrapWithRenting(length: 1), 
+                    new byte[] { 3 }.WrapWithRenting(length: 1)
+                ))
+            );
         }
 
         [Fact]
@@ -356,17 +351,6 @@
         [Fact]
         public void CopiedBuffers()
         {
-            //Assert.Equal(
-            //    WrappedBuffer(new byte[] { 1, 2, 3 }),
-            //    CopiedBuffer(new byte[][] { new byte[] { 1, 2, 3 } }));
-
-            //Assert.Equal(
-            //    WrappedBuffer(new byte[] { 1, 2, 3 }),
-            //    CopiedBuffer(
-            //        new byte[] { 1 }, 
-            //        new byte[] { 2 }, 
-            //        new byte[] { 3 }));
-
             Assert.Equal(
                 WrappedBuffer(new byte[] { 1, 2, 3 }),
                 CopiedBuffer(new [] { WrappedBuffer(new byte[] { 1, 2, 3 }) }));
@@ -384,14 +368,15 @@
         {
             Assert.Equal("", ByteBufferUtil.HexDump(Empty));
 
-            IByteBuffer buffer = WrappedBuffer(new byte[] { 0x12, 0x34, 0x56 });
+            IByteBuffer buffer = new byte[] { 0x12, 0x34, 0x56 }.WrapWithRenting(length: 3);
             Assert.Equal("123456", ByteBufferUtil.HexDump(buffer));
             buffer.Release();
 
-            buffer = WrappedBuffer(new byte[]{
+            buffer = WrappedBuffer(new byte[]
+            {
                 0x12, 0x34, 0x56, 0x78,
                 0x90, 0xAB, 0xCD, 0xEF
-            });
+            }.WrapWithRenting(length: 8));
             Assert.Equal("1234567890abcdef", ByteBufferUtil.HexDump(buffer));
         }
 
@@ -591,5 +576,26 @@
             expected.Release();
             actual.Release();
         }
+    }
+    
+    static class ArrayPoolingHelpers
+    {
+        public static IByteBuffer WrapWithRenting(this byte[] arr, int offset = 0, int? length = null)
+        {
+            var rentedArr = arr.RentThisData();
+            length ??= arr.Length;
+            return WrappedBuffer(rentedArr, offset, length.Value);
+        }
+        
+        private static T[] RentThisData<T>(this T[] arr)
+        {          
+            var rentedArr = ArrayPool<T>.Shared.Rent(arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                rentedArr[i] = arr[i];
+            }
+
+            return rentedArr;
+        } 
     }
 }
