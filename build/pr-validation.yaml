@@ -11,6 +11,8 @@ name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 
 variables:
 - template: variables/nuget.yml
+- name: configuration
+  value: Release
 
 stages:
 - stage: windows
@@ -21,8 +23,6 @@ stages:
     pool:
       vmImage: windows-2022
       demands: Cmd
-    variables:
-      configuration: Release
     steps:
       - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
         clean: false  # whether to fetch clean each time
