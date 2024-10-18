@@ -5,13 +5,11 @@
     using System.Linq;
     using System.Text;
     using System.Threading;
-    using Common.Utilities;
+    using DotNetty.Common.Utilities;
     using Xunit;
 
     public abstract partial class AbstractArrayPooledByteBufferTests : IDisposable
     {
-        protected const string TestCharSequence = "ABCDEFGHIJKLMNOPQRST"; // 20 chars
-        
         const int Capacity = 4096; // Must be even
         const int BlockSize = 128;
 
