@@ -17,7 +17,11 @@ namespace DotNetty.Codecs.Http.Utilities
 
         static HttpEncoderUtility()
         {
-            UrlSafeChars = new HashSet<char>() { '-', '_', '.', '!', '*', '(', ')' };
+            /*
+             * https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
+             * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+             */
+            UrlSafeChars = new HashSet<char> { '-', '.', '_', '~' };
             s_digitalHexChars = new HashSet<char>();
             s_uppercaseHexChars = new HashSet<char>();
             s_lowercaseHexChars = new HashSet<char>();
@@ -63,8 +67,11 @@ namespace DotNetty.Codecs.Http.Utilities
         public static char IntToHex(int n)
         {
             Debug.Assert(n < 0x10);
-
-            return n < 10 ? (char)(n + '0') : (char)(n - 10 + 'a');
+            /* https://www.rfc-editor.org/rfc/rfc3986#section-2.1
+             * Percentage encoding is case-insensitive, i.e. %2A is equivalent to %2a 
+             * For consistensy with System.Text.Encodings.Web.UrlEncoder using capital letters
+             */
+            return n < 10 ? (char)(n + '0') : (char)(n - 10 + 'A');
         }
 
         // Set of safe chars, from RFC 1738.4 minus '+'
