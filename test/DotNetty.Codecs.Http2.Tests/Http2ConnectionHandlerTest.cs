@@ -904,6 +904,8 @@ namespace DotNetty.Codecs.Http2.Tests
             long expectedMillis = 1234;
             _handler.GracefulShutdownTimeout = TimeSpan.FromMilliseconds(expectedMillis);
             Http2Exception exception = new Http2Exception(Http2Error.ProtocolError, "Test error", hint);
+            //emulating write IO delay that should force Http2ConnectionHandler to schedule channel closure with graceful timeout
+            _future = Task.Delay(TimeSpan.FromMilliseconds(5));
             _handler.OnConnectionError(_ctx.Object, false, exception, exception);
             if (hint == ShutdownHint.GracefulShutdown)
             {
@@ -948,6 +950,8 @@ namespace DotNetty.Codecs.Http2.Tests
             _connection.Setup(x => x.NumActiveStreams).Returns(0);
             long expectedMillis = 1234;
             _handler.GracefulShutdownTimeout = TimeSpan.FromMilliseconds(expectedMillis);
+            //emulating write IO delay that should force Http2ConnectionHandler to schedule channel closure with graceful timeout
+            _future = Task.Delay(TimeSpan.FromMilliseconds(5));
             _handler.Close(_ctx.Object, _promise);
             _executor.Verify(
                 x => x.Schedule(
