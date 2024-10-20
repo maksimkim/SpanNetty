@@ -11,6 +11,8 @@ name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 
 variables:
 - template: variables/nuget.yml
+- name: configuration
+  value: Release
 
 stages:
 - stage: windows
