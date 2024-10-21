@@ -12,7 +12,7 @@ namespace DotNetty.Buffers.Tests
         {   
             // by default ArrayPool buffers between 1 and 16 bytes are combined,
             // so requesting length of 1 will still result in 16 bytes array
-            var array = ArrayPool<byte>.Shared.Rent(1);
+            var array = ArrayPooled.DefaultArrayPool.Rent(1);
             var buf = ArrayPooledUnsafeDirectByteBuffer.NewInstance(ArrayPooled.Allocator, ArrayPooled.DefaultArrayPool, array, array.Length, array.Length);
             try
             {

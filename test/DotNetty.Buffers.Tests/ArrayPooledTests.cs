@@ -587,9 +587,9 @@ namespace DotNetty.Buffers.Tests
             return WrappedBuffer(rentedArr, offset, length.Value);
         }
         
-        private static T[] RentThisData<T>(this T[] arr)
+        private static byte[] RentThisData(this byte[] arr)
         {          
-            var rentedArr = ArrayPool<T>.Shared.Rent(arr.Length);
+            var rentedArr = DefaultArrayPool.Rent(arr.Length);
             for (int i = 0; i < arr.Length; i++)
             {
                 rentedArr[i] = arr[i];

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 using DotNetty.Common.Internal;
 using Xunit;
 
@@ -251,7 +252,7 @@ namespace DotNetty.Codecs.Http.Utilities.Tests
             Assert.Empty(parsed.ToString());
             parsed.Add("ReturnUrl", @"http://localhost/login/authenticate?ReturnUrl=http://localhost/secured_area&__provider__=google");
 
-            var expected = "ReturnUrl=http%3a%2f%2flocalhost%2flogin%2fauthenticate%3fReturnUrl%3dhttp%3a%2f%2flocalhost%2fsecured_area%26__provider__%3dgoogle";
+            var expected = "ReturnUrl=http%3A%2F%2Flocalhost%2Flogin%2Fauthenticate%3FReturnUrl%3Dhttp%3A%2F%2Flocalhost%2Fsecured_area%26__provider__%3Dgoogle";
             Assert.Equal(expected, parsed.ToString());
             Assert.Equal(expected, HttpUtility.ParseQueryString(expected).ToString(), StringComparer.OrdinalIgnoreCase);
         }
@@ -372,6 +373,10 @@ namespace DotNetty.Codecs.Http.Utilities.Tests
 
         static bool IsUrlSafeChar(char c)
         {
+            /*
+             * https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
+             * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+             */
             if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
             {
                 return true;
@@ -379,12 +384,9 @@ namespace DotNetty.Codecs.Http.Utilities.Tests
             switch (c)
             {
                 case '-':
-                case '_':
                 case '.':
-                case '!':
-                case '*':
-                case '(':
-                case ')':
+                case '_':
+                case '~':
                     return true;
             }
             return false;
@@ -401,7 +403,7 @@ namespace DotNetty.Codecs.Http.Utilities.Tests
                 return "+";
             }
             byte[] bytes = Encoding.UTF8.GetBytes(c.ToString());
-            return string.Join("", bytes.Select(b => $"%{b:x2}"));
+            return string.Join("", bytes.Select(b => $"%{b:X2}"));
         }
 
         public static IEnumerable<object[]> UrlEncodeData
@@ -515,7 +517,7 @@ namespace DotNetty.Codecs.Http.Utilities.Tests
         [Theory]
         [InlineData(null, null)]
         [InlineData(" ", "%20")]
-        [InlineData("\n", "%0a")]
+        [InlineData("\n", "%0A")]
         [InlineData("default.xxx?sdsd=sds", "default.xxx?sdsd=sds")]
         [InlineData("?sdsd=sds", "?sdsd=sds")]
         [InlineData("", "")]
@@ -523,10 +525,10 @@ namespace DotNetty.Codecs.Http.Utilities.Tests
         [InlineData("http://example.net:8080/default.xxx?sdsd=sds", "http://example.net:8080/default.xxx?sdsd=sds")]
         [InlineData("http://eXample.net:80/default.xxx?sdsd=sds", "http://eXample.net:80/default.xxx?sdsd=sds")]
         [InlineData("http://EXAMPLE.NET/default.xxx?sdsd=sds", "http://EXAMPLE.NET/default.xxx?sdsd=sds")]
-        [InlineData("http://EXAMPLE.NET/défault.xxx?sdsd=sds", "http://EXAMPLE.NET/d%c3%a9fault.xxx?sdsd=sds")]
+        [InlineData("http://EXAMPLE.NET/défault.xxx?sdsd=sds", "http://EXAMPLE.NET/d%C3%A9fault.xxx?sdsd=sds")]
         [InlineData("file:///C/Users", "file:///C/Users")]
         [InlineData("mailto:user@example.net", "mailto:user@example.net")]
-        [InlineData("http://example\u200E.net/", "http://example%e2%80%8e.net/")]
+        [InlineData("http://example\u200E.net/", "http://example%E2%80%8E.net/")]
         public void UrlPathEncode(string decoded, string encoded)
         {
             Assert.Equal(encoded, HttpUtility.UrlPathEncode(decoded));

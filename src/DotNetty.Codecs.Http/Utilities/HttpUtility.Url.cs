@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using DotNetty.Common.Internal;
 
 namespace DotNetty.Codecs.Http.Utilities
@@ -44,12 +45,6 @@ namespace DotNetty.Codecs.Http.Utilities
         public static string UrlEncode(string str, Encoding e)
         {
             if (str is null) { return null; }
-#if !DEBUG
-            if (e is null || TextEncodings.UTF8CodePage == e.CodePage)
-            {
-                return s_urlEncoder.Encode(str);
-            }
-#endif
 
             var bytes = e.GetBytes(str);
             var encoded = UrlEncodeToBytesImpl(bytes, 0, bytes.Length);//, alwaysCreateNewReturnValue: false);
