@@ -450,14 +450,13 @@
             Assert.True(_loopA.IsShuttingDown);
             Assert.True(_loopA.IsShutdown);
         }
-
-        [Fact]
+        
+#if DEBUG //Two unit tests below validate ExecuteAfterEventLoopIteration method behavior which is DEBUG-only method
+        [Fact(Timeout = 10000)]
         public void TestOnEventLoopIteration()
         {
             CountingRunnable onIteration = new CountingRunnable();
-#if DEBUG
-            _loopC.ExecuteAfterEventLoopIteration(onIteration);
-#endif
+           _loopC.ExecuteAfterEventLoopIteration(onIteration);
             CountingRunnable noopTask = new CountingRunnable();
             _loopC.SubmitAsync(() =>
             {
@@ -469,15 +468,13 @@
             Assert.Equal(1, onIteration.GetInvocationCount()); // Unexpected invocation count for on every eventloop iteration task.
         }
 
-        [Fact]
+        [Fact(Timeout = 10000)]
         public void TestRemoveOnEventLoopIteration()
         {
             CountingRunnable onIteration2 = new CountingRunnable();
-#if DEBUG
             CountingRunnable onIteration1 = new CountingRunnable();
             _loopC.ExecuteAfterEventLoopIteration(onIteration1);
             _loopC.ExecuteAfterEventLoopIteration(onIteration2);
-#endif
             //_loopC.RemoveAfterEventLoopIterationTask(onIteration1);
             CountingRunnable noopTask = new CountingRunnable();
             _loopC.SubmitAsync(() =>
@@ -491,7 +488,8 @@
             Assert.Equal(1, onIteration2.GetInvocationCount()); // Unexpected invocation count for on every eventloop iteration task.
             //Assert.Equal(0, onIteration1.GetInvocationCount()); // Unexpected invocation count for on every eventloop iteration task.
         }
-
+#endif
+        
         sealed class SingleThreadEventLoopA : SingleThreadEventLoopBase
         {
             internal AtomicInteger _cleanedUp = new AtomicInteger();
