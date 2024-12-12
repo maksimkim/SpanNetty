@@ -146,8 +146,8 @@ namespace DotNetty.Transport.Channels
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
         public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, breakoutInterval))
+            IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, int emptyTaskQueueSpinCount = 1)
+            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, breakoutInterval, emptyTaskQueueSpinCount))
         {
         }
     }

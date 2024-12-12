@@ -81,10 +81,10 @@ namespace DotNetty.Transport.Channels
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, int emptyTaskQueueSpinCount = 1)
             : base(parent, threadFactory, false, int.MaxValue, rejectedHandler)
         {
-            _emptyEvent = new ManualResetEventSlim(false, 1);
+            _emptyEvent = new ManualResetEventSlim(false, emptyTaskQueueSpinCount);
             _breakoutNanosInterval = PreciseTime.ToDelayNanos(breakoutInterval);
             Start();
         }
