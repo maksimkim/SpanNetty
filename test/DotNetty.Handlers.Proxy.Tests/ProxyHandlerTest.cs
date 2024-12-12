@@ -5,17 +5,16 @@ using System.Net;
 using System.Net.Security;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Common.Internal.Logging;
 using DotNetty.Common.Utilities;
+using DotNetty.Handlers.Logging;
 using DotNetty.Handlers.Tls;
 using DotNetty.Tests.Common;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -90,7 +89,7 @@ namespace DotNetty.Handlers.Proxy.Tests
         [MemberData(nameof(CreateTestItems))]
         public void Test(TestItem item)
         {
-            item.Test();
+            item.Test(this.Output);
         }
 
         public void Dispose()
@@ -121,13 +120,10 @@ namespace DotNetty.Handlers.Proxy.Tests
                     BAD_DESTINATION, "status: 403",
                     new HttpProxyHandler(AnonHttpProxy.Address)),
 
-                /*
-                    Note: Test keeps failing and Tom/Max agreed to skip it for now
                 new FailureTestItem(
                     "HTTP proxy: rejected anonymous connection",
                     DESTINATION, "status: 401",
                     new HttpProxyHandler(HttpProxy.Address)),
-                */
 
                 new SuccessTestItem(
                     "HTTP proxy: successful connection, AUTO_READ on",
@@ -171,14 +167,11 @@ namespace DotNetty.Handlers.Proxy.Tests
                     CreateClientTlsHandler(),
                     new HttpProxyHandler(AnonHttpsProxy.Address)),
 
-                /*
-                    Note: Test keeps failing and Tom/Max agreed to skip it for now
                 new FailureTestItem(
                     "Anonymous HTTPS proxy: rejected connection",
                     BAD_DESTINATION, "status: 403",
                     CreateClientTlsHandler(),
                     new HttpProxyHandler(AnonHttpsProxy.Address)),
-                */              
 
                 new FailureTestItem(
                     "HTTPS proxy: rejected anonymous connection",
@@ -378,6 +371,18 @@ namespace DotNetty.Handlers.Proxy.Tests
                             */
             };
 
+            items = Enumerable.Range(0, 100).Select(_ => 
+                new SuccessTestItem(
+                    "HTTPS proxy: successful connection, AUTO_READ on",
+                    DESTINATION,
+                    true,
+                    new LoggingHandler("client-tcp"),
+                    CreateClientTlsHandler(),
+                    new LoggingHandler("client-tls"),
+                    new HttpProxyHandler(HttpsProxy.Address, USERNAME, PASSWORD),
+                    new LoggingHandler("client-proxy")
+                )).Cast<TestItem>().ToList();
+
             // Convert the test items to the list of constructor parameters.
             var parameters = new List<object[]>(items.Count);
             foreach (var i in items)
@@ -516,7 +521,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 ClientHandlers = clientHandlers;
             }
 
-            public abstract void Test();
+            public abstract void Test(ITestOutputHelper output);
 
             protected void AssertProxyHandlers(bool success)
             {
@@ -585,7 +590,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 _autoRead = autoRead;
             }
 
-            public override void Test()
+            public override void Test(ITestOutputHelper output)
             {
                 var testHandler = new SuccessTestHandler();
                 var b = new Bootstrap()
@@ -604,7 +609,8 @@ namespace DotNetty.Handlers.Proxy.Tests
 
                 var channel = b.ConnectAsync(Destination).Result;
                 var finished = channel.CloseCompletion.Wait(TimeSpan.FromSeconds(10));
-
+                Assert.True(finished);
+                
                 Logger.Debug("Received messages: {0}", testHandler.Received);
 
                 if (testHandler.Exceptions.Count == 0)
@@ -618,7 +624,6 @@ namespace DotNetty.Handlers.Proxy.Tests
                 Assert.Equal(testHandler.Received, new object[] {"0", "1", "2", "3"});
                 Assert.Empty(testHandler.Exceptions);
                 Assert.Equal(testHandler.EventCount, _expectedEventCount);
-                Assert.True(finished);
             }
         }
 
@@ -633,7 +638,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 _expectedMessage = expectedMessage;
             }
 
-            public override void Test()
+            public override void Test(ITestOutputHelper output)
             {
                 var testHandler = new FailureTestHandler();
                 var b = new Bootstrap();
@@ -671,7 +676,7 @@ namespace DotNetty.Handlers.Proxy.Tests
             {
             }
 
-            public override void Test()
+            public override void Test(ITestOutputHelper output)
             {
                 const long timeout = 2000;
                 foreach (var h in ClientHandlers)
