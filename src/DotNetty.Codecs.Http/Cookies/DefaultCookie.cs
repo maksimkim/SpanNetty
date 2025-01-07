@@ -126,7 +126,7 @@ namespace DotNetty.Codecs.Http.Cookies
             }
 
             if (!string.Equals(_name, other.Name
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     ))
 #else
                     , StringComparison.Ordinal))
@@ -147,7 +147,7 @@ namespace DotNetty.Codecs.Http.Cookies
                 return false;
             }
             else if (!string.Equals(_path, other.Path
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     ))
 #else
                     , StringComparison.Ordinal))

@@ -58,7 +58,7 @@ namespace DotNetty.Handlers.Tests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 protocols.Add(Tuple.Create(SslProtocols.Tls12, SslProtocols.Tls12));
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
                 //protocols.Add(Tuple.Create(SslProtocols.Tls13, SslProtocols.Tls13));
 #endif
                 protocols.Add(Tuple.Create(SslProtocols.Tls12 | SslProtocols.Tls, SslProtocols.Tls12 | SslProtocols.Tls11));
@@ -159,7 +159,7 @@ namespace DotNetty.Handlers.Tests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 protocols.Add(Tuple.Create(SslProtocols.Tls12, SslProtocols.Tls12));
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
                 //protocols.Add(Tuple.Create(SslProtocols.Tls13, SslProtocols.Tls13));
 #endif
                 protocols.Add(Tuple.Create(SslProtocols.Tls12 | SslProtocols.Tls, SslProtocols.Tls12 | SslProtocols.Tls11));

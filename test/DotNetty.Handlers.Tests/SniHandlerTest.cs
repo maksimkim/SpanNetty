@@ -32,7 +32,7 @@ namespace DotNetty.Handlers.Tests
             X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
             X509Certificate2 tlsCertificate2 = TestResourceHelper.GetTestCertificate2();
 
-            //#if NETCOREAPP_3_0_GREATER
+            //#if NET6_0_OR_GREATER
             //            SslProtocols serverProtocol = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SslProtocols.Tls13 : SslProtocols.Tls12;
             //#else
             SslProtocols serverProtocol = SslProtocols.Tls12;
@@ -53,7 +53,7 @@ namespace DotNetty.Handlers.Tests
                 new[] { 1 }
             };
             var boolToggle = new[] { false, true };
-            //#if NETCOREAPP_3_0_GREATER
+            //#if NET6_0_OR_GREATER
             //            var protocols = new[] { RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SslProtocols.Tls13 : SslProtocols.Tls12 };
             //#else
             var protocols = new[] { SslProtocols.Tls12 };
@@ -133,7 +133,7 @@ namespace DotNetty.Handlers.Tests
                 new[] { 1 }
             };
             var boolToggle = new[] { false, true };
-            //#if NETCOREAPP_3_0_GREATER
+            //#if NET6_0_OR_GREATER
             //            var protocols = new[] { RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SslProtocols.Tls13 : SslProtocols.Tls12 };
             //#else
             var protocols = new[] { SslProtocols.Tls12 };

@@ -211,7 +211,7 @@ namespace DotNetty.Codecs.Http
                 return this.minorVersion == that.minorVersion
                     && this.majorVersion == that.majorVersion
                     && string.Equals(this.protocolName, that.protocolName
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         );
 #else
                         , StringComparison.Ordinal);
@@ -229,7 +229,7 @@ namespace DotNetty.Codecs.Http
                 && this.minorVersion == other.minorVersion
                 && this.majorVersion == other.majorVersion
                 && string.Equals(this.protocolName, other.protocolName
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     );
 #else
                     , StringComparison.Ordinal);

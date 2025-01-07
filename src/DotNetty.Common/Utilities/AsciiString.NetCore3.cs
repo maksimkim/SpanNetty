@@ -20,7 +20,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
 
 namespace DotNetty.Common.Utilities
 {

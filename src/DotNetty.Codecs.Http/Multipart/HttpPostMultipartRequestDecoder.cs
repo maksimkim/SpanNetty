@@ -821,7 +821,7 @@ namespace DotNetty.Codecs.Http.Multipart
                     ThrowHelper.ThrowErrorDataDecoderException(e);
                 }
                 if (string.Equals(code, HttpPostBodyUtil.TransferEncodingMechanism.Bit7.Value
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     ))
 #else
                     , StringComparison.Ordinal))
@@ -830,7 +830,7 @@ namespace DotNetty.Codecs.Http.Multipart
                     localCharset = Encoding.ASCII;
                 }
                 else if (string.Equals(code, HttpPostBodyUtil.TransferEncodingMechanism.Bit8.Value
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     ))
 #else
                     , StringComparison.Ordinal))
@@ -840,7 +840,7 @@ namespace DotNetty.Codecs.Http.Multipart
                     mechanism = HttpPostBodyUtil.TransferEncodingMechanism.Bit8;
                 }
                 else if (string.Equals(code, HttpPostBodyUtil.TransferEncodingMechanism.Binary.Value
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     ))
 #else
                     , StringComparison.Ordinal))

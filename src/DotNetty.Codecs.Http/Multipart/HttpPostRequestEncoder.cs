@@ -425,7 +425,7 @@ namespace DotNetty.Codecs.Http.Multipart
                 if (this.duringMixedMode)
                 {
                     if (this.currentFileUpload is object && string.Equals(this.currentFileUpload.Name, fileUpload.Name
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         ))
 #else
                         , StringComparison.Ordinal))
@@ -459,7 +459,7 @@ namespace DotNetty.Codecs.Http.Multipart
                 {
                     if (this.encoderMode != EncoderMode.HTML5 && this.currentFileUpload is object
                         && string.Equals(this.currentFileUpload.Name, fileUpload.Name
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                             ))
 #else
                             , StringComparison.Ordinal))
@@ -600,7 +600,7 @@ namespace DotNetty.Codecs.Http.Multipart
                 string contentTransferEncoding = fileUpload.ContentTransferEncoding;
                 if (contentTransferEncoding is object
                     && string.Equals(contentTransferEncoding, HttpPostBodyUtil.TransferEncodingMechanism.Binary.Value
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         ))
 #else
                         , StringComparison.Ordinal))

@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP_2_0_GREATER
+﻿#if NET6_0_OR_GREATER
 namespace Http2Helloworld.MultiplexServer
 {
     using DotNetty.Codecs.Http;

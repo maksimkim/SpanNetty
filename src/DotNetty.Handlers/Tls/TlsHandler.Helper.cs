@@ -85,7 +85,7 @@ namespace DotNetty.Handlers.Tls
                 return new SslStream(stream,
                     leaveInnerStreamOpen: true,
                     userCertificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => ServerCertificateValidation(sender, certificate, chain, sslPolicyErrors, clientSettings)
-#if !(NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER)
+#if !(NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER)
                     , userCertificateSelectionCallback: clientSettings.UserCertSelector is null ? null : new LocalCertificateSelectionCallback((sender, targetHost, localCertificates, remoteCertificate, acceptableIssuers) =>
                     {
                         return clientSettings.UserCertSelector(sender as SslStream, targetHost, localCertificates, remoteCertificate, acceptableIssuers);

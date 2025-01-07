@@ -7,7 +7,7 @@ namespace DotNetty.Common.Internal
     using System.Diagnostics;
     using System.Numerics;
     using System.Runtime.CompilerServices;
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
     using System.Runtime.Intrinsics;
     using System.Runtime.Intrinsics.X86;
 #endif
@@ -20,7 +20,7 @@ namespace DotNetty.Common.Internal
         {
             Debug.Assert(length >= 0);
 
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             int index = IndexOf(ref searchSpace, value, length);
             return SharedConstants.TooBigOrNegative >= (uint)index;
 #else
@@ -313,7 +313,7 @@ namespace DotNetty.Common.Internal
         {
             Debug.Assert(length >= 0);
 
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             nint offset = 0;
             nint lengthToExamine = length;
 
@@ -1453,7 +1453,7 @@ namespace DotNetty.Common.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int LocateFirstFoundChar(ulong match)
         {
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             // TODO: Arm variants
             if (Bmi1.X64.IsSupported)
             {
@@ -1469,7 +1469,7 @@ namespace DotNetty.Common.Internal
                 // Shift all powers of two into the high byte and extract
                 return (int)((powerOfTwoFlag * XorPowerOfTwoToHighChar) >> 49);
             }
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             }
 #endif
         }
@@ -1502,7 +1502,7 @@ namespace DotNetty.Common.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int LocateLastFoundChar(ulong match)
         {
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             return 3 - (BitOperations.LeadingZeroCount(match) >> 4);
 #else
             // Find the most significant char that has its highest bit set
@@ -1516,7 +1516,7 @@ namespace DotNetty.Common.Internal
 #endif
         }
 
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref char Add(ref char source, nint elementOffset)
             => ref Unsafe.Add(ref source, (IntPtr)elementOffset);

@@ -200,7 +200,7 @@ namespace DotNetty.Codecs.Http.Utilities
             int i = value.IndexOf('?');
             if (i >= 0)
             {
-//#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+//#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
 //                return string.Concat(UrlPathEncodeImpl(value.Substring(0, i)), value.AsSpan(i));
 //#else
                 return UrlPathEncodeImpl(value.Substring(0, i)) + value.Substring(i);

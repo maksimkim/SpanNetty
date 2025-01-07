@@ -92,7 +92,7 @@ namespace DotNetty.Common.Utilities
                 ThrowIndexOutOfRangeException_Start(start, length, value.Length);
             }
 
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             Span<byte> span = this.value = new byte[length];
             GetBytes(value.AsSpan(start, length), span);
 #else
@@ -129,7 +129,7 @@ namespace DotNetty.Common.Utilities
             }
 
             var thisVal = new byte[length];
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             switch (value)
             {
                 case IHasAsciiSpan asciiSpan:
@@ -144,7 +144,7 @@ namespace DotNetty.Common.Utilities
             {
                 thisVal[i] = CharToByte(value[j]);
             }
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
                     break;
             }
 #endif
@@ -184,7 +184,7 @@ namespace DotNetty.Common.Utilities
             }
 
             var thisVal = new byte[length];
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             GetBytes(value.AsSpan(start, length), thisVal);
 #else
             var len = start + length;
@@ -309,7 +309,7 @@ namespace DotNetty.Common.Utilities
 
             if (this.stringValue is object)
             {
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 return string.Equals(this.stringValue, a);
 #else
                 return string.Equals(this.stringValue, a, StringComparison.Ordinal);

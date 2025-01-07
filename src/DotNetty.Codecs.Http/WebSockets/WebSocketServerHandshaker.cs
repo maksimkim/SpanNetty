@@ -352,7 +352,7 @@ namespace DotNetty.Codecs.Http.WebSockets
 
                 foreach (string supportedSubprotocol in _subprotocols)
                 {
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     if (string.Equals(SubProtocolWildcard, supportedSubprotocol)
                         || string.Equals(requestedSubprotocol, supportedSubprotocol))
 #else

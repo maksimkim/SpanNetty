@@ -29,7 +29,7 @@
 namespace DotNetty.Handlers.Tls
 {
     using System.Security.Authentication;
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -49,7 +49,7 @@ namespace DotNetty.Handlers.Tls
         /// <summary>Specifies whether the certificate revocation list is checked during authentication.</summary>
         public bool CheckCertificateRevocation { get; }
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
         private static readonly TimeSpan DefaultHandshakeTimeout = TimeSpan.FromSeconds(10);
         private static readonly TimeSpan MaximumHandshakeTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
 

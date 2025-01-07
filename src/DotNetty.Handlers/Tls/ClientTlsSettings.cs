@@ -51,7 +51,7 @@ namespace DotNetty.Handlers.Tls
 
         public ClientTlsSettings(bool checkCertificateRevocation, List<X509Certificate> certificates, string targetHost)
           : this(
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             SslProtocols.Tls13 |
 #endif
             SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
@@ -91,7 +91,7 @@ namespace DotNetty.Handlers.Tls
             return this;
         }
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
         public System.Collections.Generic.List<SslApplicationProtocol> ApplicationProtocols { get; set; }
 
         public Func<IChannelHandlerContext, string, X509CertificateCollection, X509Certificate, string[], X509Certificate2> UserCertSelector { get; set; }

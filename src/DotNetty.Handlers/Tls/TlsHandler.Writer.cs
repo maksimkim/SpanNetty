@@ -45,7 +45,7 @@ namespace DotNetty.Handlers.Tls
         private IPromise _lastContextWritePromise;
         private volatile int v_wrapDataSize = TlsUtils.MAX_PLAINTEXT_LENGTH;
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER || NETSTANDARD2_0
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER || NETSTANDARD2_0
         private Task _lastAsyncWriteTask; 
 #endif        
 
@@ -178,7 +178,7 @@ namespace DotNetty.Handlers.Tls
                         _lastContextWritePromise = promise;
                         if (buf.IsReadable())
                         {
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                             var asyncWrite = WriteAsync(buf, promise);
                             if (!asyncWrite.IsCompleted)
                             {

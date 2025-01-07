@@ -192,7 +192,7 @@ namespace DotNetty.Common.Utilities
             }
 
             return other is object && this.size == other.size && string.Equals(this.builder.ToString(this.offset, this.size), other.builder.ToString(other.offset, this.size)
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 );
 #else
                 , StringComparison.Ordinal);
@@ -207,7 +207,7 @@ namespace DotNetty.Common.Utilities
             {
                 case StringBuilderCharSequence comparand:
                     return this.size == comparand.size && string.Equals(this.builder.ToString(this.offset, this.size), comparand.builder.ToString(comparand.offset, this.size)
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         );
 #else
                         , StringComparison.Ordinal);
@@ -232,7 +232,7 @@ namespace DotNetty.Common.Utilities
             {
                 case StringBuilderCharSequence other:
                     return this.size == other.size && string.Equals(this.builder.ToString(this.offset, this.size), other.builder.ToString(other.offset, this.size)
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         );
 #else
                         , StringComparison.Ordinal);
