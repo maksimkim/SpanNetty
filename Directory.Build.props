@@ -47,8 +47,8 @@
     <ImportLibs>netcore</ImportLibs>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net6.0-windows' or '$(TargetFramework)' == 'net6.0-windows7.0' ">
-    <DefineConstants>$(DefineConstants);net60;NETCOREAPP;NETCOREAPP_2_0_GREATER;NETCOREAPP_2_1_GREATER;NETCOREAPP_2_X_GREATER;NETCOREAPP_3_0_GREATER;NETCOREAPP_3_1_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;NET_4_6_GREATER</DefineConstants>
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+    <DefineConstants>$(DefineConstants);NETCOREAPP_2_0_GREATER;NETCOREAPP_2_1_GREATER;NETCOREAPP_2_X_GREATER;NETCOREAPP_3_0_GREATER;NETCOREAPP_3_1_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;NET_4_6_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NETSTANDARD;NET_4_0_GREATER;NET_4_5_GREATER;NET_4_6_GREATER</DefineConstants>
