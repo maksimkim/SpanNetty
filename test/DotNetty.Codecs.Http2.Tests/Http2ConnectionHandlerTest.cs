@@ -913,7 +913,11 @@ namespace DotNetty.Codecs.Http2.Tests
                     x => x.Schedule(
                         It.IsAny<Action<object>>(),
                         It.IsAny<object>(),
-                        It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis))),
+                        It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis
+#if NET9_0
+                        , 0L 
+#endif                        
+                    ))),
                     Times.AtLeastOnce());
             }
             else
@@ -923,7 +927,11 @@ namespace DotNetty.Codecs.Http2.Tests
                         It.IsAny<Action<object, object>>(),
                         It.IsAny<object>(),
                         It.IsAny<object>(),
-                        It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis))),
+                        It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis
+#if NET9_0
+                            , 0L 
+#endif    
+                    ))),
                     Times.AtLeastOnce());
             }
         }
@@ -939,7 +947,11 @@ namespace DotNetty.Codecs.Http2.Tests
                 x => x.Schedule(
                     It.IsAny<Action<object>>(),
                     It.IsAny<object>(),
-                    It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis))),
+                    It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis
+#if NET9_0
+                        , 0L 
+#endif                    
+                ))),
                 Times.AtLeastOnce());
         }
 
@@ -958,7 +970,11 @@ namespace DotNetty.Codecs.Http2.Tests
                     It.IsAny<Action<object, object>>(),
                     It.IsAny<object>(),
                     It.IsAny<object>(),
-                    It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis))),
+                    It.Is<TimeSpan>(v => v == TimeSpan.FromMilliseconds(expectedMillis
+#if NET9_0
+                        , 0L 
+#endif    
+                ))),
                 Times.AtLeastOnce());
         }
 

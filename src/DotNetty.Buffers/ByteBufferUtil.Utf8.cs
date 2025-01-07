@@ -118,7 +118,7 @@ namespace DotNetty.Buffers
                     default:
                         if (seq is IHasUtf16Span hasUtf16)
                         {
-#if NETCOREAPP_2_X_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                             var utf16Span = hasUtf16.Utf16Span[start..end];
 #else
                             var utf16Span = hasUtf16.Utf16Span.Slice(start, end - start);
@@ -169,7 +169,7 @@ namespace DotNetty.Buffers
         {
             if (value is IHasUtf16Span hasUtf16)
             {
-#if NETCOREAPP_2_X_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 var utf16Span = hasUtf16.Utf16Span[start..end];
 #else
                 var utf16Span = hasUtf16.Utf16Span.Slice(start, end - start);
