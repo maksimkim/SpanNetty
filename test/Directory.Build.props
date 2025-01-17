@@ -5,7 +5,6 @@
   <PropertyGroup>
     <NetCoreAppTfms>net6.0;net8.0;net9.0</NetCoreAppTfms>
     <StandardTestTfms>$(NetCoreAppTfms)</StandardTestTfms>
-    <!--<StandardTestTfms Condition=" '$(DeveloperBuild)' != 'true' ">net6.0</StandardTestTfms>-->
     <StandardTestTfms Condition=" '$(DeveloperBuild)' != 'true' AND '$(OS)' == 'Windows_NT' ">$(StandardTestTfms);net471</StandardTestTfms>
   </PropertyGroup>
 

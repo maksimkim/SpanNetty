@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <ExamplesTargetFramework>net6.0</ExamplesTargetFramework>
+    <ExamplesTargetFramework>net9.0</ExamplesTargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>$(SourceRoot)/build/DotNetty.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -135,14 +135,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETCoreApp|AnyCPU'">
     <DebugSymbols>True</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETCoreApp|AnyCPU'">
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>

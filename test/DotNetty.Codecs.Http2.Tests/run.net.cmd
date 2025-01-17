@@ -1,1 +1,1 @@
-dotnet test --framework net6.0 -- RunConfiguration.TargetPlatform=x64
+dotnet test --framework net9.0 -- RunConfiguration.TargetPlatform=x64
