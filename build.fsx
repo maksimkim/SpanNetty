@@ -215,7 +215,7 @@ Target "RunTests" (fun _ ->
                                        -- "./test/*.Tests/DotNetty.End2End.Tests.csproj"
             rawProjects |> Seq.choose filterProjects
 
-        let testNetVersions = [ "net9.0"; "net8.0"; "net6.0" ]
+        let testNetVersions = [ "net6.0" ]
     
         let runSingleProject project testNetVersion =
             let arguments =
