@@ -52,9 +52,9 @@ stages:
           displayName: 'test (${{ testConfig }})'
           inputs:
             testSelector: 'testAssemblies'
-            testAssemblyVer2: |
-              ${{ each proj in parameters.windowsTestConfig[testConfig].exclusion }}:
-                !test\${{ proj }}\bin\$(buildConfiguration)\${{ testConfig }}\**\*.Tests.dll
+            testAssemblyVer2:  |
+              test\*.Tests\bin\$(buildConfiguration)\${{ testConfig }}\**\*.Tests.dll
+              ${{ join('\n!test\\', parameters.windowsTestConfig[testConfig].exclusion) }}
             resultsFolder: '$(Build.SourcesDirectory)\TestResults'
             testRunTitle: 'test (${{ testConfig }})'
             configuration: '$(buildConfiguration)'
