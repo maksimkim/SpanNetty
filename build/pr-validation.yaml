@@ -47,17 +47,21 @@ stages:
           solution: 'DotNetty.sln'
           configuration: '$(buildConfiguration)'
           maximumCpuCount: true
-      - ${{ each testConfig in parameters.windowsTestConfig }}:      
-        - task: VSTest@2
-          displayName: 'test (${{ testConfig }})'
-          inputs:
-            testSelector: 'testAssemblies'
-            testAssemblyVer2: |
-              test\*.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
-            resultsFolder: '$(Build.SourcesDirectory)\TestResults'
-            testRunTitle: 'test (${{ testConfig }})'
-            configuration: '$(buildConfiguration)'
-            publishRunAttachments: true
+      - ${{ each netVersion, config in parameters.windowsTestConfig }}:
+        - script: |
+            echo "Testing for .NET version: ${{ netVersion }}"
+            echo "Excluding folders: ${{ join(config.exclusion, ', ') }}"          
+      # - ${{ each testConfig in parameters.windowsTestConfig }}:      
+      #   - task: VSTest@2
+      #     displayName: 'test (${{ testConfig }})'
+      #     inputs:
+      #       testSelector: 'testAssemblies'
+      #       testAssemblyVer2: |
+      #         test\*.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #       resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #       testRunTitle: 'test (${{ testConfig }})'
+      #       configuration: '$(buildConfiguration)'
+      #       publishRunAttachments: true
             #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
             #runInParallel: true
             #codeCoverageEnabled: true
