@@ -9,9 +9,23 @@ pr:
 
 name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 
+parameters:
+  - name: windowsTestConfig
+    displayName: Configuration for windows test jobs
+    type: object
+    default:
+      net471:
+        exclusion: [ "DotNetty.Suite.Tests", "DotNetty.Buffers.ReaderWriter.Tests"]
+      net6.0:
+        exclusion: [ "DotNetty.Transport.Tests", "DotNetty.Suite.Tests", "DotNetty.Handlers.Proxy.Tests"]
+      net8.0:
+        exclusion: [ "DotNetty.Transport.Tests", "DotNetty.Suite.Tests", "DotNetty.Handlers.Proxy.Tests"]
+      net9.0:
+        exclusion: [ "DotNetty.Transport.Tests", "DotNetty.Suite.Tests", "DotNetty.Handlers.Proxy.Tests"]        
+
 variables:
 - template: variables/nuget.yml
-- name: configuration
+- name: buildConfiguration
   value: Release
 
 stages:
@@ -31,64 +45,83 @@ stages:
         displayName: 'build'
         inputs:
           solution: 'DotNetty.sln'
-          configuration: '$(configuration)'
+          configuration: '$(buildConfiguration)'
           maximumCpuCount: true
-      - task: VSTest@2
-        displayName: 'test (net472)'
-        inputs:
-          testSelector: 'testAssemblies'
-          testAssemblyVer2: |
-            test\*.Tests\bin\$(configuration)\net4*\**\*.Tests.dll
-            !test\DotNetty.Suite.Tests\bin\$(configuration)\net4*\**\*.Tests.dll
-            !test\DotNetty.Buffers.ReaderWriter.Tests\bin\$(configuration)\net4*\**\*.Tests.dll
-          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
-          testRunTitle: 'test (net472)'
-          configuration: '$(configuration)'
-          publishRunAttachments: true
-          #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
-          #runInParallel: true
-          #codeCoverageEnabled: true
-          #failOnMinTestsNotRun: true
-          #rerunFailedTests: true
-      - task: VSTest@2
-        displayName: 'test (net6.0)'
-        inputs:
-          testSelector: 'testAssemblies'
-          testAssemblyVer2: |
-            test\*.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
-            !test\DotNetty.Transport.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
-            !test\DotNetty.Suite.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
-            !test\DotNetty.Handlers.Proxy.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
-          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
-          testRunTitle: 'test (net6.0)'
-          configuration: '$(configuration)'
-          publishRunAttachments: true
-      - task: VSTest@2
-        displayName: 'test (net8.0)'
-        inputs:
-          testSelector: 'testAssemblies'
-          testAssemblyVer2: |
-            test\*.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
-            !test\DotNetty.Transport.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
-            !test\DotNetty.Suite.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
-            !test\DotNetty.Handlers.Proxy.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
-          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
-          testRunTitle: 'test (net8.0)'
-          configuration: '$(configuration)'
-          publishRunAttachments: true 
-      - task: VSTest@2
-        displayName: 'test (net9.0)'
-        inputs:
-          testSelector: 'testAssemblies'
-          testAssemblyVer2: |
-            test\*.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
-            !test\DotNetty.Transport.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
-            !test\DotNetty.Suite.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
-            !test\DotNetty.Handlers.Proxy.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
-          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
-          testRunTitle: 'test (net9.0)'
-          configuration: '$(configuration)'
-          publishRunAttachments: true                     
+      - ${{ each testConfig in parameters.windowsTestConfig }}:      
+        - task: VSTest@2
+          displayName: 'test (${{ testConfig }})'
+          inputs:
+            testSelector: 'testAssemblies'
+            testAssemblyVer2: |
+              test\*.Tests\bin\$(buildConfiguration)\${{ testConfig }}\**\*.Tests.dll
+              ${{ each proj in parameters.windowsTestConfig[testConfig].exclusion }}:
+                !test\${{ proj }}\bin\$(buildConfiguration)\${{ testConfig }}\**\*.Tests.dll  
+            resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+            testRunTitle: 'test (${{ testConfig }})'
+            configuration: '$(buildConfiguration)'
+            publishRunAttachments: true
+            #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+            #runInParallel: true
+            #codeCoverageEnabled: true
+            #failOnMinTestsNotRun: true
+            #rerunFailedTests: true    
+
+      # - task: VSTest@2
+      #   displayName: 'test (net472)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #       !test\DotNetty.Buffers.ReaderWriter.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net472)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true
+      #     #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+      #     #runInParallel: true
+      #     #codeCoverageEnabled: true
+      #     #failOnMinTestsNotRun: true
+      #     #rerunFailedTests: true
+      # - task: VSTest@2
+      #   displayName: 'test (net6.0)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #       !test\DotNetty.Transport.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #       !test\DotNetty.Handlers.Proxy.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net6.0)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true
+      # - task: VSTest@2
+      #   displayName: 'test (net8.0)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #       !test\DotNetty.Transport.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #       !test\DotNetty.Handlers.Proxy.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net8.0)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true 
+      # - task: VSTest@2
+      #   displayName: 'test (net9.0)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #       !test\DotNetty.Transport.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #       !test\DotNetty.Handlers.Proxy.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net9.0)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true                     
 - stage: Ubuntu_22
   displayName: Ubuntu 22
   dependsOn: []
@@ -107,7 +140,7 @@ stages:
         inputs:
           command: 'build'
           projects: 'DotNetty.sln'
-          configuration: $(configuration)
+          configuration: $(buildConfiguration)
           arguments: '-m'
           #maximumCpuCount: true          
 
