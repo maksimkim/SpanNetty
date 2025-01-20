@@ -49,11 +49,11 @@ stages:
           maximumCpuCount: true
       - ${{ each testConfig in parameters.windowsTestConfig }}:      
         - task: VSTest@2
-          displayName: 'test (${{ testConfig.key }})'
+          displayName: 'test (${{ testConfig }})'
           inputs:
             testSelector: 'testAssemblies'
             testAssemblyVer2: |
-              test\*.Tests\bin\$(buildConfiguration)\${{ testConfig }}\**\*.Tests.dll
+              test\*.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
             resultsFolder: '$(Build.SourcesDirectory)\TestResults'
             testRunTitle: 'test (${{ testConfig }})'
             configuration: '$(buildConfiguration)'
