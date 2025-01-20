@@ -15,7 +15,7 @@ variables:
   value: Release
 
 stages:
-- stage: Windows 2022
+- stage: Windows_2022
   displayName: Windows 2022
   jobs:
   - job: default
@@ -89,7 +89,7 @@ stages:
           testRunTitle: 'test (net9.0)'
           configuration: '$(configuration)'
           publishRunAttachments: true                     
-- stage: Ubuntu 22
+- stage: Ubuntu_22
   displayName: Ubuntu 22
   dependsOn: []
   jobs:
