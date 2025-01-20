@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP_3_0_GREATER
+﻿#if NET6_0_OR_GREATER
 namespace DotNetty.Common.Internal
 {
     using System;

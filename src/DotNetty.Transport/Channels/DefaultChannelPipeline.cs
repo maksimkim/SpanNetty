@@ -542,7 +542,7 @@ namespace DotNetty.Transport.Channels
                 else
                 {
                     bool sameName = string.Equals(ctx.Name, newName
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         );
 #else
                         , StringComparison.Ordinal);
@@ -977,7 +977,7 @@ namespace DotNetty.Transport.Channels
             while (context != _tail)
             {
                 if (string.Equals(context.Name, name
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     ))
 #else
                     , StringComparison.Ordinal))

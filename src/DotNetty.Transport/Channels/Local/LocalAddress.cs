@@ -71,7 +71,7 @@ namespace DotNetty.Transport.Channels.Local
         {
             if (ReferenceEquals(this, other)) { return true; }
             return other is object && string.Equals(_strVal, other._strVal
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         );
 #else
                         , StringComparison.Ordinal);

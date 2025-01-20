@@ -40,7 +40,7 @@ namespace DotNetty.Buffers
         private SequencePosition _currentPosition;
         private SequencePosition _nextPosition;
         private bool _moreData;
-        private readonly long _length;
+        private long _length;
 
         private readonly ReadOnlySequence<byte> _sequence;
         private ReadOnlySpan<byte> _currentSpan;
@@ -59,7 +59,7 @@ namespace DotNetty.Buffers
             _currentPosition = sequence.Start;
             _length = -1;
 
-            ByteBufferReaderHelper.GetFirstSpan(sequence, out ReadOnlySpan<byte> first, out _nextPosition);
+            ByteBufferReaderHelper.GetFirstSpan(in sequence, out ReadOnlySpan<byte> first, out _nextPosition);
             _currentSpan = first;
             _moreData = (uint)first.Length > 0u;
 
@@ -81,7 +81,7 @@ namespace DotNetty.Buffers
             _currentPosition = sequence.Start;
             _length = -1;
 
-            ByteBufferReaderHelper.GetFirstSpan(sequence, out ReadOnlySpan<byte> first, out _nextPosition);
+            ByteBufferReaderHelper.GetFirstSpan(in sequence, out ReadOnlySpan<byte> first, out _nextPosition);
             _currentSpan = first;
             _moreData = (uint)first.Length > 0u;
 
@@ -147,7 +147,7 @@ namespace DotNetty.Buffers
         public readonly long Remaining => Length - _consumed;
 
         /// <summary>Count of <see cref="byte"/> in the reader's <see cref="Sequence"/>.</summary>
-        public readonly long Length
+        public long Length
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -155,7 +155,14 @@ namespace DotNetty.Buffers
                 if (_length < 0L)
                 {
                     // Cast-away readonly to initialize lazy field
-                    Volatile.Write(ref Unsafe.AsRef(_length), Sequence.Length);
+                    Volatile.Write(ref Unsafe.AsRef(
+#if NET8_0_OR_GREATER
+                        ref
+#else
+                        in
+#endif
+                        _length), Sequence.Length);
+   
                 }
                 return _length;
             }

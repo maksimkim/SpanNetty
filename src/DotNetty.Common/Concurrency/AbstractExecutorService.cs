@@ -121,7 +121,7 @@ namespace DotNetty.Common.Concurrency
             readonly Action<object, object> _action;
             readonly object _context;
             readonly object _state;
-
+            
             public StateActionWithContextTaskQueueNode(Action<object, object> action, object context, object state)
             {
                 _action = action;

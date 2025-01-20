@@ -2,7 +2,7 @@
   <Import Project="..\nuget.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netstandard2.1;$(StandardTfms)</TargetFrameworks>
+    <TargetFrameworks>$(NetCoreAppTfms);netstandard2.1;$(StandardTfms)</TargetFrameworks>
     <RootNamespace>DotNetty.Transport</RootNamespace>
     <AssemblyName>SpanNetty.Transport</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>

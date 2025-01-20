@@ -74,7 +74,7 @@
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static int GetBytes(in ReadOnlySpan<char> chars, Span<byte> bytes)
             {
-#if NETCOREAPP_2_X_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 return UTF8NoBOM.GetBytes(chars, bytes);
 #else
                 if (chars.IsEmpty) { return 0; }

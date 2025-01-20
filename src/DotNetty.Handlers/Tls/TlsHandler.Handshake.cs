@@ -35,7 +35,7 @@ namespace DotNetty.Handlers.Tls
     using System.Threading.Tasks;
     using DotNetty.Common.Utilities;
     using DotNetty.Transport.Channels;
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
 #endif
@@ -77,7 +77,7 @@ namespace DotNetty.Handlers.Tls
         {
             if (_isServer)
             {
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 // Adapt to the SslStream signature
                 ServerCertificateSelectionCallback selector = null;
                 if (_serverCertificateSelector is object)
@@ -118,7 +118,7 @@ namespace DotNetty.Handlers.Tls
             }
             else
             {
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 LocalCertificateSelectionCallback selector = null;
                 if (_userCertSelector is object)
                 {
@@ -159,7 +159,7 @@ namespace DotNetty.Handlers.Tls
 
         private static void HandshakeCompletionCallback(Task task, object s)
         {
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
             var (self, cts) = ((TlsHandler self, CancellationTokenSource cts))s;
             cts.Dispose();
 #else

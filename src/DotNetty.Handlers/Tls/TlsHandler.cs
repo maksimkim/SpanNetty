@@ -51,7 +51,7 @@ namespace DotNetty.Handlers.Tls
         private readonly ServerTlsSettings _serverSettings;
         private readonly ClientTlsSettings _clientSettings;
         private readonly X509Certificate _serverCertificate;
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
         private readonly Func<IChannelHandlerContext, string, X509Certificate2> _serverCertificateSelector;
         private readonly Func<IChannelHandlerContext, string, X509CertificateCollection, X509Certificate, string[], X509Certificate2> _userCertSelector;
 #endif
@@ -113,7 +113,7 @@ namespace DotNetty.Handlers.Tls
 
                 // capture the certificate now so it can't be switched after validation
                 _serverCertificate = _serverSettings.Certificate;
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 _serverCertificateSelector = _serverSettings.ServerCertificateSelector;
                 if (_serverCertificate is null && _serverCertificateSelector is null)
 #else
@@ -124,7 +124,7 @@ namespace DotNetty.Handlers.Tls
                 }
             }
             _clientSettings = settings as ClientTlsSettings;
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
             if (_clientSettings is object)
             {
                 _userCertSelector = _clientSettings.UserCertSelector;
@@ -143,7 +143,7 @@ namespace DotNetty.Handlers.Tls
 
         public bool IsServer => _isServer;
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
         public SslApplicationProtocol NegotiatedApplicationProtocol => _sslStream is object ? _sslStream.NegotiatedApplicationProtocol : default;
 #endif
 

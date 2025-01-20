@@ -45,7 +45,6 @@ let incrementalistReport = output @@ "incrementalist.txt"
 
 // Configuration values for tests
 let testNetFrameworkVersion = "net471"
-let testNetVersion = "net6.0"
 
 Target "Clean" (fun _ ->
     ActivateFinalTarget "KillCreatedProcesses"
@@ -183,16 +182,6 @@ type Runtime =
     | Net
     | NetFramework
 
-let getTestAssembly runtime project =
-    let assemblyPath = match runtime with
-                        | NetFramework -> !! ("test" @@ "**" @@ "bin" @@ "Debug" @@ "win-x64" @@ testNetFrameworkVersion @@ fileNameWithoutExt project + ".dll")
-                        | Net -> !! ("src" @@ "**" @@ "bin" @@ "Release" @@ testNetVersion @@ fileNameWithoutExt project + ".dll")
-
-    if Seq.isEmpty assemblyPath then
-        None
-    else
-        Some (assemblyPath |> Seq.head)
-
 module internal ResultHandling =
     let (|OK|Failure|) = function
         | 0 -> OK
@@ -225,8 +214,10 @@ Target "RunTests" (fun _ ->
                                        -- "./test/*.Tests/DotNetty.Handlers.Proxy.Tests.csproj"
                                        -- "./test/*.Tests/DotNetty.End2End.Tests.csproj"
             rawProjects |> Seq.choose filterProjects
-     
-        let runSingleProject project =
+
+        let testNetVersions = [ "net8.0" ]
+    
+        let runSingleProject project testNetVersion =
             let arguments =
                 match (hasTeamCity) with
                 | true -> (sprintf "test -c %s --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s -- RunConfiguration.TargetPlatform=x64 --results-directory \"%s\" -- -parallel none -teamcity" configuration testNetVersion outputTests)
@@ -240,7 +231,10 @@ Target "RunTests" (fun _ ->
             ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
 
         CreateDir outputTests
-        projects |> Seq.iter (runSingleProject)
+
+        for project in projects do
+            for testNetVersion in testNetVersions do
+                runSingleProject project testNetVersion        
 )
 
 Target "RunTestsNetFx471" (fun _ ->    

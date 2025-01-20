@@ -22,7 +22,7 @@ namespace DotNetty.Common.Tests.Utilities
         [Fact]
         public void TestScheduleTimeoutShouldNotRunBeforeDelay()
         {
-            ITimer timer = new HashedWheelTimer(TimeSpan.FromMilliseconds(100), 512, -1);
+            var timer = new HashedWheelTimer(TimeSpan.FromMilliseconds(100), 512, -1);
             var barrier = new CountdownEvent(1);
             ITimeout timeout = timer.NewTimeout(
                 new ActionTimerTask(
@@ -40,7 +40,7 @@ namespace DotNetty.Common.Tests.Utilities
         [Fact]
         public void TestScheduleTimeoutShouldRunAfterDelay()
         {
-            ITimer timer = new HashedWheelTimer();
+            var timer = new HashedWheelTimer();
             var barrier = new CountdownEvent(1);
             ITimeout timeout = timer.NewTimeout(
                 new ActionTimerTask(
@@ -55,7 +55,7 @@ namespace DotNetty.Common.Tests.Utilities
         public void TestStopTimer()
         {
             var latch = new CountdownEvent(3);
-            ITimer timerProcessed = new HashedWheelTimer();
+            var timerProcessed = new HashedWheelTimer();
             for (int i = 0; i < 3; i++)
             {
                 timerProcessed.NewTimeout(
@@ -67,7 +67,7 @@ namespace DotNetty.Common.Tests.Utilities
             latch.Wait();
             Assert.Equal(0, timerProcessed.StopAsync().Result.Count); // "Number of unprocessed timeouts should be 0"
 
-            ITimer timerUnprocessed = new HashedWheelTimer();
+            var timerUnprocessed = new HashedWheelTimer();
             for (int i = 0; i < 5; i++)
             {
                 timerUnprocessed.NewTimeout(
@@ -83,7 +83,7 @@ namespace DotNetty.Common.Tests.Utilities
         public void TestTimerShouldThrowExceptionAfterShutdownForNewTimeouts()
         {
             var latch = new CountdownEvent(3);
-            ITimer timer = new HashedWheelTimer();
+            var timer = new HashedWheelTimer();
             for (int i = 0; i < 3; i++)
             {
                 timer.NewTimeout(

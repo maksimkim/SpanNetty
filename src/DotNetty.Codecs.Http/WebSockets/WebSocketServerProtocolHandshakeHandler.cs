@@ -132,7 +132,7 @@ namespace DotNetty.Codecs.Http.WebSockets
             return _serverConfig.CheckStartsWith
                 ? !req.Uri.StartsWith(websocketPath, StringComparison.Ordinal)
                 : !string.Equals(req.Uri, websocketPath
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     );
 #else
                     , StringComparison.Ordinal);

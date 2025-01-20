@@ -10,7 +10,7 @@ namespace DotNetty
 
         /// <summary>Value for lining method</summary>
         public const MethodImplOptions AggressiveOptimization =
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             MethodImplOptions.AggressiveOptimization;
 #else
             MethodImplOptions.AggressiveInlining;

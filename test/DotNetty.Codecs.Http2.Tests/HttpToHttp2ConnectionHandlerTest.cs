@@ -55,13 +55,13 @@ namespace DotNetty.Codecs.Http2.Tests
 
         protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
         {
-            bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup())
+            bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup(new LoggingRejectionHandler(this.Output)))
                      .Channel<TcpServerSocketChannel>();
         }
 
         protected override void SetupBootstrap(Bootstrap bootstrap)
         {
-            bootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
+            bootstrap.Group(new MultithreadEventLoopGroup(new LoggingRejectionHandler(this.Output))).Channel<TcpSocketChannel>();
         }
     }
 

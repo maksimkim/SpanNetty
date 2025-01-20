@@ -371,7 +371,7 @@ namespace DotNetty.Buffers
         /// <param name="advancePastDelimiter">True to move past the first found instance of any of the given <paramref name="delimiters"/>.</param>
         /// <returns>True if any of the <paramref name="delimiters"/> were found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryReadToAny(out ReadOnlySpan<byte> span, in ReadOnlySpan<byte> delimiters, bool advancePastDelimiter = true)
+        public bool TryReadToAny(out ReadOnlySpan<byte> span, scoped in ReadOnlySpan<byte> delimiters, bool advancePastDelimiter = true)
         {
             ReadOnlySpan<byte> remaining = UnreadSpan;
 #if NET
@@ -393,7 +393,7 @@ namespace DotNetty.Buffers
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private bool TryReadToAnySlow(out ReadOnlySpan<byte> span, in ReadOnlySpan<byte> delimiters, bool advancePastDelimiter)
+        private bool TryReadToAnySlow(out ReadOnlySpan<byte> span, scoped in ReadOnlySpan<byte> delimiters, bool advancePastDelimiter)
         {
             if (!TryReadToAnyInternal(out ReadOnlySequence<byte> sequence, delimiters, advancePastDelimiter, _currentSpan.Length - _currentSpanIndex))
             {

@@ -36,7 +36,7 @@ namespace DotNetty.Codecs.Http.WebSockets
     using System.Security.Cryptography;
     using DotNetty.Common;
     using DotNetty.Common.Internal;
-#if !(NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER)
+#if !(NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER)
     using System.Runtime.CompilerServices;
 #endif
 
@@ -96,7 +96,7 @@ namespace DotNetty.Codecs.Http.WebSockets
                     (utf8Array = ArrayPool<byte>.Shared.Rent(maxLen));
                 var result = Base64.EncodeToUtf8(data, utf8Bytes, out _, out int bytesWritten);
                 Debug.Assert(result == OperationStatus.Done);
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 ReadOnlySpan<byte> base64Bytes = MemoryMarshal.CreateReadOnlySpan(ref MemoryMarshal.GetReference(utf8Bytes), bytesWritten);
 #else
                 ReadOnlySpan<byte> base64Bytes;

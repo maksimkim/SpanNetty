@@ -39,7 +39,7 @@ namespace DotNetty.Buffers
         private const int IndexBitMask = ~FlagBitMask;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void GetFirstSpan(in ReadOnlySequence<byte> buffer, out ReadOnlySpan<byte> first, out SequencePosition next)
+        internal static void GetFirstSpan(scoped in ReadOnlySequence<byte> buffer, out ReadOnlySpan<byte> first, out SequencePosition next)
         {
             first = default;
             next = default;

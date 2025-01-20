@@ -781,7 +781,7 @@ namespace DotNetty.Codecs.Http
                         for (int idx = 0; idx < contentLengthFields.Count; idx++)
                         {
                             string[] tokens = contentLengthFields[idx].ToString().Split(
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                                 StringUtil.Comma
 #else
                                 s_commaSeparator

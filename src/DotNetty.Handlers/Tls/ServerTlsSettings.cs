@@ -54,7 +54,7 @@ namespace DotNetty.Handlers.Tls
                 s_defaultServerProtocol = SslProtocols.Tls12 | SslProtocols.Tls11;
             }
 #endif
-#if NETCOREAPP_3_0_GREATER
+#if NET6_0_OR_GREATER
             s_defaultServerProtocol |= SslProtocols.Tls13;
 #endif
             s_clientCertificateValidation = (_, __, ___) => true;
@@ -121,7 +121,7 @@ namespace DotNetty.Handlers.Tls
             return this;
         }
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
         public System.Collections.Generic.List<SslApplicationProtocol> ApplicationProtocols { get; set; }
 
         /// <summary>A callback that will be invoked to dynamically select a server certificate. This is higher priority than ServerCertificate.

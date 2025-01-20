@@ -252,7 +252,7 @@ namespace DotNetty.Codecs.Http.WebSockets
                 foreach (string protocol in expectedProtocol.Split(','))
                 {
                     if (string.Equals(protocol.Trim(), receivedProtocol
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                         ))
 #else
                         , StringComparison.Ordinal))
@@ -549,7 +549,7 @@ namespace DotNetty.Codecs.Http.WebSockets
             }
             if (port == HttpScheme.Https.Port)
             {
-#if NETCOREAPP_3_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 return string.Equals(HttpScheme.Https.Name.ToString(), scheme)
                     || string.Equals(WebSocketScheme.WSS.Name.ToString(), scheme)
 #else

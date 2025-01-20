@@ -47,12 +47,12 @@
                 socket.ConnectAsync(sc.LocalAddress).GetAwaiter().GetResult();
 
                 byte[] tempArea = new byte[8192];
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                 Span<byte> buf = tempArea;
 #endif
                 while (true)
                 {
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
                     var byteCount = socket.Receive(buf);
 #else
                     var byteCount = socket.Receive(tempArea);
@@ -105,7 +105,7 @@
             }
         }
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
         /**
          * Reproduces the issue #1679
          */

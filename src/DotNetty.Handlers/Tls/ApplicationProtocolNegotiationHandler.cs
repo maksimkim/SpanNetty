@@ -20,7 +20,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
-#if NETCOREAPP_2_0_GREATER || NETSTANDARD_2_0_GREATER
+#if NET6_0_OR_GREATER || NETSTANDARD_2_0_GREATER
 namespace DotNetty.Handlers.Tls
 {
     using System;
