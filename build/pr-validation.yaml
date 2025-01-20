@@ -50,6 +50,45 @@ stages:
           #codeCoverageEnabled: true
           #failOnMinTestsNotRun: true
           #rerunFailedTests: true
+      - task: VSTest@2
+        displayName: 'test (net6.0)'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: |
+            test\*.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
+            !test\DotNetty.Transport.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
+            !test\DotNetty.Suite.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
+            !test\DotNetty.Handlers.Proxy.Tests\bin\$(configuration)\net6.0\**\*.Tests.dll
+          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+          testRunTitle: 'test (net6.0)'
+          configuration: '$(configuration)'
+          publishRunAttachments: true
+      - task: VSTest@2
+        displayName: 'test (net8.0)'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: |
+            test\*.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
+            !test\DotNetty.Transport.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
+            !test\DotNetty.Suite.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
+            !test\DotNetty.Handlers.Proxy.Tests\bin\$(configuration)\net8.0\**\*.Tests.dll
+          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+          testRunTitle: 'test (net8.0)'
+          configuration: '$(configuration)'
+          publishRunAttachments: true 
+      - task: VSTest@2
+        displayName: 'test (net9.0)'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: |
+            test\*.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
+            !test\DotNetty.Transport.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
+            !test\DotNetty.Suite.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
+            !test\DotNetty.Handlers.Proxy.Tests\bin\$(configuration)\net9.0\**\*.Tests.dll
+          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+          testRunTitle: 'test (net9.0)'
+          configuration: '$(configuration)'
+          publishRunAttachments: true                     
 - stage: Ubuntu 22
   displayName: Ubuntu 22
   dependsOn: []
