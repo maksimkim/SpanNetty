@@ -15,16 +15,18 @@ public class LoggingRejectionHandler : IRejectedExecutionHandler
 
     public void Rejected(IRunnable task, SingleThreadEventExecutor executor)
     {
+        string message;
         if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode node)
         {
             var socketEventArgs = node.State as SocketAsyncEventArgs;
-            _output.WriteLine($"Callback action scheduling rejected. Task type: {task.GetType()}, State type: {node.State?.GetType()}, Socket operation: {socketEventArgs?.LastOperation}, Socket error: {socketEventArgs?.SocketError}");
+            message = $"Callback action scheduling rejected. Task type: {task.GetType()}, State type: {node.State?.GetType()}, Socket operation: {socketEventArgs?.LastOperation}, Socket error: {socketEventArgs?.SocketError}";
         }
         else
         {
-            _output.WriteLine($"Callback action scheduling rejected. Task type: {task.GetType()}");   
+            message = $"Callback action scheduling rejected. Task type: {task.GetType()}";
         }
                 
-        throw new RejectedExecutionException();
+        _output.WriteLine(message);
+        throw new RejectedExecutionException(message);
     }
 }
