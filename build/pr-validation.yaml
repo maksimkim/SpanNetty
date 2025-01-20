@@ -27,11 +27,45 @@ stages:
       - template: templates/install-nuget.yaml
       - template: templates/restore-nuget-packages.yaml
       - task: VSBuild@1
-        displayName: 'Build $(solution)'
+        displayName: 'build'
         inputs:
           solution: 'DotNetty.sln'
           configuration: '$(configuration)'
           maximumCpuCount: true
+      - task: VSTest@2
+        displayName: 'test (net472)'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: |
+            test\*.Tests\bin\$(configuration)\net4*\**\*.Tests.dll
+            !test\DotNetty.Suite.Tests\bin\$(configuration)\net4*\**\*.Tests.dll
+            !test\DotNetty.Buffers.ReaderWriter.Tests\bin\$(configuration)\net4*\**\*.Tests.dll
+          resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+          testRunTitle: 'test (net472)'
+          configuration: '$(configuration)'
+          publishRunAttachments: true
+          #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+          #runInParallel: true
+          #codeCoverageEnabled: true
+          #failOnMinTestsNotRun: true
+          #rerunFailedTests: true
+
+    # - task: VSTest@2
+    #   displayName: 'test (net6)'
+    #   inputs:
+    #     testSelector: 'testAssemblies'
+    #     testAssemblyVer2: |
+    #       Proxy\test\**\bin\$(buildConfiguration)\net6*\*.Tests.dll
+    #     resultsFolder: '$(Build.SourcesDirectory)\out\logs\TestResults'
+    #     runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+    #     runInParallel: true
+    #     codeCoverageEnabled: true
+    #     testRunTitle: 'test'
+    #     configuration: '$(buildConfiguration)'
+    #     publishRunAttachments: true
+    #     failOnMinTestsNotRun: true
+    #     rerunFailedTests: true
+
       # - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
       #   clean: false  # whether to fetch clean each time
       #   persistCredentials: true
