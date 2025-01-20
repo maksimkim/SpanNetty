@@ -15,11 +15,12 @@ variables:
   value: Release
 
 stages:
-- stage: windows
+- stage: Windows 2022
   displayName: Windows 2022
   jobs:
-  - job: WindowsBuild
-    displayName: Build (Windows 2022)
+  - job: default
+    displayName: default
+    timeoutInMinutes: 60
     pool:
       vmImage: windows-2022
     steps:
@@ -49,6 +50,27 @@ stages:
           #codeCoverageEnabled: true
           #failOnMinTestsNotRun: true
           #rerunFailedTests: true
+- stage: Ubuntu 22
+  displayName: Ubuntu 22
+  dependsOn: []
+  jobs:
+  - job: default
+    displayName: 'default'
+    timeoutInMinutes: 60
+    pool:
+      vmImage: 'ubuntu-22.04'
+    steps:
+      - template: templates/install-dotnet.yaml
+      - template: templates/install-nuget.yaml
+      - template: templates/restore-nuget-packages.yaml
+      - task: DotNetCoreCLI@2
+        displayName: build
+        inputs:
+          command: 'build'
+          projects: 'DotNetty.sln'
+          configuration: $(configuration)
+          arguments: '-m'
+          #maximumCpuCount: true          
 
     # - task: VSTest@2
     #   displayName: 'test (net6)'
