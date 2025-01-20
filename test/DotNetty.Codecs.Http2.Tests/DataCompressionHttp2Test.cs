@@ -1,4 +1,6 @@
 ﻿
+using System.Net.Sockets;
+
 namespace DotNetty.Codecs.Http2.Tests
 {
     using System;
@@ -87,13 +89,34 @@ namespace DotNetty.Codecs.Http2.Tests
 
         protected override void SetupServerBootstrap(ServerBootstrap bootstrap)
         {
-            bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup())
+            bootstrap.Group(new MultithreadEventLoopGroup(1), new MultithreadEventLoopGroup(new LoggingRejectionHandler(this.Output)))
                      .Channel<TcpServerSocketChannel>();
         }
 
         protected override void SetupBootstrap(Bootstrap bootstrap)
         {
-            bootstrap.Group(new MultithreadEventLoopGroup()).Channel<TcpSocketChannel>();
+            bootstrap.Group(new MultithreadEventLoopGroup(new LoggingRejectionHandler(this.Output))).Channel<TcpSocketChannel>();
+        }
+        
+        public class LoggingRejectionHandler : IRejectedExecutionHandler
+        {
+            private readonly ITestOutputHelper _output;
+
+            public LoggingRejectionHandler(ITestOutputHelper output)
+            {
+                _output = output;
+            }
+
+            public void Rejected(IRunnable task, SingleThreadEventExecutor executor)
+            {
+                if (task is AbstractExecutorService.StateActionWithContextTaskQueueNode node)
+                {
+                    var socketEventArgs = node.State as SocketAsyncEventArgs;
+                    _output.WriteLine($"Callback action scheduling rejected. Task type: {task.GetType()}, State type: {node.State?.GetType()}, Socket operation: {socketEventArgs?.LastOperation}, Socket error: {socketEventArgs?.SocketError}");
+                }
+                
+                throw new RejectedExecutionException();
+            }
         }
     }
 
