@@ -205,13 +205,19 @@ namespace DotNetty.Handlers.Proxy
         /// Sends the specified message to the proxy server.  Use this method to send a response to the proxy server in
         /// {@link #handleResponse(IChannelHandlerContext, object)}.
         /// </summary>
-        protected void SendToProxyServer(object msg)
+        protected async Task SendToProxyServer(object msg)
         {
-            _ctx.WriteAndFlushAsync(msg).ContinueWith(OnCompleted, TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
-
-            void OnCompleted(Task future)
+            try
             {
-                SetConnectFailure(future.Exception);
+                await _ctx.WriteAndFlushAsync(msg);
+                if (Logger.DebugEnabled)
+                {
+                    Logger.Debug($"Connect sent to {_destinationAddress}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                SetConnectFailure(ex);
             }
         }
 

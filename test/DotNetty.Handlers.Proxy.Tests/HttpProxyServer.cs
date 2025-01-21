@@ -4,6 +4,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Codecs.Base64;
 using DotNetty.Codecs.Http;
+using DotNetty.Handlers.Logging;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using Xunit;
@@ -36,6 +37,7 @@ namespace DotNetty.Handlers.Proxy.Tests
                 case TestMode.Terminal:
                     p.AddLast(new HttpServerCodec());
                     p.AddLast(new HttpObjectAggregator(1));
+                    p.AddLast(new LoggingHandler("proxy"));
                     p.AddLast(new HttpTerminalHandler(this));
                     break;
                 case TestMode.Unresponsive:
