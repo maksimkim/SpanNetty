@@ -57,7 +57,7 @@ stages:
             testSelector: 'testAssemblies'
             testAssemblyVer2: |
               test\*.Tests\bin\$(buildConfiguration)\${{ testConfig.key }}\**\*.Tests.dll
-              ${{ join(testConfig.exclusion, '\n!test\\')
+              ${{ join(testConfig.exclusion, '\n!test\\') }}
             resultsFolder: '$(Build.SourcesDirectory)\TestResults'
             testRunTitle: 'test (${{ testConfig.key }})'
             configuration: '$(buildConfiguration)'
