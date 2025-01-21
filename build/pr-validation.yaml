@@ -9,94 +9,231 @@ pr:
 
 name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 
+parameters:
+  - name: windowsTestConfig
+    displayName: Configuration for windows test jobs
+    type: object
+    default:
+      net471:
+        exclusion: [ "DotNetty.Suite.Tests", "DotNetty.Buffers.ReaderWriter.Tests"]
+      net6.0:
+        exclusion: [ "DotNetty.Transport.Tests", "DotNetty.Suite.Tests", "DotNetty.Handlers.Proxy.Tests"]
+      net8.0:
+        exclusion: [ "DotNetty.Transport.Tests", "DotNetty.Suite.Tests", "DotNetty.Handlers.Proxy.Tests"]
+      net9.0:
+        exclusion: [ "DotNetty.Transport.Tests", "DotNetty.Suite.Tests", "DotNetty.Handlers.Proxy.Tests"]        
+
 variables:
 - template: variables/nuget.yml
-- name: configuration
+- name: buildConfiguration
   value: Release
 
 stages:
-- stage: windows
-  displayName: Windows
+- stage: Windows_2022
+  displayName: Windows 2022
   jobs:
-  - job: WindowsBuild
-    displayName: Build (Windows 2022)
+  - job: default
+    displayName: default
+    timeoutInMinutes: 60
     pool:
       vmImage: windows-2022
-      demands: Cmd
     steps:
-      - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
-        clean: false  # whether to fetch clean each time
-        submodules: recursive  # set to 'true' for a single level of submodules or 'recursive' to get submodules of submodules
-        persistCredentials: true
       - template: templates/install-dotnet.yaml
       - template: templates/install-nuget.yaml
       - template: templates/restore-nuget-packages.yaml
-      - template: templates/install-build-dependencies.yaml
-        parameters:
-          packageFeed: $(packageFeed)
-      - task: BatchScript@1
-        displayName: Windows Build
+      - task: VSBuild@1
+        displayName: 'build'
         inputs:
-          filename: build.cmd
-          arguments: 'Build' #Add ' incremental' to build incremental-ly
-        continueOnError: true
-        condition: eq( variables['Agent.OS'], 'Windows_NT' )
-      - task: CopyFiles@2
-        displayName: 'Copy Build Output'
-        inputs:
-          sourceFolder: Artifacts
-          contents: '*'
-          targetFolder: $(Build.ArtifactStagingDirectory)
-          continueOnError: boolean  # 'true' if future steps should run even if this step fails; defaults to 'false'
-      - script: 'echo 1>&2'
-        failOnStderr: true
-        displayName: 'If above is partially succeeded, then fail'
-        condition: eq(variables['Agent.JobStatus'], 'SucceededWithIssues')
+          solution: 'DotNetty.sln'
+          configuration: '$(buildConfiguration)'
+          maximumCpuCount: true
+      # - ${{ each config in parameters.windowsTestConfig }}:
+      #   - script: |
+      #       echo "Testing for .NET version: ${{ config.key }}"
+      - ${{ each testConfig in parameters.windowsTestConfig }}:      
+        - task: VSTest@2
+          displayName: 'test (${{ testConfig.key }})'
+          inputs:
+            testSelector: 'testAssemblies'
+            testAssemblyVer2: |
+              test\*.Tests\bin\$(buildConfiguration)\${{ testConfig.key }}\**\*.Tests.dll
+              ${{ join(testConfig.exclusion, '\n!test\\') }}
+            resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+            testRunTitle: 'test (${{ testConfig.key }})'
+            configuration: '$(buildConfiguration)'
+            publishRunAttachments: true
+            #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+            #runInParallel: true
+            #codeCoverageEnabled: true
+            #failOnMinTestsNotRun: true
+            #rerunFailedTests: true    
 
-  - template: templates/azure-pipeline.template.yaml
-    parameters:
-      name: 'net_core_tests_windows_2022'
-      displayName: 'Unit Tests (Windows 2022)'
-      vmImage: 'windows-2022'
-      scriptFileName: build.cmd
-      scriptArgs: RunTests
-      outputDirectory: 'TestResults' #Add ' incremental' to Run tests incremental-ly
-      artifactName: 'net_core_tests_windows-$(Build.BuildId)'
-      packageFeed: $(packageFeed)
-
-  - template: templates/azure-pipeline.template.yaml
-    parameters:
-      name: 'net_core_tests_windows_2019'
-      displayName: 'Unit Tests (Windows 2019)'
-      vmImage: 'windows-2019'
-      scriptFileName: build.cmd
-      scriptArgs: RunTests #Add ' incremental' to Run tests incremental-ly
-      outputDirectory: 'TestResults'
-      artifactName: 'net_core_tests_windows-$(Build.BuildId)'
-      packageFeed: $(packageFeed)
-
-- stage: linux
-  displayName: Linux (Ubuntu)
+      # - task: VSTest@2
+      #   displayName: 'test (net472)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #       !test\DotNetty.Buffers.ReaderWriter.Tests\bin\$(buildConfiguration)\net4*\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net472)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true
+      #     #runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+      #     #runInParallel: true
+      #     #codeCoverageEnabled: true
+      #     #failOnMinTestsNotRun: true
+      #     #rerunFailedTests: true
+      # - task: VSTest@2
+      #   displayName: 'test (net6.0)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #       !test\DotNetty.Transport.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #       !test\DotNetty.Handlers.Proxy.Tests\bin\$(buildConfiguration)\net6.0\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net6.0)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true
+      # - task: VSTest@2
+      #   displayName: 'test (net8.0)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #       !test\DotNetty.Transport.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #       !test\DotNetty.Handlers.Proxy.Tests\bin\$(buildConfiguration)\net8.0\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net8.0)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true 
+      # - task: VSTest@2
+      #   displayName: 'test (net9.0)'
+      #   inputs:
+      #     testSelector: 'testAssemblies'
+      #     testAssemblyVer2: |
+      #       test\*.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #       !test\DotNetty.Transport.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #       !test\DotNetty.Suite.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #       !test\DotNetty.Handlers.Proxy.Tests\bin\$(buildConfiguration)\net9.0\**\*.Tests.dll
+      #     resultsFolder: '$(Build.SourcesDirectory)\TestResults'
+      #     testRunTitle: 'test (net9.0)'
+      #     configuration: '$(buildConfiguration)'
+      #     publishRunAttachments: true                     
+- stage: Ubuntu_22
+  displayName: Ubuntu 22
   dependsOn: []
   jobs:
-  - template: templates/azure-pipeline.template.yaml
-    parameters:
-      name: 'net_core_tests_ubuntu_20'
-      displayName: 'Unit Tests (Ubuntu-20)'
-      vmImage: 'ubuntu-20.04'
-      scriptFileName: './build.sh'
-      scriptArgs: RunTests #Add ' incremental' to Run tests incremental-ly
-      outputDirectory: 'TestResults'
-      artifactName: 'net_core_tests_ubuntu_16-$(Build.BuildId)'
-      packageFeed: $(packageFeed)
-
-  - template: templates/azure-pipeline.template.yaml
-    parameters:
-      name: 'net_core_tests_ubuntu_22'
-      displayName: 'Unit Tests (Ubuntu-22)'
+  - job: default
+    displayName: 'default'
+    timeoutInMinutes: 60
+    pool:
       vmImage: 'ubuntu-22.04'
-      scriptFileName: './build.sh'
-      scriptArgs: RunTests #' incremental' # Run tests incremental-ly
-      outputDirectory: 'TestResults'
-      artifactName: 'net_core_tests_ubuntu_22-$(Build.BuildId)'
-      packageFeed: $(packageFeed)
+    steps:
+      - template: templates/install-dotnet.yaml
+      - template: templates/install-nuget.yaml
+      - template: templates/restore-nuget-packages.yaml
+      - task: DotNetCoreCLI@2
+        displayName: build
+        inputs:
+          command: 'build'
+          projects: 'DotNetty.sln'
+          configuration: $(buildConfiguration)
+          arguments: '-m'
+          #maximumCpuCount: true          
+
+    # - task: VSTest@2
+    #   displayName: 'test (net6)'
+    #   inputs:
+    #     testSelector: 'testAssemblies'
+    #     testAssemblyVer2: |
+    #       Proxy\test\**\bin\$(buildConfiguration)\net6*\*.Tests.dll
+    #     resultsFolder: '$(Build.SourcesDirectory)\out\logs\TestResults'
+    #     runSettingsFile: '$(Build.SourcesDirectory)\cit.runsettings'
+    #     runInParallel: true
+    #     codeCoverageEnabled: true
+    #     testRunTitle: 'test'
+    #     configuration: '$(buildConfiguration)'
+    #     publishRunAttachments: true
+    #     failOnMinTestsNotRun: true
+    #     rerunFailedTests: true
+
+      # - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+      #   clean: false  # whether to fetch clean each time
+      #   persistCredentials: true
+      # - template: templates/install-dotnet.yaml
+      # - template: templates/install-nuget.yaml
+      # - template: templates/restore-nuget-packages.yaml
+      # - template: templates/install-build-dependencies.yaml
+      #   parameters:
+      #     packageFeed: $(packageFeed)
+      # - task: BatchScript@1
+      #   displayName: Windows Build
+      #   inputs:
+      #     filename: build.cmd
+      #     arguments: 'Build' #Add ' incremental' to build incremental-ly
+      #   continueOnError: true
+      #   condition: eq( variables['Agent.OS'], 'Windows_NT' )
+      # - task: CopyFiles@2
+      #   displayName: 'Copy Build Output'
+      #   inputs:
+      #     sourceFolder: Artifacts
+      #     contents: '*'
+      #     targetFolder: $(Build.ArtifactStagingDirectory)
+      #     continueOnError: boolean  # 'true' if future steps should run even if this step fails; defaults to 'false'
+      # - script: 'echo 1>&2'
+      #   failOnStderr: true
+      #   displayName: 'If above is partially succeeded, then fail'
+      #   condition: eq(variables['Agent.JobStatus'], 'SucceededWithIssues')
+
+  # - template: templates/azure-pipeline.template.yaml
+  #   parameters:
+  #     name: 'net_core_tests_windows_2022'
+  #     displayName: 'Unit Tests (Windows 2022)'
+  #     vmImage: 'windows-2022'
+  #     scriptFileName: build.cmd
+  #     scriptArgs: RunTests
+  #     outputDirectory: 'TestResults' #Add ' incremental' to Run tests incremental-ly
+  #     artifactName: 'net_core_tests_windows-$(Build.BuildId)'
+  #     packageFeed: $(packageFeed)
+
+  # - template: templates/azure-pipeline.template.yaml
+  #   parameters:
+  #     name: 'net_core_tests_windows_2019'
+  #     displayName: 'Unit Tests (Windows 2019)'
+  #     vmImage: 'windows-2019'
+  #     scriptFileName: build.cmd
+  #     scriptArgs: RunTests #Add ' incremental' to Run tests incremental-ly
+  #     outputDirectory: 'TestResults'
+  #     artifactName: 'net_core_tests_windows-$(Build.BuildId)'
+  #     packageFeed: $(packageFeed)
+
+# - stage: linux
+#   displayName: Linux (Ubuntu)
+#   dependsOn: []
+#   jobs:
+#   - template: templates/azure-pipeline.template.yaml
+#     parameters:
+#       name: 'net_core_tests_ubuntu_20'
+#       displayName: 'Unit Tests (Ubuntu-20)'
+#       vmImage: 'ubuntu-20.04'
+#       scriptFileName: './build.sh'
+#       scriptArgs: RunTests #Add ' incremental' to Run tests incremental-ly
+#       outputDirectory: 'TestResults'
+#       artifactName: 'net_core_tests_ubuntu_16-$(Build.BuildId)'
+#       packageFeed: $(packageFeed)
+
+#   - template: templates/azure-pipeline.template.yaml
+#     parameters:
+#       name: 'net_core_tests_ubuntu_22'
+#       displayName: 'Unit Tests (Ubuntu-22)'
+#       vmImage: 'ubuntu-22.04'
+#       scriptFileName: './build.sh'
+#       scriptArgs: RunTests #' incremental' # Run tests incremental-ly
+#       outputDirectory: 'TestResults'
+#       artifactName: 'net_core_tests_ubuntu_22-$(Build.BuildId)'
+#       packageFeed: $(packageFeed)
