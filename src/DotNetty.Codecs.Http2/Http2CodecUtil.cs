@@ -132,7 +132,7 @@ namespace DotNetty.Codecs.Http2
 
         public const short DefaultPriorityWeight = 16;
 
-        public const int DefaultHeaderTableSize = 4096;
+        public const int DefaultHeaderTableSize = 16384;
 
         /// <summary>
         /// <a href="https://tools.ietf.org/html/rfc7540#section-6.5.2">The initial value of this setting is unlimited</a>.
