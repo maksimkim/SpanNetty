@@ -57,7 +57,7 @@ namespace DotNetty.Codecs.Http2.Tests
         public void DecodeLargerThanHeaderListSizeButLessThanGoAwayWithInitialDecoderSettings()
         {
             var buf = Encode(B(":method"), B("GET"), B("test_header"),
-                B("A".PadRight(9000, 'A')));
+                B("A".PadRight(16_300, 'A')));
             int streamId = 1;
             var e = Assert.Throws<HeaderListSizeException>(() => decoder.DecodeHeaders(streamId, buf));
             Assert.Equal(streamId, e.StreamId);

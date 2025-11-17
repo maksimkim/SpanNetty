@@ -93,16 +93,12 @@ namespace DotNetty.Codecs.Http2
             _maxHeaderListSizeGoAway = Http2CodecUtil.CalculateMaxHeaderListSizeGoAway(hpackDecoder.GetMaxHeaderListSize());
         }
 
-
         public void SetMaxHeaderTableSize(long max)
         {
             _hpackDecoder.SetMaxHeaderTableSize(max);
         }
 
-
-
         public long MaxHeaderTableSize => _hpackDecoder.GetMaxHeaderTableSize();
-
 
         public void SetMaxHeaderListSize(long max, long goAwayMax)
         {

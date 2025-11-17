@@ -132,14 +132,14 @@ namespace DotNetty.Codecs.Http2
 
         public const short DefaultPriorityWeight = 16;
 
-        public const int DefaultHeaderTableSize = 16384;
+        public const int DefaultHeaderTableSize = 16_384;
 
         /// <summary>
         /// <a href="https://tools.ietf.org/html/rfc7540#section-6.5.2">The initial value of this setting is unlimited</a>.
         /// However in practice we don't want to allow our peers to use unlimited memory by default. So we take advantage
         /// of the <c>For any given request, a lower limit than what is advertised MAY be enforced.</c> loophole.
         /// </summary>
-        public const long DefaultHeaderListSize = 16384;
+        public const long DefaultHeaderListSize = 16_384;
 
         public const int DefaultMaxFrameSize = MaxFrameSizeLowerBound;
 
