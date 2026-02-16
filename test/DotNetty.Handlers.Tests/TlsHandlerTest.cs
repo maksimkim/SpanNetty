@@ -2,8 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels.Sockets;
@@ -517,6 +519,73 @@ namespace DotNetty.Handlers.Tests
             //assert event loop is not blocked
             await channelLoop.SubmitAsync(() => 1).WithTimeout(TimeSpan.FromSeconds(5));
         }        
+#endif
+
+#if NET6_0_OR_GREATER
+        [Fact]
+        public async Task WriteAfterSslStreamClosedShouldNotThrowNullRef()
+        {
+            var executor = new DefaultEventExecutor();
+            try
+            {
+                var writeTasks = new List<Task>();
+                var pair = await SetupStreamAndChannelAsync(
+                    true, executor, new AsIsWriteStrategy(),
+                    SslProtocols.Tls12, SslProtocols.Tls12, writeTasks)
+                    .WithTimeout(TimeSpan.FromSeconds(10));
+                EmbeddedChannel ch = pair.Item1;
+                SslStream driverStream = pair.Item2;
+
+                // Get the TlsHandler from the pipeline
+                var tlsHandler = ch.Pipeline.Get<TlsHandler>();
+                Assert.NotNull(tlsHandler);
+
+                // Use reflection to set _sslStream to null, simulating the race condition
+                // where close/disconnect occurs during an in-flight async write
+                var sslStreamField = typeof(TlsHandler).GetField("_sslStream",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                Assert.NotNull(sslStreamField);
+                sslStreamField.SetValue(tlsHandler, null);
+
+                // Write data through the pipeline - should fail with IOException, not NullReferenceException
+                var buf = Unpooled.WrappedBuffer(new byte[] { 1, 2, 3, 4 });
+                var writePromise = ch.NewPromise();
+
+                Exception caughtException = null;
+                try
+                {
+                    await ch.WriteAndFlushAsync(buf, writePromise);
+                }
+                catch (Exception ex)
+                {
+                    caughtException = ex;
+                }
+
+                ch.RunPendingTasks();
+
+                // The write promise should be failed with IOException, not NullReferenceException
+                Assert.True(writePromise.IsCompleted, "Write promise should be completed");
+                Assert.False(writePromise.IsSuccess, "Write promise should have failed");
+
+                var promiseException = writePromise.Task.Exception?.InnerException;
+                Assert.NotNull(promiseException);
+                Assert.IsType<IOException>(promiseException);
+                Assert.Contains("SSLStream closed already", promiseException.Message);
+
+                // If an exception propagated, it should also be IOException
+                if (caughtException is not null)
+                {
+                    Assert.IsNotType<NullReferenceException>(caughtException);
+                }
+
+                driverStream.Dispose();
+                try { await ch.CloseAsync(); } catch { }
+            }
+            finally
+            {
+                await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
+            }
+        }
 #endif
     }
 }

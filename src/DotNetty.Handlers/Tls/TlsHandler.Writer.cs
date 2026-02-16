@@ -314,8 +314,13 @@ namespace DotNetty.Handlers.Tls
             
             try
             {
+                var sslStream = _sslStream;
+                if (sslStream is null)
+                {
+                    throw s_sslStreamClosedException;
+                }
                 var mem = buf.GetReadableMemory();
-                await _sslStream.WriteAsync(mem, CancellationToken.None); // this leads to FinishWrapAsync being called 0+ times
+                await sslStream.WriteAsync(mem, CancellationToken.None); // this leads to FinishWrapAsync being called 0+ times
                 buf.AdvanceReader(mem.Length);
                 promise.TryComplete();
             }
