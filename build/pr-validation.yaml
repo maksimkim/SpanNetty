@@ -81,13 +81,13 @@ stages:
   jobs:
   - template: templates/azure-pipeline.template.yaml
     parameters:
-      name: 'net_core_tests_ubuntu_20'
-      displayName: 'Unit Tests (Ubuntu-20)'
-      vmImage: 'ubuntu-20.04'
+      name: 'net_core_tests_ubuntu_24'
+      displayName: 'Unit Tests (Ubuntu-24)'
+      vmImage: 'ubuntu-24.04'
       scriptFileName: './build.sh'
       scriptArgs: RunTests #Add ' incremental' to Run tests incremental-ly
       outputDirectory: 'TestResults'
-      artifactName: 'net_core_tests_ubuntu_16-$(Build.BuildId)'
+      artifactName: 'net_core_tests_ubuntu_24-$(Build.BuildId)'
       packageFeed: $(packageFeed)
 
   - template: templates/azure-pipeline.template.yaml
