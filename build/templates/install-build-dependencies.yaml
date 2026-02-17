@@ -5,7 +5,7 @@ steps:
 - task: CmdLine@2
   displayName: Install Fake
   inputs:
-    script: 'dotnet tool install Fake --version 4.63.0 --tool-path tools --add-source ${{ parameters.packageFeed }}'
+    script: 'dotnet tool install fake-cli --version 6.1.4 --tool-path tools/fake'
 - task: CmdLine@2
   displayName: Install Incrementalist
   inputs:
