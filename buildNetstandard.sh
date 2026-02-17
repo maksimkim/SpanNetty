@@ -8,10 +8,7 @@ SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 TOOLS_DIR=$SCRIPT_DIR/tools
 INCREMENTALIST_DIR=$TOOLS_DIR/incrementalist
 INCREMENTALIST_EXE=$INCREMENTALIST_DIR/Incrementalist.Cmd.exe
-NUGET_EXE=$TOOLS_DIR/nuget.exe
-NUGET_URL=https://dist.nuget.org/win-x86-commandline/v5.8.0/nuget.exe
-FAKE_VERSION=4.63.0
-FAKE_EXE=$TOOLS_DIR/FAKE/tools/FAKE.exe
+FAKE_TOOL_PATH=$TOOLS_DIR/fake
 DOTNET_EXE=$SCRIPT_DIR/.dotnet/dotnet
 DOTNETCORE_VERSION=3.1.411
 DOTNET_VERSION=5.0.302
@@ -21,7 +18,7 @@ PROTOBUF_VERSION=3.4.0
 INCREMENTALIST_VERSION=0.4.0
 
 # Define default arguments.
-TARGET="Default"
+TARGET="All"
 CONFIGURATION="Debug"
 VERBOSITY="verbose"
 DRYRUN=
@@ -46,34 +43,20 @@ if [ ! -d "$TOOLS_DIR" ]; then
 fi
 
 ###########################################################################
-# INSTALL NUGET
-###########################################################################
-
-# Download NuGet if it does not exist.
-if [ ! -f "$NUGET_EXE" ]; then
-    echo "Downloading NuGet..."
-    curl -Lsfo "$NUGET_EXE" $NUGET_URL
-    if [ $? -ne 0 ]; then
-        echo "An error occured while downloading nuget.exe."
-        exit 1
-    fi
-fi
-
-###########################################################################
 # INSTALL FAKE
 ###########################################################################
 
-if [ ! -f "$FAKE_EXE" ]; then
-    mono "$NUGET_EXE" install Fake -ExcludeVersion -Version $FAKE_VERSION -OutputDirectory "$TOOLS_DIR"
+if [ ! -f "$FAKE_TOOL_PATH/fake" ]; then
+    dotnet tool install fake-cli --version 6.1.4 --tool-path "$FAKE_TOOL_PATH"
     if [ $? -ne 0 ]; then
-        echo "An error occured while installing Cake."
+        echo "An error occurred while installing fake-cli."
         exit 1
     fi
 fi
 
 # Make sure that Fake has been installed.
-if [ ! -f "$FAKE_EXE" ]; then
-    echo "Could not find Fake.exe at '$FAKE_EXE'."
+if [ ! -f "$FAKE_TOOL_PATH/fake" ]; then
+    echo "Could not find fake at '$FAKE_TOOL_PATH/fake'."
     exit 1
 fi
 
@@ -88,13 +71,14 @@ if [ ! -f "$INCREMENTALIST_EXE" ]; then
 fi
 
 ###########################################################################
-# WORKAROUND FOR MONO
-###########################################################################
-export FrameworkPathOverride=/usr/lib/mono/4.5/
-
-###########################################################################
 # RUN BUILD SCRIPT
 ###########################################################################
 
+# Use first positional argument as target if provided
+if [ ${#SCRIPT_ARGUMENTS[@]} -gt 0 ]; then
+    TARGET="${SCRIPT_ARGUMENTS[0]}"
+fi
+
 # Start Fake
-exec mono "$FAKE_EXE" buildNetstandard.fsx "${SCRIPT_ARGUMENTS[@]}" --verbosity=$VERBOSITY --configuration=$CONFIGURATION --target=$TARGET $DRYRUN
+export configuration=$CONFIGURATION
+exec "$FAKE_TOOL_PATH/fake" run buildNetstandard.fsx -t "$TARGET"

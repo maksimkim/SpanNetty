@@ -2,11 +2,10 @@ parameters:
   packageFeed: ''
 
 steps:
-- task: NuGetCommand@2
+- task: CmdLine@2
   displayName: Install Fake
   inputs:
-    command: 'custom'
-    arguments: 'install Fake -ExcludeVersion -Version 4.63.0 -OutputDirectory tools -Source ${{ parameters.packageFeed }}'
+    script: 'dotnet tool install fake-cli --version 6.1.4 --tool-path tools/fake'
 - task: CmdLine@2
   displayName: Install Incrementalist
   inputs:

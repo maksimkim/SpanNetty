@@ -19,7 +19,7 @@ Remaining arguments are added here.
 
 [CmdletBinding()]
 Param(
-    [string]$Target = "Default",
+    [string]$Target = "All",
     [ValidateSet("Release", "Debug")]
     [string]$Configuration = "Debug",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
@@ -29,7 +29,7 @@ Param(
     [string[]]$ScriptArgs
 )
 
-$FakeVersion = "4.63.0"
+$FakeVersion = "6.1.4"
 
 $IncrementalistVersion = "0.8.0";
 
@@ -46,12 +46,13 @@ if (!(Test-Path $ToolPath)) {
 ###########################################################################
 # Make sure Fake has been installed.
 
-$FakeExePath = Join-Path $ToolPath "FAKE/tools/FAKE.exe"
+$FakeToolPath = Join-Path $ToolPath "fake"
+$FakeExePath = Join-Path $FakeToolPath "fake.exe"
 if (!(Test-Path $FakeExePath)) {
-    Write-Host "Installing Fake..."
-    Invoke-Expression "nuget.exe install Fake -ExcludeVersion -Version $FakeVersion -OutputDirectory `"$ToolPath`"" | Out-Null;
+    Write-Host "Installing fake-cli..."
+    dotnet tool install fake-cli --version $FakeVersion --tool-path "$FakeToolPath"
     if ($LASTEXITCODE -ne 0) {
-        Throw "An error occured while restoring Fake from NuGet."
+        Throw "An error occurred while installing fake-cli."
     }
 }
 
@@ -73,16 +74,14 @@ else{
 # RUN BUILD SCRIPT
 ###########################################################################
 
-# Build the argument list.
-$Arguments = @{
-    target=$Target;
-    configuration=$Configuration;
-    verbosity=$Verbosity;
-    dryrun=$WhatIf;
-}.GetEnumerator() | %{"--{0}=`"{1}`"" -f $_.key, $_.value };
+# Use first positional argument as target if provided
+if ($ScriptArgs -and $ScriptArgs.Length -gt 0) {
+    $Target = $ScriptArgs[0]
+}
 
 # Start Fake
 Write-Host "Running build script..."
-Invoke-Expression "& `"$FakeExePath`" `"buildNetstandard.fsx`" $ScriptArgs $Arguments"
+$env:configuration = $Configuration
+& $FakeExePath run "buildNetstandard.fsx" -t $Target
  
 exit $LASTEXITCODE
