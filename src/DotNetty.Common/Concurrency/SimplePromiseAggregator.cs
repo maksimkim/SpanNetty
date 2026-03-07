@@ -38,9 +38,8 @@ namespace DotNetty.Common.Concurrency
         int doneCount;
         bool doneAllocating;
 
-        bool hasFailure;
-        Exception lastFailure;
-        IEnumerable<Exception> lastFailures;
+        Exception aggregateFailure;
+        IEnumerable<Exception> aggregateFailures;
 
         public SimplePromiseAggregator(IPromise promise)
         {
@@ -83,8 +82,7 @@ namespace DotNetty.Common.Concurrency
             if (this.AllowFailure())
             {
                 ++this.doneCount;
-                this.hasFailure = true;
-                this.lastFailure = cause;
+                this.SetAggregateFailure(cause);
                 if (this.AllPromisesDone())
                 {
                     return this.TryPromise();
@@ -103,8 +101,7 @@ namespace DotNetty.Common.Concurrency
             if (this.AllowFailure())
             {
                 ++this.doneCount;
-                this.hasFailure = true;
-                this.lastFailures = ex;
+                this.SetAggregateFailure(ex);
                 if (this.AllPromisesDone())
                 {
                     return this.TryPromise();
@@ -130,8 +127,7 @@ namespace DotNetty.Common.Concurrency
             if (this.AllowFailure())
             {
                 ++this.doneCount;
-                this.hasFailure = true;
-                this.lastFailure = cause;
+                this.SetAggregateFailure(cause);
                 if (this.AllPromisesDone())
                 {
                     this.SetPromise();
@@ -144,8 +140,7 @@ namespace DotNetty.Common.Concurrency
             if (this.AllowFailure())
             {
                 ++this.doneCount;
-                this.hasFailure = true;
-                this.lastFailures = ex;
+                this.SetAggregateFailure(ex);
                 if (this.AllPromisesDone())
                 {
                     this.SetPromise();
@@ -207,39 +202,55 @@ namespace DotNetty.Common.Concurrency
 
         void SetPromise()
         {
-            if (!this.hasFailure)
+            if (this.aggregateFailure is null && this.aggregateFailures is null)
             {
                 this.promise.Complete();
                 base.Complete();
                 return;
             }
-            if (this.lastFailure is object)
+            if (this.aggregateFailure is object)
             {
-                this.promise.SetException(this.lastFailure);
-                base.SetException(this.lastFailure);
+                this.promise.SetException(this.aggregateFailure);
+                base.SetException(this.aggregateFailure);
                 return;
             }
 
-            this.promise.SetException(this.lastFailures);
-            base.SetException(this.lastFailures);
+            this.promise.SetException(this.aggregateFailures);
+            base.SetException(this.aggregateFailures);
         }
 
         bool TryPromise()
         {
-            if (!this.hasFailure)
+            if (this.aggregateFailure is null && this.aggregateFailures is null)
             {
                 _ = this.promise.TryComplete();
                 return base.TryComplete();
             }
 
-            if (this.lastFailure is object)
+            if (this.aggregateFailure is object)
             {
-                _ = this.promise.TrySetException(this.lastFailure);
-                return base.TrySetException(this.lastFailure);
+                _ = this.promise.TrySetException(this.aggregateFailure);
+                return base.TrySetException(this.aggregateFailure);
             }
 
-            _ = this.promise.TrySetException(this.lastFailures);
-            return base.TrySetException(this.lastFailures);
+            _ = this.promise.TrySetException(this.aggregateFailures);
+            return base.TrySetException(this.aggregateFailures);
+        }
+
+        void SetAggregateFailure(Exception cause)
+        {
+            if (this.aggregateFailure is null)
+            {
+                this.aggregateFailure = cause;
+            }
+        }
+
+        void SetAggregateFailure(IEnumerable<Exception> cause)
+        {
+            if (this.aggregateFailures is null)
+            {
+                this.aggregateFailures = cause;
+            }
         }
     }
 }
