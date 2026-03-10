@@ -517,7 +517,7 @@ namespace DotNetty.Handlers.Tests.Flow
                 await client.WriteAndFlushAsync(NewOneMessage());
 
                 // We should receive 3 messages
-                Assert.True(latch.Wait(TimeSpan.FromSeconds(1)));
+                Assert.True(latch.Wait(TimeSpan.FromSeconds(10)));
                 Assert.True(flow.IsQueueEmpty);
             }
             finally

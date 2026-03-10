@@ -406,6 +406,32 @@ namespace DotNetty.Codecs.Http2.Tests
         }
 
         [Fact]
+        public void InvalidStreamId()
+        {
+            BootstrapEnv(2, 1, 0);
+            IFullHttpRequest request = new DefaultFullHttpRequest(Http.HttpVersion.Http11, HttpMethod.Post,
+                "/foo", Unpooled.CopiedBuffer("foobar", Encoding.UTF8));
+            HttpHeaders httpHeaders = request.Headers;
+            httpHeaders.SetInt(HttpConversionUtil.ExtensionHeaderNames.StreamId, -1);
+            httpHeaders.Set(HttpConversionUtil.ExtensionHeaderNames.Scheme, "http");
+            httpHeaders.Set(HttpHeaderNames.Host, "localhost");
+            var writePromise = NewPromise();
+            var writeFuture = _clientChannel.WriteAndFlushAsync(request, writePromise);
+
+            Task.WaitAny(writePromise.Task, Task.Delay(TimeSpan.FromSeconds(WAIT_TIME_SECONDS)));
+
+            Assert.True(writePromise.IsCompleted);
+            Assert.False(writePromise.IsSuccess);
+            var cause = writePromise.Task.Exception?.InnerException;
+            Assert.IsType<Http2NoMoreStreamIdsException>(cause);
+
+            Assert.True(writeFuture.IsCompleted);
+            Assert.False(writeFuture.IsSuccess());
+            cause = writeFuture.Exception?.InnerException;
+            Assert.IsType<Http2NoMoreStreamIdsException>(cause);
+        }
+
+        [Fact]
         public void RequestWithBody()
         {
             string text = "foooooogoooo";
