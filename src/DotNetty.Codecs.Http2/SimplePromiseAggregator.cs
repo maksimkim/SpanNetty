@@ -20,12 +20,13 @@
  * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
-namespace DotNetty.Common.Concurrency
+namespace DotNetty.Codecs.Http2
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
+    using DotNetty.Common.Concurrency;
 
     /// <summary>
     /// Provides the ability to associate the outcome of multiple <see cref="IPromise"/>
