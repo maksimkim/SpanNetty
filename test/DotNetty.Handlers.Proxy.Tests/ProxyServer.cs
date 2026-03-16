@@ -277,7 +277,10 @@ namespace DotNetty.Handlers.Proxy.Tests
                     else if ("C\n".Equals(str))
                     {
                         ctx.WriteAsync(Unpooled.CopiedBuffer("3\n", Encoding.ASCII))
-                            .ContinueWith(_ => ctx.Channel.CloseAsync(), TaskContinuationOptions.ExecuteSynchronously);
+                            .ContinueWith(_ =>
+                            {
+                                return ctx.Channel.CloseAsync();
+                            }, TaskContinuationOptions.ExecuteSynchronously);
                     }
                     else
                     {
