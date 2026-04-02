@@ -150,6 +150,7 @@ namespace DotNetty.Handlers.Tls
         private void Wrap(IChannelHandlerContext context)
         {
             Debug.Assert(context == CapturedContext);
+            if (Volatile.Read(ref _outboundClosed)) { return; }
 
             IByteBufferAllocator alloc = context.Allocator;
             IByteBuffer buf = null;
@@ -188,7 +189,12 @@ namespace DotNetty.Handlers.Tls
                             }
                             buf = null; //prevent buf from releasing synchronously
 #else
-                            _ = buf.ReadBytes(_sslStream, readableBytes); // this leads to FinishWrap being called 0+ times
+                            var sslStream = _sslStream;
+                            if (sslStream is null)
+                            {
+                                throw s_sslStreamClosedException;
+                            }
+                            _ = buf.ReadBytes(sslStream, readableBytes); // this leads to FinishWrap being called 0+ times
 #endif
                         }
                         else if (promise != null)
