@@ -293,14 +293,14 @@ namespace DotNetty.Handlers.Tls
             {
                 // Release all resources such as internal buffers that SSLEngine
                 // is managing.
-                _outboundClosed = true;
+                Volatile.Write(ref _outboundClosed, true);
                 _mediationStream.Dispose();
                 if (closeInbound)
                 {
                     try
                     {
-                        _sslStream?.Dispose();
-                        _sslStream = null;
+                        var oldSslStream = Interlocked.Exchange(ref _sslStream, null);
+                        oldSslStream?.Dispose();
                     }
                     catch (Exception)
                     {
@@ -334,10 +334,10 @@ namespace DotNetty.Handlers.Tls
 
         private void CloseOutboundAndChannel(IChannelHandlerContext context, IPromise promise, bool disconnect)
         {
-            _outboundClosed = true;
+            Volatile.Write(ref _outboundClosed, true);
             _mediationStream.Dispose();
-            _sslStream?.Dispose();
-            _sslStream = null;
+            var oldSslStream = Interlocked.Exchange(ref _sslStream, null);
+            oldSslStream?.Dispose();
 
             if (!context.Channel.IsActive)
             {

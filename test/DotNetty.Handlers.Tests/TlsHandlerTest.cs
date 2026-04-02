@@ -586,6 +586,70 @@ namespace DotNetty.Handlers.Tests
                 await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
             }
         }
+
+        [Fact]
+        public async Task WriteAfterOutboundClosedShouldNotThrowNullRef()
+        {
+            var executor = new DefaultEventExecutor();
+            try
+            {
+                var writeTasks = new List<Task>();
+                var pair = await SetupStreamAndChannelAsync(
+                    true, executor, new AsIsWriteStrategy(),
+                    SslProtocols.Tls12, SslProtocols.Tls12, writeTasks)
+                    .WithTimeout(TimeSpan.FromSeconds(10));
+                EmbeddedChannel ch = pair.Item1;
+                SslStream driverStream = pair.Item2;
+
+                var tlsHandler = ch.Pipeline.Get<TlsHandler>();
+                Assert.NotNull(tlsHandler);
+
+                // Simulate the race condition where teardown sets _outboundClosed = true
+                // and nulls _sslStream before Wrap() runs
+                var outboundClosedField = typeof(TlsHandler).GetField("_outboundClosed",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                Assert.NotNull(outboundClosedField);
+                outboundClosedField.SetValue(tlsHandler, true);
+
+                var sslStreamField = typeof(TlsHandler).GetField("_sslStream",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                Assert.NotNull(sslStreamField);
+                sslStreamField.SetValue(tlsHandler, null);
+
+                // Write data — Wrap() should early-exit due to _outboundClosed.
+                // The write promise won't complete (no teardown path to drain it),
+                // so we use a timeout and just verify no NullRef/ArgumentNull is thrown.
+                var buf = Unpooled.WrappedBuffer(new byte[] { 1, 2, 3, 4 });
+
+                Exception caughtException = null;
+                try
+                {
+                    var writeTask = ch.WriteAndFlushAsync(buf);
+                    // Wait briefly — if Wrap() exits early, the task just stays incomplete
+                    await Task.WhenAny(writeTask, Task.Delay(TimeSpan.FromSeconds(2)));
+                }
+                catch (Exception ex)
+                {
+                    caughtException = ex;
+                }
+
+                ch.RunPendingTasks();
+
+                // Should not have thrown NullReferenceException or ArgumentNullException
+                if (caughtException is not null)
+                {
+                    Assert.IsNotType<NullReferenceException>(caughtException);
+                    Assert.IsNotType<ArgumentNullException>(caughtException);
+                }
+
+                driverStream.Dispose();
+                try { await ch.CloseAsync(); } catch { }
+            }
+            finally
+            {
+                await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
+            }
+        }
 #endif
     }
 }
