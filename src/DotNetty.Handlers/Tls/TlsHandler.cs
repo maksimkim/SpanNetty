@@ -228,7 +228,15 @@ namespace DotNetty.Handlers.Tls
         {
             //CloseOutboundAndChannel(context, promise, false);
             _ = _closeFuture.TryComplete();
-            _sslStream.Dispose();
+            try
+            {
+                _sslStream.Dispose();
+            }
+            catch (Exception)
+            {
+                // Swallow dispose exceptions to prevent them from propagating during channel close.
+                // See https://github.com/maksimkim/SpanNetty/issues/60
+            }
             base.Close(context, promise);
         }
 

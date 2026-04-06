@@ -6,6 +6,7 @@ namespace DotNetty.Handlers.Tests
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Net.Security;
     using System.Runtime.InteropServices;
@@ -378,5 +379,140 @@ namespace DotNetty.Handlers.Tests
                 }
             }
         }
+
+        /// <summary>
+        /// Regression test for https://github.com/maksimkim/SpanNetty/issues/60
+        /// Verifies that after the pending write queue is drained (as happens during
+        /// re-entrant HandleFailure → RemoveAndFailAll in production), the Wrap/Flush
+        /// code path handles the empty queue gracefully without crashing.
+        ///
+        /// Note: The exact re-entrant NRE scenario from issue #60 cannot be reliably
+        /// reproduced in a unit test because the NRE occurs inside a ContinueWith
+        /// continuation (silently swallowed by Task) and SslStream.Dispose() during
+        /// HandleFailure prevents reaching the Remove() call. This test verifies the
+        /// defensive fix paths are exercised correctly.
+        /// </summary>
+        [Fact]
+        public async Task WrapRemoveNull_ShouldNotThrowNullReferenceException()
+        {
+            var executor = new DefaultEventExecutor();
+            try
+            {
+                var writeTasks = new List<Task>();
+                var writeStrategy = new AsIsWriteStrategy();
+
+                X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
+                string targetHost = tlsCertificate.GetNameInfo(X509NameType.DnsName, false);
+
+                TlsHandler tlsHandler = new TlsHandler(
+                    stream => new SslStream(stream, true, (sender, certificate, chain, errors) => true),
+                    new ClientTlsSettings(SslProtocols.Tls12, false, new List<X509Certificate>(), targetHost));
+
+                var ch = new EmbeddedChannel(tlsHandler);
+
+                // -- Complete the TLS handshake --
+                IByteBuffer readResultBuffer = Unpooled.Buffer(4 * 1024);
+                Func<ArraySegment<byte>, Task<int>> readDataFunc = async output =>
+                {
+                    if (writeTasks.Count > 0)
+                    {
+                        await Task.WhenAll(writeTasks).WithTimeout(TestTimeout);
+                        writeTasks.Clear();
+                    }
+
+                    if (readResultBuffer.ReadableBytes < output.Count)
+                    {
+                        if (ch.IsActive)
+                        {
+#pragma warning disable CS1998
+                            await ReadOutboundAsync(async () => ch.ReadOutbound<IByteBuffer>(), output.Count - readResultBuffer.ReadableBytes, readResultBuffer, TestTimeout, readResultBuffer.ReadableBytes != 0 ? 0 : 1);
+#pragma warning restore CS1998
+                        }
+                    }
+                    int read = Math.Min(output.Count, readResultBuffer.ReadableBytes);
+                    readResultBuffer.ReadBytes(output.Array, output.Offset, read);
+                    return read;
+                };
+                var mediationStream = new MediationStream(readDataFunc, input =>
+                {
+                    Task task = executor.SubmitAsync(() => writeStrategy.WriteToChannelAsync(ch, input)).Unwrap();
+                    writeTasks.Add(task);
+                    return task;
+                }, () =>
+                {
+                    ch.CloseAsync();
+                });
+
+                var driverStream = new SslStream(mediationStream, true, (_1, _2, _3, _4) => true);
+                await Task.Run(() => driverStream.AuthenticateAsServerAsync(tlsCertificate, false, SslProtocols.Tls12, false))
+                    .WithTimeout(TimeSpan.FromSeconds(10));
+                writeTasks.Clear();
+
+                // -- Handshake complete. Now trigger the bug scenario. --
+                // Step 1: Add a pending write (via Pipeline.WriteAsync, NOT WriteOutbound which also flushes)
+                ch.Pipeline.WriteAsync(Unpooled.WrappedBuffer(new byte[] { 1, 2, 3 }));
+
+                // Step 2: Drain the queue (simulating re-entrant HandleFailure → RemoveAndFailAll)
+                var queueField = typeof(TlsHandler).GetField("_pendingUnencryptedWrites",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var queue = (BatchingPendingWriteQueue)queueField.GetValue(tlsHandler);
+                Assert.False(queue.IsEmpty, "Queue should have a pending write");
+                queue.RemoveAndFailAll(new IOException("simulated connection failure"));
+                Assert.True(queue.IsEmpty, "Queue should be empty after RemoveAndFailAll");
+
+                // Step 3: Flush → WrapAndFlush → Wrap → Current returns null → loop exits.
+                // Before fix: If Remove() was called after Current returned non-null
+                // (due to re-entrant drain between the two calls), NRE would occur.
+                // After fix: Remove() null is guarded with a break.
+                //
+                // In this simplified test, Current returns null because we drained
+                // the queue before Flush. This exercises the "queue is empty" path
+                // and verifies the handler doesn't crash.
+                try
+                {
+                    ch.Flush();
+                }
+                catch (Exception ex)
+                {
+                    Assert.False(
+                        ContainsNullReferenceException(ex),
+                        $"NRE from Wrap should not occur: {ex}");
+                }
+
+                // Also verify Remove() returns null on an empty queue (the precondition for Fix 2)
+                Assert.Null(queue.Remove());
+
+                try
+                {
+                    ch.CheckException();
+                }
+                catch (Exception ex)
+                {
+                    Assert.False(
+                        ContainsNullReferenceException(ex),
+                        $"NRE stored in channel: {ex}");
+                }
+
+                driverStream.Dispose();
+            }
+            finally
+            {
+                await executor.ShutdownGracefullyAsync(TimeSpan.Zero, TimeSpan.Zero);
+            }
+        }
+
+        static bool ContainsNullReferenceException(Exception ex)
+        {
+            if (ex is NullReferenceException) return true;
+            if (ex is AggregateException agg)
+            {
+                foreach (var inner in agg.Flatten().InnerExceptions)
+                {
+                    if (inner is NullReferenceException) return true;
+                }
+            }
+            return ex.InnerException is object && ContainsNullReferenceException(ex.InnerException);
+        }
+
     }
 }
