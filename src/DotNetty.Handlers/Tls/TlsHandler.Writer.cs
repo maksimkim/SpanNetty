@@ -150,6 +150,12 @@ namespace DotNetty.Handlers.Tls
                     buf = null;
 
                     var promise = _pendingUnencryptedWrites.Remove();
+                    if (promise is null)
+                    {
+                        // Queue was drained externally (e.g., by re-entrant HandleFailure → RemoveAndFailAll).
+                        // See https://github.com/maksimkim/SpanNetty/issues/60
+                        break;
+                    }
                     Task task = _lastContextWriteTask;
                     if (task is object)
                     {
@@ -172,6 +178,12 @@ namespace DotNetty.Handlers.Tls
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
         private void FinishWrap(in ReadOnlySpan<byte> buffer, IPromise promise)
         {
+            if (_outboundClosed)
+            {
+                _ = promise.TryComplete();
+                return;
+            }
+
             IByteBuffer output;
             var capturedContext = CapturedContext;
             if (buffer.IsEmpty)
@@ -192,6 +204,12 @@ namespace DotNetty.Handlers.Tls
 
         private void FinishWrap(byte[] buffer, int offset, int count, IPromise promise)
         {
+            if (_outboundClosed)
+            {
+                _ = promise.TryComplete();
+                return;
+            }
+
             IByteBuffer output;
             var capturedContext = CapturedContext;
             if (0u >= (uint)count)
@@ -210,6 +228,12 @@ namespace DotNetty.Handlers.Tls
 #if NETCOREAPP || NETSTANDARD_2_0_GREATER
         private Task FinishWrapNonAppDataAsync(in ReadOnlyMemory<byte> buffer, IPromise promise)
         {
+            if (_outboundClosed)
+            {
+                _ = promise.TryComplete();
+                return TaskUtil.Completed;
+            }
+
             var capturedContext = CapturedContext;
             Task future;
             if (MemoryMarshal.TryGetArray(buffer, out var seg))
@@ -227,6 +251,12 @@ namespace DotNetty.Handlers.Tls
 
         private Task FinishWrapNonAppDataAsync(byte[] buffer, int offset, int count, IPromise promise)
         {
+            if (_outboundClosed)
+            {
+                _ = promise.TryComplete();
+                return TaskUtil.Completed;
+            }
+
             var capturedContext = CapturedContext;
             var future = capturedContext.WriteAndFlushAsync(Unpooled.WrappedBuffer(buffer, offset, count), promise);
             this.ReadIfNeeded(capturedContext);

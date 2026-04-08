@@ -180,15 +180,11 @@ namespace DotNetty.Handlers.Tls
                         // of the SSLException reported here.
                         WrapAndFlush(context);
                     }
-                    // TODO revisit
-                    //catch (IOException)
-                    //{
-                    //    if (s_logger.DebugEnabled)
-                    //    {
-                    //        s_logger.Debug("SSLException during trying to call SSLEngine.wrap(...)" +
-                    //                " because of an previous SSLException, ignoring...", ex);
-                    //    }
-                    //}
+                    catch (Exception)
+                    {
+                        // Swallow any exception from WrapAndFlush so it does not mask the original cause.
+                        // See https://github.com/maksimkim/SpanNetty/issues/60
+                    }
                     finally
                     {
                         HandleFailure(cause);
