@@ -382,15 +382,16 @@ namespace DotNetty.Handlers.Tests
 
         /// <summary>
         /// Regression test for https://github.com/maksimkim/SpanNetty/issues/60
-        /// Verifies that after the pending write queue is drained (as happens during
-        /// re-entrant HandleFailure → RemoveAndFailAll in production), the Wrap/Flush
-        /// code path handles the empty queue gracefully without crashing.
+        /// Verifies that when the pending write queue is drained re-entrantly during
+        /// Wrap (between the Current check and Remove call), the null return from
+        /// Remove() is handled gracefully instead of throwing NullReferenceException.
         ///
-        /// Note: The exact re-entrant NRE scenario from issue #60 cannot be reliably
-        /// reproduced in a unit test because the NRE occurs inside a ContinueWith
-        /// continuation (silently swallowed by Task) and SslStream.Dispose() during
-        /// HandleFailure prevents reaching the Remove() call. This test verifies the
-        /// defensive fix paths are exercised correctly.
+        /// Uses a custom Stream wrapper around MediationStream to simulate the
+        /// re-entrant HandleFailure → RemoveAndFailAll scenario: after SslStream
+        /// encrypts data and writes ciphertext to MediationStream (which sets
+        /// _lastContextWriteTask via FinishWrap), the wrapper drains the queue and
+        /// clears _lastContextWriteTask. When Wrap continues, Remove() returns null
+        /// and the unfixed code hits promise.TryComplete() on a null promise → NRE.
         /// </summary>
         [Fact]
         public async Task WrapRemoveNull_ShouldNotThrowNullReferenceException()
@@ -404,9 +405,27 @@ namespace DotNetty.Handlers.Tests
                 X509Certificate2 tlsCertificate = TestResourceHelper.GetTestCertificate();
                 string targetHost = tlsCertificate.GetNameInfo(X509NameType.DnsName, false);
 
+                // Reflection fields for the re-entrant drain simulation
+                var queueField = typeof(TlsHandler).GetField("_pendingUnencryptedWrites",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var lastTaskField = typeof(TlsHandler).GetField("_lastContextWriteTask",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                // Create a TlsHandler with a custom SslStream that wraps MediationStream
+                // in a QueueDrainingStreamWrapper. The wrapper intercepts SslStream's
+                // ciphertext writes and, when enabled, drains the pending write queue
+                // to simulate re-entrant HandleFailure.
+                QueueDrainingStreamWrapper streamWrapper = null;
                 TlsHandler tlsHandler = new TlsHandler(
-                    stream => new SslStream(stream, true, (sender, certificate, chain, errors) => true),
+                    stream =>
+                    {
+                        streamWrapper = new QueueDrainingStreamWrapper(stream);
+                        return new SslStream(streamWrapper, true, (sender, certificate, chain, errors) => true);
+                    },
                     new ClientTlsSettings(SslProtocols.Tls12, false, new List<X509Certificate>(), targetHost));
+
+                // Wire up the reflection targets so the wrapper can drain the queue
+                streamWrapper.SetTarget(tlsHandler, queueField, lastTaskField);
 
                 var ch = new EmbeddedChannel(tlsHandler);
 
@@ -419,7 +438,6 @@ namespace DotNetty.Handlers.Tests
                         await Task.WhenAll(writeTasks).WithTimeout(TestTimeout);
                         writeTasks.Clear();
                     }
-
                     if (readResultBuffer.ReadableBytes < output.Count)
                     {
                         if (ch.IsActive)
@@ -438,49 +456,33 @@ namespace DotNetty.Handlers.Tests
                     Task task = executor.SubmitAsync(() => writeStrategy.WriteToChannelAsync(ch, input)).Unwrap();
                     writeTasks.Add(task);
                     return task;
-                }, () =>
-                {
-                    ch.CloseAsync();
-                });
+                }, () => { ch.CloseAsync(); });
 
                 var driverStream = new SslStream(mediationStream, true, (_1, _2, _3, _4) => true);
                 await Task.Run(() => driverStream.AuthenticateAsServerAsync(tlsCertificate, false, SslProtocols.Tls12, false))
                     .WithTimeout(TimeSpan.FromSeconds(10));
                 writeTasks.Clear();
 
-                // -- Handshake complete. Now trigger the bug scenario. --
-                // Step 1: Add a pending write (via Pipeline.WriteAsync, NOT WriteOutbound which also flushes)
-                ch.Pipeline.WriteAsync(Unpooled.WrappedBuffer(new byte[] { 1, 2, 3 }));
+                // -- Handshake complete. Enable the re-entrant drain simulation. --
+                streamWrapper.ShouldDrain = true;
 
-                // Step 2: Drain the queue (simulating re-entrant HandleFailure → RemoveAndFailAll)
-                var queueField = typeof(TlsHandler).GetField("_pendingUnencryptedWrites",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var queue = (BatchingPendingWriteQueue)queueField.GetValue(tlsHandler);
-                Assert.False(queue.IsEmpty, "Queue should have a pending write");
-                queue.RemoveAndFailAll(new IOException("simulated connection failure"));
-                Assert.True(queue.IsEmpty, "Queue should be empty after RemoveAndFailAll");
-
-                // Step 3: Flush → WrapAndFlush → Wrap → Current returns null → loop exits.
-                // Before fix: If Remove() was called after Current returned non-null
-                // (due to re-entrant drain between the two calls), NRE would occur.
-                // After fix: Remove() null is guarded with a break.
-                //
-                // In this simplified test, Current returns null because we drained
-                // the queue before Flush. This exercises the "queue is empty" path
-                // and verifies the handler doesn't crash.
+                // Write + Flush triggers: TlsHandler.Write (adds to queue) →
+                // TlsHandler.Flush → WrapAndFlush → Wrap → buf.ReadBytes(_sslStream, ...) →
+                // SslStream encrypts → wrapper.Write → MediationStream.Write (FinishWrap sets
+                // _lastContextWriteTask) → wrapper drains queue & clears _lastContextWriteTask →
+                // back in Wrap: Remove() returns null, _lastContextWriteTask is null →
+                // Without fix: promise.TryComplete() where promise is null → NRE
+                // With fix: if (promise is null) { break; } → exits gracefully
                 try
                 {
-                    ch.Flush();
+                    ch.WriteOutbound(Unpooled.WrappedBuffer(new byte[] { 1, 2, 3 }));
                 }
                 catch (Exception ex)
                 {
                     Assert.False(
                         ContainsNullReferenceException(ex),
-                        $"NRE from Wrap should not occur: {ex}");
+                        $"NRE from Wrap.Remove() should not occur: {ex}");
                 }
-
-                // Also verify Remove() returns null on an empty queue (the precondition for Fix 2)
-                Assert.Null(queue.Remove());
 
                 try
                 {
@@ -492,6 +494,9 @@ namespace DotNetty.Handlers.Tests
                         ContainsNullReferenceException(ex),
                         $"NRE stored in channel: {ex}");
                 }
+
+                Assert.True(streamWrapper.WasDrained,
+                    "The queue should have been drained during the write");
 
                 driverStream.Dispose();
             }
@@ -512,6 +517,106 @@ namespace DotNetty.Handlers.Tests
                 }
             }
             return ex.InnerException is object && ContainsNullReferenceException(ex.InnerException);
+        }
+
+        /// <summary>
+        /// Wraps MediationStream to simulate re-entrant queue drain during SslStream write.
+        /// After forwarding the encrypted write to MediationStream (which calls FinishWrap
+        /// and sets _lastContextWriteTask), it drains the pending write queue and clears
+        /// _lastContextWriteTask — reproducing the effect of HandleFailure being called
+        /// re-entrantly during an outbound write.
+        /// </summary>
+        sealed class QueueDrainingStreamWrapper : Stream
+        {
+            readonly Stream _inner;
+            object _handler;
+            System.Reflection.FieldInfo _queueField;
+            System.Reflection.FieldInfo _lastTaskField;
+            bool _drained;
+
+            public bool ShouldDrain { get; set; }
+            public bool WasDrained => _drained;
+
+            public QueueDrainingStreamWrapper(Stream inner) { _inner = inner; }
+
+            public void SetTarget(object handler, System.Reflection.FieldInfo queueField, System.Reflection.FieldInfo lastTaskField)
+            {
+                _handler = handler;
+                _queueField = queueField;
+                _lastTaskField = lastTaskField;
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                _inner.Write(buffer, offset, count);
+                DrainIfNeeded();
+            }
+
+            private void DrainIfNeeded()
+            {
+                if (ShouldDrain && !_drained)
+                {
+                    _drained = true;
+                    // Clear _lastContextWriteTask so Remove()'s null hits the else branch
+                    // (promise.TryComplete()) instead of the ContinueWith path in LinkOutcome
+                    _lastTaskField.SetValue(_handler, null);
+                    // Drain the queue to make Remove() return null
+                    var queue = (BatchingPendingWriteQueue)_queueField.GetValue(_handler);
+                    queue.RemoveAndFailAll(new IOException("simulated connection failure"));
+                }
+            }
+
+            // Required Stream overrides (forward to inner)
+            public override void Flush() => _inner.Flush();
+            public override int Read(byte[] buffer, int offset, int count) => _inner.Read(buffer, offset, count);
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken) => _inner.ReadAsync(buffer, offset, count, cancellationToken);
+            public override long Seek(long offset, SeekOrigin origin) => _inner.Seek(offset, origin);
+            public override void SetLength(long value) => _inner.SetLength(value);
+            public override bool CanRead => _inner.CanRead;
+            public override bool CanSeek => _inner.CanSeek;
+            public override bool CanWrite => _inner.CanWrite;
+            public override long Length => _inner.Length;
+            public override long Position { get => _inner.Position; set => _inner.Position = value; }
+
+#if NETCOREAPP || NETSTANDARD_2_0_GREATER
+            public override System.Threading.Tasks.ValueTask<int> ReadAsync(System.Memory<byte> buffer, System.Threading.CancellationToken cancellationToken = default)
+                => _inner.ReadAsync(buffer, cancellationToken);
+
+            public override void Write(System.ReadOnlySpan<byte> buffer)
+            {
+                _inner.Write(buffer);
+                DrainIfNeeded();
+            }
+
+            public override System.Threading.Tasks.ValueTask WriteAsync(System.ReadOnlyMemory<byte> buffer, System.Threading.CancellationToken cancellationToken = default)
+            {
+                var result = _inner.WriteAsync(buffer, cancellationToken);
+                DrainIfNeeded();
+                return result;
+            }
+#endif
+
+            public override Task WriteAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken)
+            {
+                var task = _inner.WriteAsync(buffer, offset, count, cancellationToken);
+                DrainIfNeeded();
+                return task;
+            }
+
+#if !NETCOREAPP1_1
+            public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state) => _inner.BeginRead(buffer, offset, count, callback, state);
+            public override int EndRead(IAsyncResult asyncResult) => _inner.EndRead(asyncResult);
+            public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+            {
+                // On .NET Framework, SslStream.Write uses BeginWrite/EndWrite internally
+                var result = _inner.BeginWrite(buffer, offset, count, callback, state);
+                DrainIfNeeded();
+                return result;
+            }
+            public override void EndWrite(IAsyncResult asyncResult) => _inner.EndWrite(asyncResult);
+#endif
+
+            protected override void Dispose(bool disposing) { if (disposing) _inner.Dispose(); base.Dispose(disposing); }
         }
 
     }
